@@ -5,7 +5,7 @@ import sys, re, os, unittest
 
 def suite():
     """Create test suite by listing the modules in this directory"""
-    testmods = [ re.match(r'(.+?)\.py$', f).group(1) 
+    testmods = [ 'dedupe.tests.' + re.match(r'(.+?)\.py$', f).group(1) 
                  for f in os.listdir(os.path.dirname(os.path.abspath(__file__)))
                  if re.match(r'test_(.+?)\.py$', f) is not None ]
     print "Testing Modules: %s" % ", ".join(testmods)
