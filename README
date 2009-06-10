@@ -1,0 +1,51 @@
+.. -*- mode:rst -*-
+
+=============================
+ dedupe - Duplicate Detector
+=============================
+
+Dedupe matches pairs of similar rows between two tables, or detects
+the presence of similar rows in a single table.  What data sources are
+used use (database, file), and what happens to the matched pairs
+afterwards, is up to you.  This library purely solves the part in the
+middle, where you have lists of records and want to find the likely
+pairs of duplicates.
+
+It finds the likely pairs of duplicates in three steps:
+
+ 1. Indexing and blocking records (for example, putting all persons
+ with the same soundex of their last name into the same index block)
+
+ 2. Comparing all pairs of records in each index block (for example,
+ edit distance similarity of names and phone numbers and geographic
+ distance between locations) to produce a similarity vector for each
+ pair.
+
+ 3. Classifying each compared pair of records as either a match (the
+ pair of records are probably duplicates) or a non-match (the pair of
+ records are probably distinct)
+
+
+How Dedupe relates to FEBRL
+===========================
+
+Dedupe can use string indexing and comparison functions from FEBRL,
+which is the Freely Extensible Biomedical Record Linkage utility.
+
+- `febrl.classification`: Classifiers like KMeans
+- `febrl.comparison`: Advanced string comparison functions
+- `febrl.encode`: Soundex and other string encoding functions
+
+FEBRL contains a wide choice of string encoding and string comparison
+functions, but it is very limited in the data that it accepts:
+requiring input and output in the form of CSV files, and does not
+allow arbitrary transformations on the strings for to indexing and
+comparison. FEBRL is convenient for interactive use, but limiting to
+use as a library for developing a custom deduplication script.
+
+In contrast, this dedupe is a Pythonic library: input and output are
+lists of tuples, and any suitable functions may be specified or
+composed to index or compare records, to give this library maximum
+generality.  The records being deduplicated need not even be using
+strings: you are able to specify value comparators for any objects you
+want to compare.
