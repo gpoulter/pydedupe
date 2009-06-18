@@ -44,26 +44,34 @@ class Index(dict):
     function on insertion of the record."""
     
     def __init__(self, makekey):
-        """Parameterise the Index.
-        @param makekey: Accepts a record and return its index key.
+        """Parameterise the Index. 
+        
+        @param makekey: record tuple -> string of index key, or return a tuple
+        of alternative keys under which the record should be indexed.
         """
         super(Index, self).__init__()
         self.makekey = makekey
         
     def insert(self, record):
-        """Index a record by its key. Records whose keys evaluate
-        to False are not indexed.
+        """Index a record by its keys.
+        
+        @param: The record to index.
         @return: The key with which the record was inserted.
         """
-        key = self.makekey(record)
-        if key: # Only insert valid keys
-            recs = self.setdefault(key, set())
-            recs.add(record)
+        keys = self.makekey(record)
+        if keys: # Only insert valid keys
+            if not isinstance(keys, tuple):
+                keys = (keys,)
+            for key in keys:
+                recordsforkey = self.setdefault(key, set())
+                recordsforkey.add(record)
         return key
     
     def count_comparisons(self, other=None):
         """Count the number of comparisons implied by the index.
-        @paran other: An optional Index instance to compare this one againsg.
+
+        @param other: An optional Index instance to compare this one against.
+        
         @return: Total number of comparisons that need to be made.
         """
         result = 0
