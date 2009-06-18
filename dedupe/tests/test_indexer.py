@@ -3,7 +3,7 @@
 
 import copy, sys, os, unittest
 
-from dedupe.encoders import lowstrip, split_field
+from dedupe.encoding import lowstrip, split_field
 from dedupe.compat import namedtuple
 
 from dedupe.indexer import (

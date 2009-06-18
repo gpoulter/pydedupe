@@ -14,8 +14,6 @@ from functools import partial
 
 from dmetaphone import dmetaphone
 
-from indexer import getfield
-
 def identity(x):
     """Identity function, returns its argument."""
     return x
@@ -70,6 +68,8 @@ def wrap(*funcs):
 ## Function factories for creating computed fields that contain a set of values
 ## instead of a single value.  The factories generate functions that can
 ## that split up a single delimited column or combines multiple columns.
+
+from dedupe.indexer import getfield
 
 def combined_fields(fields):
     """Creates a function that computes a set-type field from several string columns."""

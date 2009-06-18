@@ -3,7 +3,7 @@
 
 import unittest
 
-from dedupe.encoders import (
+from dedupe.encoding import (
     strip, 
     lowstrip, 
     nospace, 
