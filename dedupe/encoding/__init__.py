@@ -12,8 +12,6 @@ import re
 
 from functools import partial
 
-from dmetaphone import dmetaphone
-
 def identity(x):
     """Identity function, returns its argument."""
     return x
