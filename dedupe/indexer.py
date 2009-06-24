@@ -65,7 +65,7 @@ class Index(dict):
             for key in keys:
                 recordsforkey = self.setdefault(key, set())
                 recordsforkey.add(record)
-        return key
+        return keys
     
     def count_comparisons(self, other=None):
         """Count the number of comparisons implied by the index.
