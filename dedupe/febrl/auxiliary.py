@@ -51,7 +51,6 @@
 
 import logging
 import os
-import sets
 import types
 
 # =============================================================================
@@ -198,7 +197,7 @@ def check_is_set(variable, value):
      Have to check both set module type as well as built in set type.
   """
 
-  if ((not isinstance(value, sets.Set)) and (not isinstance(value, set))):
+  if not isinstance(value, set):
     logging.exception('Value of "%s" is not a set: %s' % \
                       (variable, type(value)))
     raise Exception
