@@ -1,47 +1,57 @@
 .. -*- mode:rst -*-
 
-=============================
- dedupe - Duplicate Detector
-=============================
+===============================
+ PyDedupe - Duplicate Detector
+===============================
 
-Dedupe matches pairs of similar rows between two tables, or detects
-the presence of similar rows in a single table.  What data sources are
-used use (database, file), and what happens to the matched pairs
-afterwards, is up to you.  This library purely solves the part in the
-middle, where you have lists of records and want to find the likely
-pairs of duplicates.
+PyDedupe links similar pairs of records within a list of records,
+or between two lists of records.  The output consists of 
+pairs of records that PyDedupe considers to be very similar.  
 
-It finds the likely pairs of duplicates in three steps:
+Where those records came from (CSV, database) and what you do with the
+similar pairs (delete one, merge both) is left as an exercise.
 
- 1. Indexing and blocking records (for example, putting all persons
- with the same soundex of their last name into the same index block)
+PyDedupe finds those similar pairs of records in three steps:
 
- 2. Comparing all pairs of records in each index block (for example,
- edit distance similarity of names and phone numbers and geographic
- distance between locations) to produce a similarity vector for each
- pair.
+ 1. Index records.  For example, put all persons
+ with the same soundex of their last name into the same index block.
 
- 3. Classifying each compared pair of records as either a match (the
- pair of records are probably duplicates) or a non-match (the pair of
- records are probably distinct)
+ 2. Comparing all pairs in each index block.  For example,
+ calculate the name and phone number edit distance, phone numbers for all pairs
+ of people having the same soundex for their surname.  This produces 
+ a similarity vector such as (0.5, 0.2, 1.0, 0.6) for each pais of records.
+ 
+ 3. Classifying the similarity vectors from the comparisons into "matches"
+ and "non-matches".  A vector like (1.0,1.0,1.0) is clearly a "match",
+ and (0.0,0.0,0.0) is clearly a non-match.
+
+Each steps needs some configuration: defining the index blocks, defining
+the comparisons to go into the similarity vector, and defining the criteria
+for classifying the pairs.  The setup will be different for every schema.
+
+There is a convenience function that takes your index definition, 
+comparator definition, classifier definition and list(s) of records, 
+and returns the most similar pairs.  You can also define your own process
+from the pieces.
 
 
-How Dedupe relates to FEBRL
-===========================
+FEBRL: Freely Extensible Biomedical Record Linkage
+==================================================
 
-Dedupe can use string indexing and comparison functions from FEBRL,
-which is the Freely Extensible Biomedical Record Linkage utility.
+The _FEBRL project provides a wide selection of encoding, comparison
+and classification methods.  However, although it implements many methods,
+the rest of FEBRL's class hierarchy places artificial limitations 
+on how the methods can be used in indexing and comparison.  
 
-- `febrl.classification`: Classifiers like KMeans
-- `febrl.comparison`: Advanced string comparison functions
-- `febrl.encode`: Soundex and other string encoding functions
+PyDedupe includes the following FEBRL modules, while providing complete 
+flexibility in defining indeces and comparison metric:
 
-FEBRL contains a wide choice of string encoding and string comparison
-functions, but it is very limited in the data that it accepts:
-requiring input and output in the form of CSV files, and does not
-allow arbitrary transformations on the strings for to indexing and
-comparison. FEBRL is convenient for interactive use, but limiting to
-use as a library for developing a custom deduplication script.
+- `febrl.classification`: Classifiers, such as KMeans and SVM
+- `febrl.comparison`: String comparison objects, such as edit distance
+- `febrl.encode`: String encoding functions, such as Double Metaphone
+
+
+
 
 In contrast, this dedupe is a Pythonic library: input and output are
 lists of tuples, and any suitable functions may be specified or
@@ -49,3 +59,5 @@ composed to index or compare records, to give this library maximum
 generality.  The records being deduplicated need not even be using
 strings: you are able to specify value comparators for any objects you
 want to compare.
+
+__ FEBRL_ http://sourceforge.net/projects/febrl
