@@ -86,7 +86,7 @@ class Index(dict):
             # Count up comparisons to be made to another set of records.
             for key in self:
                 if key in other:
-                    result += len(self.index[key]) * len(other.index[key])
+                    result += len(self[key]) * len(other[key])
         return result
 
     
