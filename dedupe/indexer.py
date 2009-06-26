@@ -8,6 +8,8 @@ Record ID is always assumed to be the first field of a record.
 @license: GPL
 """
 
+from __future__ import with_statement
+
 from operator import attrgetter
 from UserDict import UserDict
 import csv, logging
