@@ -51,40 +51,39 @@ def components(adjlist):
     return groups
 
 
-def tabulate(groups):
-    """Table of groups of related records as iteration over row-tuples.
-    @param groups: Iteration over groups of items.
-    @return: Iteration over table row tuples.
+def singles_and_groups(matches, allrecords):
+    """Given list of matched pairs, and all records, return the groups
+    of similar records, and the singlets
+    
+    @param matches: List of (rec1,rec2) matching record pairs
+    @param records: Iteration over all records.
+    
+    @return: singles (list of single ids that match nothing else), and
+    groups (list of groups, each group being a lists of ids),
     """
-    if not groups: return # Nothing to tabulate
-    # "blank" row for merged records
-    blankrecord = ('merged',) + ('',) * len(groups[0][0])
-    for group in groups:
-        for item in group:
-            yield ['dup'] + list(item)
-        yield blankrecord
+    adjlist = adjacency_list(matches) # Map from record to neighbours
+    groups = components(adjlist) # List of lists of records
+    singles = [rec for rec in allrecords if rec not in adjlist]
+    return singles, groups
+    
 
-
-def writegroups(matches, records, fields, singlet_stream, group_stream):
-    """Generate and output the merge table.
+def writegroups(matches, records, fields, output_stream):
+    """Write out the records, with grouping 
 
     @param matches: List of pairs of matching records.
-    @param records: Set of all records.
+    @param records: Iteration over records.
     @param fields: List of CSV headings for the records.
-    @param singlet_stream: Write CSV rows for single (unique) records here
-    @param group_stream: Write CSV groups for groups of dup records here
-
-    @return: adjlist (map from id to list of ids being duplicates),
-             singlets (list of single ids that match nothing else).
-             groups (list of groups, each group being a lists of ids),
+    @param output: Output stream for CSV rowd
     """
-    adjlist = adjacency_list(matches)
-    groups = components(adjlist)
-    # Identify singlet records (nothing in the adjacency list)
-    singlets = [rec for rec in records if rec not in adjlist]
-    csv.writer(singlet_stream, dialect='excel').writerows(
-        chain([fields], singlets))
+    
+    singles, groups = singles_and_groups(matches, records)
+    out = csv.writer(output_stream, dialect='excel') 
+    out.writerow(["GroupID"] + list(fields))
+    # Write the single records
+    for row in singles:
+        out.writerow(("-",) + row)
     # Groups of related duplicates with status column (dup/unique/merge)
-    csv.writer(group_stream, dialect='excel').writerows(
-        chain([('status',)+fields], tabulate(groups)))
-    return adjlist, singlets, groups
+    for groupid, group in enumerate(groups):
+        for row in group:
+            out.writerow((str(groupid),) + row)
+

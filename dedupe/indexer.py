@@ -48,8 +48,8 @@ class Index(dict):
     def __init__(self, makekey):
         """Parameterise the Index. 
         
-        @param makekey: record tuple -> string of index key, or return a tuple
-        of alternative keys under which the record should be indexed.
+        @param makekey: Function from record tuple -> to string of index key,
+        or a tuple of index keys for the record.
         """
         super(Index, self).__init__()
         self.makekey = makekey
@@ -61,8 +61,10 @@ class Index(dict):
         @return: The key with which the record was inserted.
         """
         keys = self.makekey(record)
-        if keys: # Only insert valid keys
-            if not isinstance(keys, tuple):
+        # Don't bother if there are no keys
+        if keys: 
+            # makekey might return a single key or a tuple of keys
+            if not isinstance(keys, tuple): 
                 keys = (keys,)
             for key in keys:
                 recordsforkey = self.setdefault(key, set())

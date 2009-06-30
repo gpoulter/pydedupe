@@ -34,38 +34,47 @@ class TestIndex(unittest.TestCase):
         ]
 
         # Indexing Result
-        self.indeces = copy.deepcopy(self.indeces)
-        self.indeces['PhoneIdx']['AB^12'] = set([self.recs[0]])
-        self.indeces['RevNameIdx']['GFE DCBA'] = set([self.recs[0]])
+        self.indeces_out = copy.deepcopy(self.indeces)
+        self.indeces_out['PhoneIdx']['AB^12'] = set([self.recs[0]])
+        self.indeces_out['RevNameIdx']['GFE DCBA'] = set([self.recs[0]])
 
+        self.namecompare = ValueComparator(
+            comparevalues = lambda a,b:0.5, 
+            field1 = "Name", 
+            encode1 = lowstrip, 
+            field2 = lambda r:r.Name)
+        
+        self.phonecompare = SetComparator(
+            comparevalues = lambda a,b:0.5, 
+            field1 = lambda r: set(r.Phone.split(";")),
+            encode1 = lowstrip)
+        
         # Record comparison definition
         self.comparator = RecordComparator(
-            ("NameComp", ValueComparator(
-                comparevalues = lambda a,b:0.5, 
-                field1 = "Name", 
-                encode1 = lowstrip, 
-                field2 = lambda r:r.Name)),
-            ("PhoneComp", SetComparator(
-                comparevalues = lambda a,b:0.5, 
-                field1 = lambda r: set(r.Phone.split(";")),
-                encode1 = lowstrip)),
+            ("NameComp", self.namecompare),
+            ("PhoneComp", self.phonecompare),
         )
 
     def test_Index(self):
-        """L{Index}"""
-        indeces = self.indeces
+        indeces = copy.deepcopy(self.indeces)
         self.assertEqual(indeces['PhoneIdx'].makekey(self.recs[0]), 'AB^12')
         self.assertEqual(indeces['RevNameIdx'].makekey(self.recs[0]), 'GFE DCBA')
-        indeces.insert(self.recs[:1]) # Index first record only
-        # Check indexing of first record
-        self.assertEqual(indeces['PhoneIdx'], self.indeces['PhoneIdx']) 
-        self.assertEqual(indeces['RevNameIdx'], self.indeces['RevNameIdx']) 
+
+        # Index the first record
+        indeces.insert(self.recs[:1]) 
+        self.assertEqual(indeces, self.indeces_out) 
+
         # Edge case: must not crash given empty list of comparisons
         self.failureException(self.comparator.write_comparisons(
             indeces, indeces, {}, sys.stdout))
+        
+    def test_ValueComparator(self):
+        self.assertEqual(self.namecompare(self.recs[0], self.recs[1]), 0.5)
+    
+    def test_SetComparator(self):
+        self.assertEqual(self.phonecompare(self.recs[0], self.recs[1]), 0.5)
 
     def test_RecordComparator(self):
-        """L{RecordComparator}, L{ValueComparator}, L{SetComparator}"""
         self.assertEqual(self.comparator.compare(self.recs[0], self.recs[1]),
             self.comparator.Weights(0.5,0.5))
         self.comparator.compare_all_pairs(self.recs)
