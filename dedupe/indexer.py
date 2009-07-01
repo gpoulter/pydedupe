@@ -16,21 +16,19 @@ import csv, logging
 from compat import namedtuple, OrderedDict
 
 def getfield(record, field):
-    """Computed field retrieval from a record. The defined field may be 
-    an integer index, mapping key, attribute name, or a record 
-    transformation function.
+    """Retrieve a field from a record. The field may be specified with an
+    integer (index), string (attribute name), or a function (applied to the
+    record).
+
+    This works whether the record is a tuple (use integer index), an
+    object or named tuple (use attribute lookup), or we are computing the field
+    value from the record (use function of the record).  
     
-    It abstracts over records, which can now be tuples (integer lookup), dicts
-    (string lookup), namedtuples (attribute lookup).  With the function application
-    option it supports computed fields that are arbitrary transformations
-    of arbitrary objects, which is useful for set-type fields that occupy
-    multiple fields of a tuple from a CSV file.
+    The return value could be a string, integer, or a set of values, or
+    whatever the field function returns.
     """
-    if isinstance(field, basestring):
-        if isinstance(record, dict):
-            return record[field]
-        else:
-            return record.__getattribute__(field)
+    if isinstance(field, str):
+        return record.__getattribute__(field)
     elif isinstance(field, int):
         return record[field]
     elif hasattr(field, "__call__"):
