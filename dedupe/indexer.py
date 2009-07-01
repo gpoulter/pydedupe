@@ -114,7 +114,7 @@ class Indeces(OrderedDict):
         for (i1name, index1), (i2name, index2) in zip(self.items(), other.items()): # Pairs of corresponding indeces
             num_comparisons = index1.count_comparisons(index2)
             log.info("Comparing %s to %s needs %d comparisons.", i1name, i2name, num_comparisons)
-        for indeces in self, other:
+        for indeces in [ (self, other) if other is not self else self ]:
             for indexname, index in indeces.iteritems(): 
                 if index:
                     nrecords = sum(len(recs) for recs in index.itervalues())
