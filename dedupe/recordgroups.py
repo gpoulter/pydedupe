@@ -74,16 +74,20 @@ def writegroups(matches, records, fields, output_stream):
     @param records: Iteration over records.
     @param fields: List of CSV headings for the records.
     @param output: Output stream for CSV rowd
+
+    @return: singles (list of single ids that match nothing else), and
+    groups (list of groups, each group being a lists of ids),
     """
     
     singles, groups = singles_and_groups(matches, records)
     out = csv.writer(output_stream, dialect='excel') 
     out.writerow(["GroupID"] + list(fields))
-    # Write the single records
+    # Write single records
     for row in singles:
         out.writerow(("-",) + row)
-    # Groups of related duplicates with status column (dup/unique/merge)
+    # Write groups of similar records
     for groupid, group in enumerate(groups):
         for row in group:
             out.writerow((str(groupid),) + row)
+    return singles, groups
 
