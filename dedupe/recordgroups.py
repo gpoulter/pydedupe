@@ -82,12 +82,12 @@ def writegroups(matches, records, fields, output_stream):
     singles, groups = singles_and_groups(matches, records)
     out = csv.writer(output_stream, dialect='excel') 
     out.writerow(["GroupID"] + list(fields))
-    # Write single records
-    for row in singles:
-        out.writerow(("-",) + row)
     # Write groups of similar records
     for groupid, group in enumerate(groups):
         for row in group:
             out.writerow((str(groupid),) + row)
+    # Write single records
+    for row in singles:
+        out.writerow(("-",) + row)
     return singles, groups
 
