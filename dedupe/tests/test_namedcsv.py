@@ -8,7 +8,6 @@ from dedupe.namedcsv import (
     logiterator, 
     loglinereader, 
     NamedCSVReader, 
-    NamedCSVReaderRowID, 
     wclines,
     read_examples,
 )
@@ -31,7 +30,6 @@ class TestNamedCSV(unittest.TestCase):
 
     def test_NamedCSVReader(self):
         from StringIO import StringIO
-        
         reader = NamedCSVReader(StringIO("A,B\na,b\nc,d\n"))
         n = reader.next()
         self.assertEqual(reader.RecordType.__name__, "Record")
@@ -45,5 +43,4 @@ class TestNamedCSV(unittest.TestCase):
               '3':set(['1']), '4':set(['2']) })
         
 if __name__ == "__main__":
-    logsetup.console_logger_only()
     unittest.main()

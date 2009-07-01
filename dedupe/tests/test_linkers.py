@@ -2,9 +2,8 @@
 
 import csv, os, shutil, sys, tempfile, unittest
 
-from dedupe.febrl.encode import dmetaphone
 from dedupe.febrl.comparison import FieldComparatorDaLeDist
-from dedupe.encoding import lowstrip
+from dedupe.encoding import lowstrip, dmetaphone
 from dedupe.indexer import Index, Indeces, ValueComparator, RecordComparator
 
 from dedupe.linkers import csvdedupe

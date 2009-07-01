@@ -10,6 +10,8 @@ produces a floating point value, don't wrap it in one that expects a string.
 
 import re
 
+from _dmetaphone import dmetaphone
+
 from functools import partial
 
 def identity(x):
