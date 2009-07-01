@@ -161,8 +161,8 @@ class ValueComparator(object):
         self.comparevalues = comparevalues
         self.field1 = field1
         self.encode1 = encode1
-        self.field2 = field2 if field2 is not None else field1
-        self.encode2 = encode2 if encode2 is not None else encode1
+        self.field2 = field2 or field1
+        self.encode2 = encode2 or encode1
 
     def __call__(self, record1, record2):
         """Compare the two records on the defined fields."""
@@ -318,12 +318,11 @@ class RecordComparator(OrderedDict):
     @staticmethod
     def write_weights(idpairweights, fields, stream):
         """Take mapping from record pairs to comparison weights and writes it in CSV format
-        @param idpaiweights: Mapping (record1,record2) to L{Weights} vector
+        @param idpairweights: Mapping (record1,record2) to L{Weights} vector
         @param fields: List of fields names in the comparison weights.
         @param ostream: Stream to which to write the CSV rows.
         """
         writer = csv.writer(stream)
         writer.writerow(("rec_id1", "rec_id2") + fields)
         for (rec1, rec2), comparison in sorted(idpairweights.iteritems()):
-            id1, id2 = rec1[0], rec2[0]
-            writer.writerow((id1,id2) + comparison)
+            writer.writerow((rec1[0],rec2[0]) + comparison)

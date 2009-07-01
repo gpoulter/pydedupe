@@ -1,32 +1,31 @@
-"""This module defines two record linkage modes that
-combine indexing and comparison into a single operation.  These two
-modes are the logical operations "dedupe" (within one dataset) and "link"
-(between two data sets).
+"""Provide convenience functions for linking similar records.  
 
-Each linkage algorithm needs for input L{Indeces} and L{RecordComparator}
-objects from the L{indexer} module, and a list or two lists of records.
+The "dedupe" function compares one set of records against itself, and the
+"link" function compares it against a master set of records.
 
-A "comparison" here refers to a tuple of similarity values in the 0.0-1.0 range,
-being the field-by-field similarity of a pair of records, having the type
-of the namedtuple L{RecordComparator.Weights}
+The "csvdedupe" convenience function identifies similar records in a 
+CSV file, using a specified strategy for indexing records, comparing
+records, and classifying the comparisons into matches and non-matches.
+
+A "comparison" is a tuple of floats between 0.0  and 1.0, representing
+the field-by-field similarity of a pair of records for the comparisons
+defined in the L{indexer.RecordComparator}
 
 @author: Graham Poulter
 @copyright: MIH Holdings
 @license: GPL
 """
 
-from indexer import Indeces, RecordComparator
+from namedcsv import makeoutputdir, NamedCSVReader
+from recordgroups import writegroups
 import logging
 
 def dedupe(records, indeces, comparator):
     """Dedupe records against itself.
     @param records: Iteration of record namedtuples.
-    @param indeces: L{indexer.Indeces}
     @param comparator: L{indexer.RecordComparator}
     @return: comparisons as (rec1,rec2):weights, and indeces as L{Indeces}
     """
-    assert isinstance(indeces, Indeces)
-    assert isinstance(comparator, RecordComparator)
     indeces.insert(records)
     logging.info("Dedupe index statistics follow...")
     indeces.log_index_stats()
@@ -41,8 +40,6 @@ def link(records1, records2, indeces, comparator):
     @param comparator: L{indexer.RecordComparator}
     @return: comparisons as (rec1,rec2):weights, and two Indeces instances
     """
-    assert isinstance(indeces, Indeces)
-    assert isinstance(comparator, RecordComparator)
     import copy
     def index(records):
         myindeces = copy.deepcopy(indeces)
@@ -53,3 +50,40 @@ def link(records1, records2, indeces, comparator):
     indeces1.log_index_stats(indeces2)
     comparisons = comparator.compare_indexed(indeces1, indeces2)
     return comparisons, indeces1, indeces2
+
+
+def csvdedupe(indeces, comparator, classifier, inputfile, outputdir):
+    """Run a dedupe task using the specified indeces, comparator and classifier.
+    
+    @param indeces: Instance of L{indexer.Indeces}.
+
+    @param comparator: Instance of L{indexer.RecordComparator}, taking
+    a pair of records and returning a similarity tuple.
+    
+    @param classifier: Function of a list of comparisons (as a mapping from
+    similarity vector to pair of compared tuples) that returns two lists of
+    records, one for matches and one for non-matches.
+    
+    @param inputfile: CSV file of input records to dedupe
+    
+    @param outputdir: Directory to log the output files to.
+    """
+
+    outpath, outfile = makeoutputdir(outputdir)
+    
+    ## Set up logging to file
+    filehandler = logging.FileHandler(outpath("dedupe.log"))
+    filehandler.setFormatter(
+        logging.Formatter('%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S'))
+    logging.getLogger().addHandler(filehandler)
+
+    ## Deduplicate a table of records
+    records = list(NamedCSVReader(inputfile))
+    comparisons, myindeces = dedupe(records, indeces, comparator)
+    myindeces.write_indeces(outpath("1-"))
+    comparator.write_comparisons(myindeces, myindeces, comparisons, outfile("2-comparisons.csv"))
+
+    ## Classify and output
+    matches, nonmatches = classifier(comparisons)
+    fields = records[0]._fields
+    writegroups(matches, records, fields, outfile('3-groups.csv'))
