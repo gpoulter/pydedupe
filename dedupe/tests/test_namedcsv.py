@@ -37,13 +37,6 @@ class TestNamedCSV(unittest.TestCase):
         self.assertEqual(reader.RecordType.__name__, "Record")
         self.assertEqual(n, reader.RecordType('a','b'))
         
-    def test_NamedCSVReaderRowID(self):
-        from StringIO import StringIO
-        reader = NamedCSVReaderRowID(StringIO("A,B\na,b\nc,d\n"), startfrom=3)
-        n = reader.next()
-        self.assertEqual(reader.RecordType.__name__, "Record")
-        self.assertEqual(n, reader.RecordType('3', 'a','b'))
-    
     def test_read_examples(self):
         stream = StringIO('ID,Matches,Name\n1,2;3,A\n2,1,B\n3,,C\n4,2,D\n')
         examples, adjacency = read_examples(stream)

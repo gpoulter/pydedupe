@@ -41,41 +41,6 @@ class NamedCSVReader(object):
             raise IOError(str(err) + ": " + str(row))
 
 
-class NamedCSVReaderRowID(NamedCSVReader):
-    """Produce named tuples for its records, with text RowID column inserted.
-    Use for CSV files that lack an initial ID column.
-    
-    @ivar reader: Wrapped CSV reader instance from L{csv}
-    @ivar RecordType: The namedtuple class for records.
-    @ivar rownum: RowID for the next record to be read from L{reader}.
-    """
-    
-    def __init__(self, iterable, dialect='excel', typename='Record', fields=None, rowid="RowID", startfrom=0):
-        """Initialise namedtuple reader.
-        @param iterable: File-stream or other source of lines 
-        @param dialect: Dialect for of the CSV file (see L{csv})
-        @param typename: Name for the namedtuple class.
-        @param fields: List/string with record fields.  If None, use CSV header.
-        @param rowid: Name of the inserted RowID column with the row number
-        @param startfrom: Number of first record
-        """
-        self.reader = csv.reader(iterable, dialect)
-        self.rownum = startfrom
-        self.RecordType = namedtuple(typename, 
-            [rowid] + (fields if fields else self.reader.next()) )
-        
-    def __iter__(self):
-        return self
-        
-    def next(self):
-        try:
-            row = [str(self.rownum)] + self.reader.next()
-            self.rownum += 1
-            return self.RecordType._make(row)
-        except TypeError, err:
-            raise IOError("%s (row %d): %s" % (str(err), self.rownum, str(row)))
-        
-    
 ### Now support progress logging by wrapping the iterator.    
     
 def wclines(filename):
