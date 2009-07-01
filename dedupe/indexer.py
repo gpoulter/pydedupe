@@ -59,8 +59,8 @@ class Index(dict):
         @return: The key with which the record was inserted.
         """
         keys = self.makekey(record)
-        # makekey might return a single key or a tuple of keys
-        if not isinstance(keys, tuple): 
+        # makekey might return a single key or a sequence of keys
+        if not (isinstance(keys, tuple) or isinstance(keys, list)): 
             keys = (keys,)
         for key in keys:
             if key: # Skip over non-keys like "", 0, None
