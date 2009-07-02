@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Implementation of Dameraou-Levenshtein distance by mwh.geek.nz
 
 http://mwh.geek.nz/2009/04/26/python-damerau-levenshtein-distance/
@@ -22,6 +24,8 @@ useful, but without warranty of any kind. I have also included a codesnippet
 GUID in line with the linked post, as a sort of experiment. Please leave that
 comment intact if you're posting a derivative somewhere, and add your own.
 """
+
+from __future__ import division
 
 __license__ = "MIT"
 
@@ -60,3 +64,33 @@ def dameraulevenshtein(seq1, seq2):
                 and seq1[x-1] == seq2[y] and seq1[x] != seq2[y]):
                 thisrow[y] = min(thisrow[y], twoago[y-2] + 1)
     return thisrow[len(seq2) - 1]
+
+
+class DamerauLevenshtein:
+    """Instantiate a Damerau-Levenshtein comparator, returning a similarity
+    value scaled between 0.0 and 1.0. 
+    
+    The threshold scales the maximum number of differences before the
+    comparator returns 0, from the default maximum equal to the length of the
+    shorter string. Thresholds less than 1.0 are more strict, and thresholds
+    greater than 1.0 are more lenient about the maximum number of differences.
+
+    @author: Graham Poulter
+    """
+    
+    def __init__(self, threshold=1.0):
+        assert threshold >= 0.0
+        self.threshold = threshold
+        
+    def __call__(self, s1, s2):
+        ndiffs = dameraulevenshtein(s1,s2)
+        maxdiffs = min(len(s1),len(s2)) * self.threshold
+        if ndiffs >= maxdiffs:
+            return 0.0
+        else:
+            return 1.0 - (ndiffs / maxdiffs)
+
+
+if __name__=="__main__":
+    from sys import argv
+    print dameraulevenshtein(argv[1],argv[2])

@@ -1,3 +1,3 @@
 """Fuzzy object comparison functions."""
 
-from _dameraulevenshtein import dameraulevenshtein
+from _dameraulevenshtein import dameraulevenshtein, DamerauLevenshtein
