@@ -1,15 +1,13 @@
-#!/usr/bin/python
-"""Run all the unit tests"""
+#!/usr/bin/env python
 
 import logging, os, re, sys, unittest
 
 def suite():
-    """Create test suite from the modules in this directory.  First puts the
-    parent dedupe package into the sys.path """
+    """Generate a test suite from the test_* modules in this directory."""
     tests_dir = os.path.dirname(os.path.abspath(__file__))
     dedupe_dir = os.path.dirname(tests_dir)
     dedupe_pkg = os.path.dirname(dedupe_dir)
-    sys.path.insert(0, dedupe_pkg)
+    sys.path.insert(0, dedupe_pkg) # Ensure the dedupe is in the path
     testmods = [ 'dedupe.tests.' + re.match(r'(.+?)\.py$', f).group(1) 
                  for f in os.listdir(tests_dir)
                  if re.match(r'test_(.+?)\.py$', f) is not None ]

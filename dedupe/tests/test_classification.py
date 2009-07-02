@@ -1,8 +1,6 @@
-#!/usr/bin/python
-"""L{util} module tests"""
+#!/usr/bin/env python
 
 import logging, math, unittest
-from StringIO import StringIO
 
 from dedupe.classification import (
     distL2,
@@ -12,7 +10,6 @@ from dedupe.classification import (
 )
 
 class TestClassification(unittest.TestCase):
-    """L{util} module functions"""
     
     def test_distL2(self):
         self.assertEqual(distL2([2,2],[3,3]), math.sqrt(2))

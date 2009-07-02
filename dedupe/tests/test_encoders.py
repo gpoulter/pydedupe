@@ -1,5 +1,4 @@
-#!/usr/bin/python
-"""Tests of the text L{encoders} module"""
+#!/usr/bin/env python
 
 import logging, unittest
 

@@ -1,4 +1,4 @@
-"""Tests of the namedcsv module"""
+#!/usr/bin/env python
 
 import logging, unittest
 from os.path import dirname, join

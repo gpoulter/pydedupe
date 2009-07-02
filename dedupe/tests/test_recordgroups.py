@@ -1,5 +1,4 @@
-#!/usr/bin/python
-"""L{recordgroups} module tests"""
+#!/usr/bin/env python
 
 import logging, unittest
 

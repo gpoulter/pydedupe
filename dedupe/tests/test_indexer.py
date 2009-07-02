@@ -1,5 +1,4 @@
-#!/usr/bin/python
-"""L{indexer} and L{encoders} module tests"""
+#!/usr/bin/env python
 
 import copy, logging, sys, os, unittest
 
