@@ -5,8 +5,8 @@ import logging, math, unittest
 from dedupe.classification import (
     distL2,
     dist_norm_L2,
-    classify_kmeans,
-    classify_nearest,
+    kmeans,
+    nearest_neighbour,
 )
 
 class TestClassification(unittest.TestCase):

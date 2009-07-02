@@ -74,21 +74,18 @@ class TestIndex(unittest.TestCase):
         self.assertEqual(self.namecompare(self.recs[0], self.recs[1]), 0.5)
     
     def test_SetComparator(self):
-        self.assertEqual(self.phonecompare(self.recs[0], self.recs[1]), 0.5)
+        phone_setcomp = self.comparator['PhoneComp']
+        isinstance(phone_setcomp, SetComparator)
+        # Returns 0.2 for missing values, otherwise 0.5
+        phone_setcomp.comparevalues = lambda x,y: 0.2 if not (x and y) else 0.5 
+        self.assertEqual(phone_setcomp(self.recs[3], self.recs[3]), 0.2)  # rec[3] has phone missing
+        self.assertEqual(phone_setcomp(self.recs[2], self.recs[1]), 0.5)  # rec[1] and rec[2] have phone
+        
 
     def test_RecordComparator(self):
         self.assertEqual(self.comparator.compare(self.recs[0], self.recs[1]),
             self.comparator.Weights(0.5,0.5))
         self.comparator.compare_all_pairs(self.recs)
-        
-    def test_SetComparator(self):
-        """L{SetComparator} finds average similarity of two sets of values."""
-        fc = self.comparator['PhoneComp']
-        isinstance(fc, SetComparator)
-        # Returns 0.2 for missing values, otherwise 0.5
-        fc.comparevalues = lambda x,y: 0.2 if not (x and y) else 0.5 
-        self.assertEqual(fc(self.recs[3], self.recs[3]), 0.2)  # rec[3] has phone missing
-        self.assertEqual(fc(self.recs[2], self.recs[1]), 0.5)  # rec[1] and rec[2] have phone
         
     def test_Indeces_Comparison(self):
         """L{Indeces}, L{RecordComparator}"""
