@@ -7,40 +7,41 @@
 
 from __future__ import division
 
-__license__ = "GPL"
-
-from functools import wraps, partial
-
 from dedupe.indexer import getfield
 
 def geofield(latfield, lonfield, record):
-    """Retrive the (latitude,longitude) float pair from a record using
-    field specifiers. Returns None if one or both of the fields are empty.
+    """Return floating (latitude,longitude) from a record using field
+    specifiers latfield and lonfield. Returns None if any TypeError or
+    ValueError occure during retrieval and conversion to floating point.
     
-    Use partial(geofield, "Lat", "Lon") partial function application to
-    configure which fields to retrieve.
+    Use for example geo=partial(geofield, "Lat", "Lon") partial function
+    application to configure which fields to retrieve using geo(record) ==
+    (lat,lon)
     """
-    if not (latfield.strip() and lonfield.strip()):
+    try:
+        lat = float(getfield(record, latfield))
+        lon = float(getfield(record, lonfield))
+    except (TypeError, ValueError):
         return None
-    lat = float(getfield(record, latfield))
-    lon = float(getfield(record, lonfield))
     return (lat,lon)
 
 
 def is_geo_coordinates(coords):
-    """Validates geographic coordinates. Returns True for valid coords, False
-    for a missing coordinates, and ValueError for invalid coords.
+    """Check whether the argument constitutes valid geographic coordinates. 
     
     @param coords: Geographic (latitude, longitude) tuple of coordinates.
     
     @return: True only if coords is a tuple pair of floats in -90.0 to 90.0 
     on the latitude and -180.0 to 180.0 on the longitude.
     """
-    if not (isinstance(coords,tuple) and len(coords) == 2
-            and (isinstance(coords[0],float) and isinstance(coords[1],float))
-            and (-90 < coords[0] < 90 and -180 < coords[1] < 180) ):
+    if not (isinstance(coords,tuple) and len(coords) == 2):
         return False
-    return True
+    lat, lon = coords
+    if not isinstance(lat,float) or not isinstance(lon,float):
+        return False
+    if (-90 < lat < 90) and (-180 < lon < 180):
+        return True
+    return False
 
 
 def geodistance(loc1, loc2):
