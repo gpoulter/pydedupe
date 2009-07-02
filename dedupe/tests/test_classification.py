@@ -24,6 +24,8 @@ class TestClassification(unittest.TestCase):
         self.assertEqual(dist_norm_L2([2,2],[3,3],[1,1]), math.sqrt(2))
         self.assertEqual(dist_norm_L2([2,2],[3,3],[0.5,1]), math.sqrt(5))
     
+    ## Basic tests of the classifiers        
+        
     def test_classify_kmeans_febrl(self):
         matches, nomatches = kmeans_febrl(
             comparisons = {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
@@ -39,6 +41,23 @@ class TestClassification(unittest.TestCase):
         self.assertEqual(matches, set([(2, 3), (3, 4)]))
         self.assertEqual(nomatches, set([(1, 2), (4, 5)]))
         
+    ## Tests that include None values in the similarity vectors
+        
+    def test_classify_kmeans_with_none(self):
+        matches, nomatches = kmeans_febrl(
+            comparisons= {(1,2):[0.5,None], (2,3):[0.8,0.7], (3,4):[0.9,0.5], (4,5):[0.0,0.5]},
+            distance = distL2)
+        self.assertEqual(matches, set([(2, 3), (3, 4)]))
+        self.assertEqual(nomatches, set([(1, 2), (4, 5)]))
+
+    def test_classify_nearest_neighbour_with_none(self):
+        matches, nomatches = nearest_neighbour(
+            comparisons= {(1,2):[0.5,None], (2,3):[0.8,0.7], (3,4):[0.9,0.5], (4,5):[0.0,0.5]},
+            examples = [ ([0.3,0.3],False), ([1.0,0.8],True), ([1.0,None],True) ],
+            distance = distL2)
+        self.assertEqual(matches, set([(2, 3), (3, 4)]))
+        self.assertEqual(nomatches, set([(1, 2), (4, 5)]))
+
 if __name__ == "__main__":
     logging.basicConfig(level = logging.DEBUG)
     unittest.main()
