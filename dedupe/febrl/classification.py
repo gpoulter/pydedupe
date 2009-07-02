@@ -131,11 +131,6 @@ try:
 except:
   imp_svm = False
 
-if (imp_pyml == False):
-  logging.warn('Cannot import Numeric and PyML modules')
-if (imp_svm == False):
-  logging.warn('Cannot import svm module')
-
 # =============================================================================
 
 class Classifier:
