@@ -1,7 +1,7 @@
 #!/usr/bin/python
 """L{recordgroups} module tests"""
 
-import unittest
+import logging, unittest
 
 from dedupe.recordgroups import (
     adjacency_list, 
@@ -60,4 +60,5 @@ class TestGrouping(unittest.TestCase):
         pass # TODO
         
 if __name__ == "__main__":
+    logging.basicConfig(level = logging.DEBUG)
     unittest.main()

@@ -2,7 +2,7 @@
 
 from __future__ import division
 
-import unittest
+import logging, unittest
 
 from dedupe.geocompare import (
     geodistance, 
@@ -39,4 +39,5 @@ class TestGeoCompare(unittest.TestCase):
        
 
 if __name__ == "__main__":
+    logging.basicConfig(level = logging.DEBUG)
     unittest.main()

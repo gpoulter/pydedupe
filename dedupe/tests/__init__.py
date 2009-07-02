@@ -1,7 +1,7 @@
 #!/usr/bin/python
 """Run all the unit tests"""
 
-import sys, re, os, unittest
+import logging, os, re, sys, unittest
 
 def suite():
     """Create test suite from the modules in this directory.  First puts the
@@ -17,4 +17,5 @@ def suite():
     return unittest.defaultTestLoader.loadTestsFromNames(testmods)
 
 if __name__ == "__main__":
+    logging.basicConfig(level = logging.DEBUG)
     unittest.TextTestRunner(verbosity=2).run(suite())

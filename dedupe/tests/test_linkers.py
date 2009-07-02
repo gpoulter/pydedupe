@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import csv, os, shutil, sys, tempfile, unittest
+import csv, logging, os, shutil, sys, tempfile, unittest
 
 from dedupe.febrl.comparison import FieldComparatorDaLeDist
 from dedupe.encoding import lowstrip, dmetaphone
@@ -66,4 +66,5 @@ class TestCSVDedupe(unittest.TestCase):
                   self.inpath, self.outdir)
         
 if __name__ == "__main__":
+    logging.basicConfig(level = logging.DEBUG)
     unittest.main()
