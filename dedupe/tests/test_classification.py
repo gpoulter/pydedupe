@@ -25,10 +25,19 @@ class TestClassification(unittest.TestCase):
         self.assertEqual(dist_norm_L2([2,2],[3,3],[0.5,1]), math.sqrt(5))
     
     def test_classify_kmeans_febrl(self):
-        raise NotImplementedError
+        matches, nomatches = kmeans_febrl(
+            comparisons = {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
+            distance = distL2)
+        self.assertEqual(matches, set([(1, 2), (2, 3), (3, 4)]))
+        self.assertEqual(nomatches, set([(4, 5)]))
         
     def test_classify_nearest_neighbour(self):
-        raise NotImplementedError
+        matches, nomatches = nearest_neighbour(
+            comparisons= {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
+            examples = [ ([0.3],False), ([1.0],True) ],
+            distance = distL2)
+        self.assertEqual(matches, set([(2, 3), (3, 4)]))
+        self.assertEqual(nomatches, set([(1, 2), (4, 5)]))
         
 if __name__ == "__main__":
     logging.basicConfig(level = logging.DEBUG)
