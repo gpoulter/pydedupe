@@ -17,6 +17,7 @@ class TestComparison(unittest.TestCase):
     def test_DamerauLevenshtein(self):
         self.assertEqual(DamerauLevenshtein()("abcd","abcd"), 1.0)
         self.assertEqual(DamerauLevenshtein()("abcd","abdc"), 0.75)
+        self.assertEqual(DamerauLevenshtein()("abcd",""), None)
         self.assertEqual(DamerauLevenshtein(0.5)("abcd","abdc"), 0.5)
         self.assertEqual(DamerauLevenshtein(0.5)("abcd","badc"), 0.0)
         
@@ -28,6 +29,7 @@ class TestComparison(unittest.TestCase):
     def test_Levenshtein(self):
         self.assertEqual(Levenshtein()("abcd","abcd"), 1.0)
         self.assertEqual(Levenshtein()("abcd","abdc"), 0.5)
+        self.assertEqual(Levenshtein()("abcd",""), None)
         self.assertEqual(Levenshtein(0.5)("abcd","abdc"), 0.0)
         self.assertEqual(Levenshtein(0.5)("abcd","badc"), 0.0)
         

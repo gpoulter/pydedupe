@@ -67,13 +67,16 @@ def dameraulevenshtein(seq1, seq2):
 
 
 class DamerauLevenshtein:
-    """Instantiate a Damerau-Levenshtein comparator, returning a similarity
+    """A Damerau-Levenshtein string comparator, returning a similarity
     value scaled between 0.0 and 1.0. 
     
     The threshold scales the maximum number of differences before the
     comparator returns 0, from the default maximum equal to the length of the
     shorter string. Thresholds less than 1.0 are more strict, and thresholds
     greater than 1.0 are more lenient about the maximum number of differences.
+    
+    If one of the strings is empty or None, the comparison returns None (no
+    comparison possible).
 
     @author: Graham Poulter
     """
@@ -83,6 +86,8 @@ class DamerauLevenshtein:
         self.threshold = threshold
         
     def __call__(self, s1, s2):
+        if not s1 or not s2:
+            return None
         ndiffs = dameraulevenshtein(s1,s2)
         maxdiffs = min(len(s1),len(s2)) * self.threshold
         if ndiffs >= maxdiffs:
