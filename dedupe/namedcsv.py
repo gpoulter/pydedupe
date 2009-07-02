@@ -43,12 +43,6 @@ class NamedCSVReader(object):
 
 ### Now support progress logging by wrapping the iterator.    
     
-def wclines(filename):
-    """Use wc to count lines in given filename"""
-    import subprocess as sp
-    output = sp.Popen(["wc", "-l", filename], stdout=sp.PIPE).communicate()[0]
-    return int(output.split()[0])
-        
 def logiterator(k, iterator, format='Completed %d items', log=logging.info):
     """Wrap an iterator so that it logs the progress of indexing.
     @param k: Message every k items.
@@ -60,19 +54,6 @@ def logiterator(k, iterator, format='Completed %d items', log=logging.info):
         yield item
         if (idx+1) % k == 0:
             log(format % (idx+1))
-
-def loglinereader(filename, reader, messages=20, log=logging.info):
-    """Counts lines being read and print progress messages.
-    
-    @param filename: Path to the file being read.
-    @param reader: Iterator over filename (lines, records)
-    @param messages: Number of progress messages to print.
-    @param log: Logging function to use.
-    """
-    lines = wclines(filename)
-    from os.path import basename
-    return logiterator(max(1, lines//messages), reader,
-        basename(filename) + ": read %d out of " + str(lines), log)
 
 def makeoutputdir(dirname, open=open):
     """Create a directory and return opener factories for files

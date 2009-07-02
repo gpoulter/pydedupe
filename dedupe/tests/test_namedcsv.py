@@ -6,9 +6,7 @@ from StringIO import StringIO
 
 from dedupe.namedcsv import (
     logiterator, 
-    loglinereader, 
     NamedCSVReader, 
-    wclines,
     read_examples,
 )
 
@@ -19,15 +17,6 @@ class TestNamedCSV(unittest.TestCase):
         for x in logiterator(10, xrange(20)):
             pass
         
-    def test_wclines(self):
-        import os, tempfile
-        fname = tempfile.mktemp()
-        try:
-            open(fname,'w').write('a\nb\n')
-            self.assertEqual(wclines(fname), 2)
-        finally:
-            os.remove(fname)
-
     def test_NamedCSVReader(self):
         from StringIO import StringIO
         reader = NamedCSVReader(StringIO("A,B\na,b\nc,d\n"))
