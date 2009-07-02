@@ -3,9 +3,8 @@
 import logging, math, unittest
 
 from dedupe.classification import (
-    distL2,
-    dist_norm_L2,
-    kmeans_febrl,
+    distL2, dist_norm_L2,
+    kmeans, kmeans_febrl,
     nearest_neighbour,
 )
 
@@ -44,11 +43,11 @@ class TestClassification(unittest.TestCase):
     ## Tests that include None values in the similarity vectors
         
     def test_classify_kmeans_with_none(self):
-        matches, nomatches = kmeans_febrl(
+        matches, nomatches = kmeans(
             comparisons= {(1,2):[0.5,None], (2,3):[0.8,0.7], (3,4):[0.9,0.5], (4,5):[0.0,0.5]},
             distance = distL2)
-        self.assertEqual(matches, set([(2, 3), (3, 4)]))
-        self.assertEqual(nomatches, set([(1, 2), (4, 5)]))
+        self.assertEqual(matches, set([(1, 2), (2, 3), (3, 4)]))
+        self.assertEqual(nomatches, set([(4, 5)]))
 
     def test_classify_nearest_neighbour_with_none(self):
         matches, nomatches = nearest_neighbour(
