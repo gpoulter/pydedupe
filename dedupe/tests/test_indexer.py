@@ -1,7 +1,7 @@
 #!/usr/bin/python
 """L{indexer} and L{encoders} module tests"""
 
-import copy, sys, os, unittest
+import copy, logging, sys, os, unittest
 
 from dedupe.encoding import lowstrip, split_field
 from dedupe.compat import namedtuple
@@ -57,12 +57,15 @@ class TestIndex(unittest.TestCase):
 
     def test_Index(self):
         indeces = copy.deepcopy(self.indeces)
+        assert isinstance(indeces, Indeces)
         self.assertEqual(indeces['PhoneIdx'].makekey(self.recs[0]), 'AB^12')
         self.assertEqual(indeces['RevNameIdx'].makekey(self.recs[0]), 'GFE DCBA')
 
         # Index the first record
         indeces.insert(self.recs[:1]) 
         self.assertEqual(indeces, self.indeces_out) 
+        indeces.log_index_stats()
+        indeces.log_index_stats(indeces)
 
         # Edge case: must not crash given empty list of comparisons
         self.failureException(self.comparator.write_comparisons(
@@ -98,5 +101,5 @@ class TestIndex(unittest.TestCase):
         self.comparator.compare_indexed(indeces1, indeces2)
         
 if __name__ == "__main__":
-    console_logger_only()
+    logging.basicConfig(level = logging.DEBUG)
     unittest.main()

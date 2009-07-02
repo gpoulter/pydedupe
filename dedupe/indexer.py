@@ -17,15 +17,12 @@ from compat import namedtuple, OrderedDict
 
 def getfield(record, field):
     """Retrieve a field from a record. The field may be specified with an
-    integer (index), string (attribute name), or a function (applied to the
-    record).
-
-    This works whether the record is a tuple (use integer index), an
-    object or named tuple (use attribute lookup), or we are computing the field
-    value from the record (use function of the record).  
+    integer index (for tuple records), string attribute names (for record objects), 
+    or a function (for computed fields)).
     
-    The return value could be a string, integer, or a set of values, or
-    whatever the field function returns.
+    @return: Any object representing the field value. Most often a string
+    value of some field, but may be an integer, a set of strings, or a
+    coordinate pair, etc.
     """
     if isinstance(field, str):
         return record.__getattribute__(field)
@@ -35,7 +32,6 @@ def getfield(record, field):
         return field(record)
     else:
         raise ValueError("Could not locate field %s in %s", str(field), str(record))
-
     
 
 class Index(dict):
@@ -75,18 +71,31 @@ class Index(dict):
         
         @return: Total number of comparisons that need to be made.
         """
-        result = 0
-        if other is self or other is None:
+        comparisons = 0
+        if not other or (other is self):
             # Count up comparisons to be made within this set of records.
             for recs in self.itervalues():
                 if len(recs) > 1:
-                    result += len(recs)*(len(recs)-1)//2
+                    comparisons += len(recs)*(len(recs)-1)//2
         else:
             # Count up comparisons to be made to another set of records.
             for key in self:
                 if key in other:
-                    result += len(self[key]) * len(other[key])
-        return result
+                    comparisons += len(self[key]) * len(other[key])
+        return comparisons
+    
+    def log_block_statistics(self, prefix="", log=None):
+        """Log statistics about the average and largest block sizes
+        
+        @param prefix: Print before the log message.
+        @param log: Logging object to use.
+        """
+        if log is None: log = logging.getLogger()
+        nrecords = sum(len(recs) for recs in self.itervalues())
+        biggroup = max(len(recs) for recs in self.itervalues())
+        nkeys = len(self)
+        log.info(prefix + "%d records in %d blocks. Largest block: %d, Average block: %.2f",
+                 nrecords, nkeys, biggroup, float(nrecords)/nkeys)
 
     
 class Indeces(OrderedDict):
@@ -105,22 +114,20 @@ class Indeces(OrderedDict):
                 index.insert(record)
                 
     def log_index_stats(self, other=None, log=None):
-        """Log statistics and expected number of comparisons about the indeces."""
-        if other is None:
-            other = self
-        if log is None:
-            log = logging.getLogger()
-        for (i1name, index1), (i2name, index2) in zip(self.items(), other.items()): # Pairs of corresponding indeces
+        """Log statistics and expected number of comparisons about the indeces.
+        
+        @param other: L{Indeces} object, being an ordered dictionary of Index
+        objects.  None to log statistics for just this index.
+        """
+        if log is None: log = logging.getLogger()
+        # Loop over pairs of corresponding indeces
+        for (i1name, index1), (i2name, index2) in \
+            zip(self.items(), other.items() if other else self.items()): 
             num_comparisons = index1.count_comparisons(index2)
             log.info("Comparing %s to %s needs %d comparisons.", i1name, i2name, num_comparisons)
-        for indeces in [ (self, other) if other is not self else self ]:
-            for indexname, index in indeces.iteritems(): 
-                if index:
-                    nrecords = sum(len(recs) for recs in index.itervalues())
-                    biggroup = max(len(recs) for recs in index.itervalues())
-                    nkeys = len(index)
-                    log.info("%s has %d keys, %d records. Largest block: %d, Average: %.2f",
-                             indexname, nkeys, nrecords, biggroup, float(nrecords)/nkeys)
+            index1.log_block_statistics(" Input %s: " % i1name, log)
+            if other:
+                index2.log_block_statistics(" Master %s: " % i2name, log)
             
     def write_indeces(self, basepath):
         """Write the contents of the index dictionaries in CSV format."""
