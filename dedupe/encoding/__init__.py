@@ -14,21 +14,17 @@ from _dmetaphone import dmetaphone
 
 from functools import partial
 
-def identity(x):
-    """Identity function, returns its argument."""
-    return x
-
-def strip(text):
+def normspace(text):
     """Strip multiple and trailing spaces."""
     return re.sub(r"\s+", " ", text.strip())
-
-def lowstrip(text):
-    """Lowcase and strip extra space."""
-    return strip(text.lower())
 
 def nospace(text):
     """Strip all whitespace."""
     return re.sub(r"\s+", "", text.strip())
+
+def lowstrip(text):
+    """Lowcase and strip extra space."""
+    return normspace(text.lower())
 
 def digits(text):
     """Strip all except digits (for phone numbers)."""

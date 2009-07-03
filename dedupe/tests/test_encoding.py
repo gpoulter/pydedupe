@@ -7,24 +7,24 @@ from dedupe.encoding import (
     dmetaphone,
     emaildomain, 
     lowstrip, 
+    normspace, 
     nospace, 
     reverse, 
     sorted_words, 
-    strip, 
     urldomain, 
     wrap, 
 )
 
 class TestEncoding(unittest.TestCase):
     
-    def test_strip(self):
-        self.assertEqual(strip(" a  b  "), "a b")
+    def test_normspace(self):
+        self.assertEqual(normspace(" a  b  "), "a b")
     
-    def test_lowstrip(self):
-        self.assertEqual(lowstrip(" A  b  "), "a b")
-        
     def test_nospace(self):
         self.assertEqual(nospace(" a  b  "), "ab")
+
+    def test_lowstrip(self):
+        self.assertEqual(lowstrip(" A  b  "), "a b")
         
     def test_urldomain(self):
         self.assertEqual(urldomain("http://www.google.com"), "google.com")
