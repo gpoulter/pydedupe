@@ -40,6 +40,8 @@ def compare(threshold, s1, s2, missing=None):
     
     @param missing: If one of the strings is empty or None, returns this value.
     """
+    if threshold <= 0.0:
+        raise ValueError("Threshold scale must be positive.")
     if not s1 or not s2:
         return missing
     ndiffs = distance(s1,s2)

@@ -64,14 +64,15 @@ def kmeans(comparisons, distance, maxiter=10):
     vidx = range(vlen)
     comparisons[k] = v
     logging.debug("KMeans: Dimension %d, maxiter %d",vlen,maxiter)
+    str_vector = lambda vector: "[" + ", ".join("%.4f" % v for v in vector) + "]"
     
     # Get initial centroids
     high_centroid = [ max(x[i] for x in comparisons.itervalues() 
                           if x[i] is not None) for i in vidx ]
     low_centroid = [ min(x[i] for x in comparisons.itervalues() 
                          if x[i] is not None) for i in vidx ]
-    logging.debug("  Initial match centroid: %s", str(high_centroid))
-    logging.debug("  Initial non-match centroid: %s", str(low_centroid))
+    logging.debug("  Initial match centroid: %s", str_vector(high_centroid))
+    logging.debug("  Initial non-match centroid: %s", str_vector(high_centroid))
     
     # Mapping key to (value, class assignment).
     # All items initially assigned to the "False" class (non-match).
@@ -117,8 +118,8 @@ def kmeans(comparisons, distance, maxiter=10):
         low_centroid = [ low_total[i]/low_count[i] for i in vidx ]
             
         logging.debug("  Iteration %d: %d vectors changed assignment.", iters, n_changed)
-        logging.debug("    Match centroid: %s", str(high_centroid))
-        logging.debug("    Non-match centroid: %s", str(low_centroid))
+        logging.debug("    Match centroid: %s", str_vector(high_centroid))
+        logging.debug("    Non-match centroid: %s", str_vector(low_centroid))
         
     matches = set(k for k, (v,match) in assignments.iteritems() if match)
     nomatches = set(k for k, (v,match) in assignments.iteritems() if not match)
