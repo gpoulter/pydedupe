@@ -56,7 +56,8 @@ class TestIndex(unittest.TestCase):
 
     def test_Index(self):
         indeces = copy.deepcopy(self.indeces)
-        assert isinstance(indeces, Indeces)
+        isinstance(indeces, Indeces)
+        
         self.assertEqual(indeces['PhoneIdx'].makekey(self.recs[0]), 'AB^12')
         self.assertEqual(indeces['RevNameIdx'].makekey(self.recs[0]), 'GFE DCBA')
 
@@ -66,9 +67,9 @@ class TestIndex(unittest.TestCase):
         indeces.log_index_stats()
         indeces.log_index_stats(indeces)
 
-        # Edge case: must not crash given empty list of comparisons
+        # Don't crash given empty list of comparisons
         self.failureException(self.comparator.write_comparisons(
-            indeces, indeces, {}, sys.stdout))
+            indeces, indeces, {}, {}, sys.stdout))
         
     def test_ValueComparator(self):
         self.assertEqual(self.namecompare(self.recs[0], self.recs[1]), 0.5)
@@ -76,18 +77,18 @@ class TestIndex(unittest.TestCase):
     def test_SetComparator(self):
         phone_setcomp = self.comparator['PhoneComp']
         isinstance(phone_setcomp, SetComparator)
+        
         # Returns 0.2 for missing values, otherwise 0.5
         phone_setcomp.comparevalues = lambda x,y: 0.2 if not (x and y) else 0.5 
         self.assertEqual(phone_setcomp(self.recs[3], self.recs[3]), 0.2)  # rec[3] has phone missing
         self.assertEqual(phone_setcomp(self.recs[2], self.recs[1]), 0.5)  # rec[1] and rec[2] have phone
-        
 
-    def test_RecordComparator(self):
+    def test_RecordComparator_compare_all_pairs(self):
         self.assertEqual(self.comparator.compare(self.recs[0], self.recs[1]),
             self.comparator.Weights(0.5,0.5))
         self.comparator.compare_all_pairs(self.recs)
         
-    def test_Indeces_Comparison(self):
+    def test_RecordComparator_compare_indexed(self):
         """L{Indeces}, L{RecordComparator}"""
         indeces1 = copy.deepcopy(self.indeces)
         indeces2 = copy.deepcopy(self.indeces)

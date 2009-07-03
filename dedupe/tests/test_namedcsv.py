@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 
 import logging, unittest
-from os.path import dirname, join
 from StringIO import StringIO
 
-from dedupe.namedcsv import (
-    logiterator, 
-    NamedCSVReader, 
-    read_examples,
-)
+from dedupe.namedcsv import logiterator, NamedCSVReader, read_examples
 
 class TestNamedCSV(unittest.TestCase):
     """Reader of CSV files as namedtuples."""
@@ -32,5 +27,5 @@ class TestNamedCSV(unittest.TestCase):
               '3':set(['1']), '4':set(['2']) })
         
 if __name__ == "__main__":
-    logging.basicConfig(level = logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG)
     unittest.main()

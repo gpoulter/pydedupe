@@ -1,19 +1,27 @@
 #!/usr/bin/env python
 
 import csv, logging, os, shutil, sys, tempfile, unittest
+from functools import partial
 
-from dedupe.febrl.comparison import FieldComparatorDaLeDist
+from dedupe.comparison.dameraulevenshtein import compare as dale
 from dedupe.encoding import lowstrip, dmetaphone
 from dedupe.indexer import Index, Indeces, ValueComparator, RecordComparator
-
 from dedupe.linkers import csvdedupe
 
-dale = FieldComparatorDaLeDist(
-    agree_weight = 1.0,
-    disagree_weight = 0.0,
-    missing_values = [None,''],
-    missing_weight = 0.2,
-    threshold = 0.5).compare
+def classify(comparisons):
+    """Takes a map of (rec1,rec2):similarity, and returns a set of (r1,r2)
+    for matched pairs, and for non-matched pairs.  Match is judged by
+    whether the first value in the similarity vector is greater than 0.5.
+
+    E.g. classifier({ (1,2):[0.8], (2,3):[0.2] }) == {(1,2)}, {(2,3)}
+    """
+    matches, nomatches = {}, {}
+    for pair, sim in comparisons.iteritems():
+        if sim[0] > 0.5:
+            matches[pair] = 1.0
+        else:
+            nomatches[pair] = 0.0
+    return matches, nomatches
 
 class TestCSVDedupe(unittest.TestCase):
     
@@ -30,7 +38,7 @@ class TestCSVDedupe(unittest.TestCase):
         )
         
         self.comparator = RecordComparator(
-            ("NameCompare", ValueComparator(dale, 0, lowstrip)),
+            ("NameCompare", ValueComparator(partial(dale, 1.0), 0, lowstrip)),
         )
         
         # Write a temporary file with the 
@@ -46,23 +54,9 @@ class TestCSVDedupe(unittest.TestCase):
         pass
         #shutil.rmtree(self.outdir)
         
-    def dummyclassifier(self, comparisons):
-        """Takes a map of (rec1,rec2):similarity, and returns a set of (r1,r2)
-        for matched pairs, and for non-matched pairs.  Match is judged by
-        whether the first value in the similarity vector is greater than 0.5.
-    
-        E.g. classifier({ (1,2):[0.8], (2,3):[0.2] }) == {(1,2)}, {(2,3)}
-        """
-        matches, nomatches = set(), set()
-        for pair, sim in comparisons.iteritems():
-            if sim[0] > 0.5:
-                matches.add(pair)
-            else:
-                nomatches.add(pair)
-        return matches, nomatches
                 
     def test(self):
-        csvdedupe(self.indeces, self.comparator, self.dummyclassifier, 
+        csvdedupe(self.indeces, self.comparator, classify, 
                   self.inpath, self.outdir)
         
 if __name__ == "__main__":
