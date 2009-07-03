@@ -6,6 +6,8 @@ non-matches.
 @license: GPL
 """
 
+import logging, math
+
 def classify(comparisons, examples, distance):
     """Nearest-neighbour classification of comparisons vectors.
 
@@ -18,14 +20,18 @@ def classify(comparisons, examples, distance):
 
     @return: set of matched record pair, set of non-matched record pairs.
     """    
-    match = set()
-    nomatch = set()
+    match_examples = [ vec for vec, ismatch in examples if ismatch ]
+    nomatch_examples = [ vec for vec, ismatch in examples if not ismatch ]
+    match, nomatch = {}, {}
     for pair, comparison in comparisons.iteritems():
-        min_dist, ismatch = min((distance(comparison, example), ismatch) 
-                                for example, ismatch in examples)
-        if ismatch:
-            match.add(pair)
+        match_dist = min(distance(comparison, example) for example in match_examples)
+        nomatch_dist = min(distance(comparison, example) for example in nomatch_examples)
+        # Calculate a smoothed score as the log of the ratio of distances
+        # of the similarity vector to the nearest match and non-match.
+        score = math.log10((nomatch_dist+0.1) / (match_dist+0.1))
+        if score >= 0:
+            match[pair] = score
         else:
-            nomatch.add(pair)
+            nomatch[pair] = score
     return match, nomatch
 

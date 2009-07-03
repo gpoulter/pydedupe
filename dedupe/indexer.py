@@ -319,14 +319,3 @@ class RecordComparator(OrderedDict):
             weightrow += list(weights)
             writer.writerow(weightrow)
 
-    @staticmethod
-    def write_weights(idpairweights, fields, stream):
-        """Take mapping from record pairs to comparison weights and writes it in CSV format
-        @param idpairweights: Mapping (record1,record2) to L{Weights} vector
-        @param fields: List of fields names in the comparison weights.
-        @param ostream: Stream to which to write the CSV rows.
-        """
-        writer = csv.writer(stream)
-        writer.writerow(("rec_id1", "rec_id2") + fields)
-        for (rec1, rec2), comparison in sorted(idpairweights.iteritems()):
-            writer.writerow((rec1[0],rec2[0]) + comparison)

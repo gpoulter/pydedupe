@@ -21,37 +21,37 @@ class TestClassification(unittest.TestCase):
     
     ## Basic tests of the classifiers        
         
-    def test_kmeans_classify_febrl(self):
+    def test_kmeans_febrl(self):
         matches, nomatches = kmeans.classify_febrl(
             comparisons = {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
             distance = distance.L2)
         self.assertEqual(matches, set([(1, 2), (2, 3), (3, 4)]))
         self.assertEqual(nomatches, set([(4, 5)]))
         
-    def test_classify_nearest_neighbour(self):
+    def test_nearest(self):
         matches, nomatches = nearest.classify(
             comparisons= {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
             examples = [ ([0.3],False), ([1.0],True) ],
             distance = distance.L2)
-        self.assertEqual(matches, set([(2, 3), (3, 4)]))
-        self.assertEqual(nomatches, set([(1, 2), (4, 5)]))
+        self.assertEqual(set(matches.keys()), set([(2, 3), (3, 4)]))
+        self.assertEqual(set(nomatches.keys()), set([(1, 2), (4, 5)]))
         
     ## Tests that include None values in the similarity vectors
         
-    def test_classify_kmeans_with_none(self):
+    def test_kmeans_nulls(self):
         matches, nomatches = kmeans.classify(
             comparisons= {(1,2):[0.5,None], (2,3):[0.8,0.7], (3,4):[0.9,0.5], (4,5):[0.0,0.5]},
             distance = distance.L2)
-        self.assertEqual(matches, set([(1, 2), (2, 3), (3, 4)]))
-        self.assertEqual(nomatches, set([(4, 5)]))
+        self.assertEqual(set(matches.keys()), set([(1, 2), (2, 3), (3, 4)]))
+        self.assertEqual(set(nomatches.keys()), set([(4, 5)]))
 
-    def test_classify_nearest_neighbour_with_none(self):
+    def test_nearest_nulls(self):
         matches, nomatches = nearest.classify(
             comparisons= {(1,2):[0.5,None], (2,3):[0.8,0.7], (3,4):[0.9,0.5], (4,5):[0.0,0.5]},
             examples = [ ([0.3,0.3],False), ([1.0,0.8],True), ([1.0,None],True) ],
             distance = distance.L2)
-        self.assertEqual(matches, set([(2, 3), (3, 4)]))
-        self.assertEqual(nomatches, set([(1, 2), (4, 5)]))
+        self.assertEqual(set(matches.keys()), set([(2, 3), (3, 4)]))
+        self.assertEqual(set(nomatches.keys()), set([(1, 2), (4, 5)]))
 
 if __name__ == "__main__":
     logging.basicConfig(level = logging.DEBUG)

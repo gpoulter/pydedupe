@@ -14,7 +14,7 @@ values could not be compared.
 
 from __future__ import division
 
-import logging
+import logging, math
 
 def classify_febrl(comparisons, distance, maxiter=50, sample=100.0):
     """Classify each pair of comparisons as match or nonmatch, by clustering
@@ -58,8 +58,8 @@ def classify(comparisons, distance, maxiter=10):
     
     @param maxiter: Maximum number of loops for adjusting the centroid.
     
-    @return: set of matched pairs of records, set of non-matched pairs of
-    records.
+    @return: two mappings, one for matched pairs and one for non-matched pairs,
+    mapping (record1,record2) to classifier score.
     """
     # Get length of the comparison vector
     if len(comparisons) == 0:
@@ -126,9 +126,12 @@ def classify(comparisons, distance, maxiter=10):
         logging.debug("  Iteration %d: %d vectors changed assignment.", iters, n_changed)
         logging.debug("    Match centroid: %s", str_vector(high_centroid))
         logging.debug("    Non-match centroid: %s", str_vector(low_centroid))
-        
-    matches = set(k for k, (v,match) in assignments.iteritems() if match)
-    nomatches = set(k for k, (v,match) in assignments.iteritems() if not match)
+    
+    # Calculate a smoothed score as the log of the ratio of distances
+    # of the similarity vector to each of the centroids.
+    score = lambda v: math.log10( (distance(v,low_centroid)+0.1) / (distance(v,high_centroid)+0.1) )
+    matches = dict( (k, score(v))  for k, (v,match) in assignments.iteritems() if match)
+    nomatches = dict( (k, score(v)) for k, (v,match) in assignments.iteritems() if not match)
     logging.debug("Classified %d similarity vectors, %d as matches and %d as non-matches.",
                   len(comparisons), len(matches), len(nomatches))
     return matches, nomatches
