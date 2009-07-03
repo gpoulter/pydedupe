@@ -14,7 +14,7 @@ values could not be compared.
 
 import logging
 
-def kmeans_febrl(comparisons, distance, maxiter=50, sample=100.0):
+def classify_febrl(comparisons, distance, maxiter=50, sample=100.0):
     """Classify each pair of comparisons as match or nonmatch, by clustering
     weight vectors around "match centroind" and "nonmatch centroid"
        
@@ -39,7 +39,8 @@ def kmeans_febrl(comparisons, distance, maxiter=50, sample=100.0):
     [match, nomatch, probablematch] = kmeans.classify(comparisons)
     return match, nomatch
 
-def kmeans(comparisons, distance, maxiter=10):
+
+def classify(comparisons, distance, maxiter=10):
     """Classify each pair of comparisons as match or nonmatch, by clustering
     weight vectors around "match centroind" and "nonmatch centroid". 
     

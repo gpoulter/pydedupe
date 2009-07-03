@@ -6,7 +6,7 @@ non-matches.
 @license: GPL
 """
 
-def nearest_neighbour(comparisons, examples, distance):
+def classify(comparisons, examples, distance):
     """Nearest-neighbour classification of comparisons vectors.
 
     @param comparisons: Map (item1,item2):comparison    
