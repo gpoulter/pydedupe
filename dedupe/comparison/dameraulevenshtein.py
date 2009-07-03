@@ -66,17 +66,16 @@ def distance(seq1, seq2):
     return thisrow[len(seq2) - 1]
 
 
-def compare(s1, s2, threshold=1.0, missing=None):
+def compare(threshold, s1, s2, missing=None):
     """A Damerau-Levenshtein string comparator, returning a similarity
-    value scaled between 0.0 and 1.0. 
+    value scaled between 0.0 and 1.0.
     
-    The threshold scales the maximum number of differences before the
-    comparator returns 0, from the default maximum equal to the length of the
-    shorter string. Thresholds less than 1.0 are more strict, and thresholds
-    greater than 1.0 are more lenient about the maximum number of differences.
+    @param threshold: Float, typically 0.2 to 2.0, scaling the number of 
+    differences before the comparison returns zero, from the defualt
+    of the length of the shorter string.  Lower values provide more strict
+    comparison.
     
-    If one of the strings is empty or None, the comparison returns None (no
-    comparison possible).
+    @param missing: If one of the strings is empty or None, returns this value.
     """
     if not s1 or not s2:
         return missing

@@ -21,11 +21,11 @@ class TestLevenshtein(unittest.TestCase):
         self.assertEqual(dale.distance("dbca","abcd"), 2)
         
     def test_dameraulevenshtein_compare(self):
-        self.assertEqual(dale.compare("abcd","abcd"), 1.0)
-        self.assertEqual(dale.compare("abcd","abdc"), 0.75)
-        self.assertEqual(dale.compare("abcd",""), None)
-        self.assertEqual(dale.compare("abcd","abdc", 0.5), 0.5)
-        self.assertEqual(dale.compare("abcd","badc", 0.5), 0.0)
+        self.assertEqual(dale.compare(1.0, "abcd","abcd"), 1.0)
+        self.assertEqual(dale.compare(1.0, "abcd","abdc"), 0.75)
+        self.assertEqual(dale.compare(1.0, "abcd",""), None)
+        self.assertEqual(dale.compare(0.5, "abcd","abdc"), 0.5)
+        self.assertEqual(dale.compare(0.5, "abcd","badc"), 0.0)
         
     def test_levenshtein_distance(self):
         self.assertEqual(edit.distance("abcd","ab"), 2)
@@ -33,11 +33,11 @@ class TestLevenshtein(unittest.TestCase):
         self.assertEqual(edit.distance("dbca","abcd"), 2)
         
     def test_levenshtein_compare(self):
-        self.assertEqual(edit.compare("abcd","abcd"), 1.0)
-        self.assertEqual(edit.compare("abcd","abdc"), 0.5)
-        self.assertEqual(edit.compare("abcd",""), None)
-        self.assertEqual(edit.compare("abcd","abdc", 0.5), 0.0)
-        self.assertEqual(edit.compare("abcd","badc", 0.5), 0.0)
+        self.assertEqual(edit.compare(1.0, "abcd","abcd"), 1.0)
+        self.assertEqual(edit.compare(1.0, "abcd","abdc"), 0.5)
+        self.assertEqual(edit.compare(1.0, "abcd",""), None)
+        self.assertEqual(edit.compare(0.5, "abcd","abdc"), 0.0)
+        self.assertEqual(edit.compare(0.5, "abcd","badc"), 0.0)
         
         
 class TestGeoDistance(unittest.TestCase):
