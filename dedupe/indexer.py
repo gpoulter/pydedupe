@@ -310,6 +310,7 @@ class RecordComparator(OrderedDict):
         
         @param stream: Output stream to write the results to.
         """
+        if not comparisons or not scores: return
         writer = csv.writer(stream)
         writer.writerow(["Score"] + indeces1.keys() + self.keys())
         field1 = [ comparator.field1 for comparator in self.itervalues() ]
