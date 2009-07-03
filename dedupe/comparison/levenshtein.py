@@ -11,7 +11,7 @@ Source code from:
  
 """
 
-def levenshtein(a,b):
+def distance(a,b):
     """Calculates the Levenshtein distance between a and b."""
     n, m = len(a), len(b)
     if n > m:
@@ -29,36 +29,28 @@ def levenshtein(a,b):
             current[j] = min(add, delete, change)
     return current[n]
 
-class Levenshtein:
-    """A Levenshtein string comparator, returning a similarity value scaled
-    between 0.0 and 1.0. 
-
+def compare(s1, s2, threshold=1.0, missing=None):
+    """A Levenshtein (edit distance) string comparator, returning a similarity
+    value scaled between 0.0 and 1.0.
+    
     The threshold scales the maximum number of differences before the
     comparator returns 0, from the default maximum equal to the length of the
     shorter string. Thresholds less than 1.0 are more strict, and thresholds
     greater than 1.0 are more lenient about the maximum number of differences.
     
-    If one of the strings is empty or None, the comparison returns None (no
-    comparison possible).    
+    @param threshold: 
     
-    @author: Graham Poulter
+    @param missing: If one of the strings is empty or None, returns this value.
     """
-
-    def __init__(self, threshold=1.0):
-        assert threshold >= 0.0
-        self.threshold = threshold
-        
-    def __call__(self, s1, s2):
-        if not s1 or not s2:
-            return None
-        ndiffs = levenshtein(s1,s2)
-        maxdiffs = min(len(s1),len(s2)) * self.threshold
-        if ndiffs >= maxdiffs:
-            return 0.0
-        else:
-            return 1.0 - (ndiffs / maxdiffs)
-
+    if not s1 or not s2:
+        return missing
+    ndiffs = distance(s1,s2)
+    maxdiffs = min(len(s1),len(s2)) * threshold
+    if ndiffs >= maxdiffs:
+        return 0.0
+    else:
+        return 1.0 - (ndiffs / maxdiffs)
 
 if __name__=="__main__":
     from sys import argv
-    print levenshtein(argv[1],argv[2])
+    print distance(argv[1],argv[2])

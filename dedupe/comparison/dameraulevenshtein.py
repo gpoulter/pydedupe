@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Implementation of Dameraou-Levenshtein distance by mwh.geek.nz
+"""Implementation of Damerau-Levenshtein distance by mwh.geek.nz:
 
 http://mwh.geek.nz/2009/04/26/python-damerau-levenshtein-distance/
 
@@ -29,7 +29,7 @@ from __future__ import division
 
 __license__ = "MIT"
 
-def dameraulevenshtein(seq1, seq2):
+def distance(seq1, seq2):
     """Calculate the Damerau-Levenshtein distance between sequences.
 
     This distance is the number of additions, deletions, substitutions,
@@ -66,7 +66,7 @@ def dameraulevenshtein(seq1, seq2):
     return thisrow[len(seq2) - 1]
 
 
-class DamerauLevenshtein:
+def compare(s1, s2, threshold=1.0, missing=None):
     """A Damerau-Levenshtein string comparator, returning a similarity
     value scaled between 0.0 and 1.0. 
     
@@ -77,25 +77,17 @@ class DamerauLevenshtein:
     
     If one of the strings is empty or None, the comparison returns None (no
     comparison possible).
-
-    @author: Graham Poulter
     """
-    
-    def __init__(self, threshold=1.0):
-        assert threshold >= 0.0
-        self.threshold = threshold
-        
-    def __call__(self, s1, s2):
-        if not s1 or not s2:
-            return None
-        ndiffs = dameraulevenshtein(s1,s2)
-        maxdiffs = min(len(s1),len(s2)) * self.threshold
-        if ndiffs >= maxdiffs:
-            return 0.0
-        else:
-            return 1.0 - (ndiffs / maxdiffs)
+    if not s1 or not s2:
+        return missing
+    ndiffs = distance(s1,s2)
+    maxdiffs = min(len(s1),len(s2)) * threshold
+    if ndiffs >= maxdiffs:
+        return 0.0
+    else:
+        return 1.0 - (ndiffs / maxdiffs)
 
 
 if __name__=="__main__":
     from sys import argv
-    print dameraulevenshtein(argv[1],argv[2])
+    print distance(argv[1],argv[2])

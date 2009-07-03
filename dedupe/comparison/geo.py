@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Compare the similarity of two geographic coordinates by distance.
 
 @author: Graham Poulter
@@ -9,7 +11,7 @@ from __future__ import division
 
 from dedupe.indexer import getfield
 
-def geofield(latfield, lonfield, record):
+def field(latfield, lonfield, record):
     """Return floating (latitude,longitude) from a record using field
     specifiers latfield and lonfield. Returns None if any TypeError or
     ValueError occure during retrieval and conversion to floating point.
@@ -26,7 +28,7 @@ def geofield(latfield, lonfield, record):
     return (lat,lon)
 
 
-def is_geo_coordinates(coords):
+def valid(coords):
     """Check whether the argument constitutes valid geographic coordinates. 
     
     @param coords: Geographic (latitude, longitude) tuple of coordinates.
@@ -44,7 +46,7 @@ def is_geo_coordinates(coords):
     return False
 
 
-def geodistance(loc1, loc2):
+def distance(loc1, loc2):
     """Compare to geographical coordinates by distance. If the distance
     is greater than max_distance, the similarity is 0.  Assumes that
     the coordinates are valid!
@@ -70,7 +72,7 @@ def geodistance(loc1, loc2):
     return distance
 
 
-class GeoDistance:
+def compare(max_distance, point1, point2):
     """Compare two (lat,lon) coordinates. Similarity is 1.0 for identical
     locations, reducing to zero at max_distance in kilometers.
     
@@ -80,15 +82,14 @@ class GeoDistance:
     @ivar max_distance: The maximum distance in kilometers beyond which
     the similarity is considered to be 0.
     """
-    
-    def __init__(self, max_distance):
-        self.max_distance = max_distance
-        
-    def __call__(self, point1, point2):
-        if not (is_geo_coordinates(point1) and is_geo_coordinates(point2)):
-            return None
-        distance = geodistance(point1, point2)
-        if distance >= self.max_distance:
-            return 0.0
-        else:
-            return 1.0 - (distance / self.max_distance)
+    if not (valid(point1) and valid(point2)):
+        return None
+    dist = distance(point1, point2)
+    if dist >= max_distance:
+        return 0.0
+    else:
+        return 1.0 - (dist / max_distance)
+
+if __name__=="__main__":
+    from sys import argv as a
+    print distance((float(a[1]), float(a[2])), (float(a[3]),float(a[4])))
