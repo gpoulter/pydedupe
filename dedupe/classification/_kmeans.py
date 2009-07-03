@@ -12,6 +12,8 @@ values could not be compared.
 @license: GPL
 """
 
+import logging
+
 def kmeans_febrl(comparisons, distance, maxiter=50, sample=100.0):
     """Classify each pair of comparisons as match or nonmatch, by clustering
     weight vectors around "match centroind" and "nonmatch centroid"
@@ -37,7 +39,7 @@ def kmeans_febrl(comparisons, distance, maxiter=50, sample=100.0):
     [match, nomatch, probablematch] = kmeans.classify(comparisons)
     return match, nomatch
 
-def kmeans(comparisons, distance, maxiter=10, sample=None):
+def kmeans(comparisons, distance, maxiter=10):
     """Classify each pair of comparisons as match or nonmatch, by clustering
     weight vectors around "match centroind" and "nonmatch centroid". 
     
@@ -51,6 +53,8 @@ def kmeans(comparisons, distance, maxiter=10, sample=None):
     returninng the floating point distance between them, discarding components
     having a None value.
     
+    @param maxiter: Maximum number of loops for adjusting the centroid.
+    
     @return: set of matched pairs of records, set of non-matched pairs of
     records.
     """
@@ -59,23 +63,25 @@ def kmeans(comparisons, distance, maxiter=10, sample=None):
     vlen = len(v)
     vidx = range(vlen)
     comparisons[k] = v
-    
-    # Mapping from key to (value, initial class assignment), where
-    # all items are initially false, for non-match class.
-    assignments = dict( (k,[v,False]) for k,v in comparisons.iteritems() )
+    logging.debug("KMeans: Dimension %d, maxiter %d",vlen,maxiter)
     
     # Get initial centroids
     high_centroid = [ max(x[i] for x in comparisons.itervalues() 
                           if x[i] is not None) for i in vidx ]
     low_centroid = [ min(x[i] for x in comparisons.itervalues() 
                          if x[i] is not None) for i in vidx ]
+    logging.debug("  Initial match centroid: %s", str(high_centroid))
+    logging.debug("  Initial non-match centroid: %s", str(low_centroid))
     
+    # Mapping key to (value, class assignment).
+    # All items initially assigned to the "False" class (non-match).
+    assignments = dict( (k,[v,False]) for k,v in comparisons.iteritems() )
     # Number of items that changed class
     n_changed = 1
     # Number of classifier iterations
     iters = 0
 
-    while n_changed >= 0 and iters < maxiter:
+    while n_changed > 0 and iters < maxiter:
         n_changed = 0
         iters += 1
         
@@ -106,10 +112,16 @@ def kmeans(comparisons, distance, maxiter=10, sample=None):
                     if v[i] is not None:
                         low_total[i] += v[i]
                         low_count[i] += 1
-                        
+            
         high_centroid = [ high_total[i]/high_count[i] for i in vidx ]
         low_centroid = [ low_total[i]/low_count[i] for i in vidx ]
+            
+        logging.debug("  Iteration %d: %d vectors changed assignment.", iters, n_changed)
+        logging.debug("    Match centroid: %s", str(high_centroid))
+        logging.debug("    Non-match centroid: %s", str(low_centroid))
         
     matches = set(k for k, (v,match) in assignments.iteritems() if match)
     nomatches = set(k for k, (v,match) in assignments.iteritems() if not match)
+    logging.debug("Classified %d similarity vectors, %d as matches and %d as non-matches.",
+                  len(comparisons), len(matches), len(nomatches))
     return matches, nomatches
