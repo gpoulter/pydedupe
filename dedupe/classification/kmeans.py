@@ -12,6 +12,8 @@ values could not be compared.
 @license: GPL
 """
 
+from __future__ import division
+
 import logging
 
 def classify_febrl(comparisons, distance, maxiter=50, sample=100.0):
@@ -60,12 +62,15 @@ def classify(comparisons, distance, maxiter=10):
     records.
     """
     # Get length of the comparison vector
+    if len(comparisons) == 0:
+        return set(), set()
     k,v = comparisons.popitem()
     vlen = len(v)
     vidx = range(vlen)
     comparisons[k] = v
     logging.debug("KMeans: Dimension %d, maxiter %d",vlen,maxiter)
-    str_vector = lambda vector: "[" + ", ".join("%.4f" % v for v in vector) + "]"
+    str_vector = lambda vector: "[" + ", ".join("%.4f" % v if v is not None else "None" for v in vector) + "]"
+    safe_div = lambda n,d: n/d if d > 0 else None
     
     # Get initial centroids
     high_centroid = [ max(x[i] for x in comparisons.itervalues() 
@@ -73,7 +78,7 @@ def classify(comparisons, distance, maxiter=10):
     low_centroid = [ min(x[i] for x in comparisons.itervalues() 
                          if x[i] is not None) for i in vidx ]
     logging.debug("  Initial match centroid: %s", str_vector(high_centroid))
-    logging.debug("  Initial non-match centroid: %s", str_vector(high_centroid))
+    logging.debug("  Initial non-match centroid: %s", str_vector(low_centroid))
     
     # Mapping key to (value, class assignment).
     # All items initially assigned to the "False" class (non-match).
@@ -114,9 +119,9 @@ def classify(comparisons, distance, maxiter=10):
                     if v[i] is not None:
                         low_total[i] += v[i]
                         low_count[i] += 1
-            
-        high_centroid = [ high_total[i]/high_count[i] for i in vidx ]
-        low_centroid = [ low_total[i]/low_count[i] for i in vidx ]
+
+        high_centroid = [ safe_div(high_total[i], high_count[i]) for i in vidx ]
+        low_centroid = [ safe_div(low_total[i], low_count[i]) for i in vidx ]
             
         logging.debug("  Iteration %d: %d vectors changed assignment.", iters, n_changed)
         logging.debug("    Match centroid: %s", str_vector(high_centroid))
