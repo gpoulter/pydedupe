@@ -1,11 +1,19 @@
 """K-means clustering of similarity vectors into two groups (matches and
 non-matches).
 
-The default kmeans implementation has the advantage in that it is
-able to handle missing (None) values in the similarity vectors.  It does
-this by "not counting" whenever it comes across None, which should produce
-better results than replacing None with 0 in instances where two field
-values could not be compared.
+This is a special K-Means implementation which handles "None" values
+for similarity, which occur when two field values could not be compared,
+due to missing or invalid values in one or both of the compared records.
+
+FEBRL assigns arbitrary weights to non-comparisons, such as "0.2" or "0", to
+treat "unable to compare" in the same manner as "total mismatch".
+
+In this module, we instead model occurrences of None as reduced-dimensionality
+vectors. That is, (0.95,0.2,None,0.5) is treated like a
+3-dimensional vector in distance calculations.
+
+In centroid calculation, a None does contributes to the mean by reducing the
+denominator of the averaging step for that component.
 
 @author: Graham Poulter
 @copyright: MIH Holdings
@@ -15,32 +23,6 @@ values could not be compared.
 from __future__ import division
 
 import logging, math
-
-def classify_febrl(comparisons, distance, maxiter=50, sample=100.0):
-    """Classify each pair of comparisons as match or nonmatch, by clustering
-    weight vectors around "match centroind" and "nonmatch centroid"
-       
-    @param comparisons: mapping (rec1,rec2):weights from record pair to
-    field-by-field comparison vector.
-    
-    @param distance: Function distance(v1,v2) of two similarity vectors
-    returninng the floating point distance between them, discarding components
-    having a None value.
-    
-    @return: set of matched pairs of records, set of non-matched pairs of records.
-    """
-    from dedupe.febrl.classification import KMeans
-    # Return empty sets if there is nothing to classify
-    if not comparisons: return set(), set()
-    # Configure the FEBRL classifier
-    kmeans = KMeans(dist_measure = distance,  
-                    max_iter_count = maxiter,
-                    centroid_init = "min/max", 
-                    sample = sample)
-    kmeans.train(comparisons, None, None) # Identify the centroids
-    [match, nomatch, probablematch] = kmeans.classify(comparisons)
-    return match, nomatch
-
 
 def classify(comparisons, distance, maxiter=10):
     """Classify each pair of comparisons as match or nonmatch, by clustering
