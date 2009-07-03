@@ -77,13 +77,18 @@ def csvdedupe(indeces, comparator, classifier, inputfile, outputdir):
         logging.Formatter('%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S'))
     logging.getLogger().addHandler(filehandler)
 
-    ## Deduplicate a table of records
+    ## Index records, compare pairs, identify match/nonmatch pairs
     records = list(NamedCSVReader(inputfile))
     comparisons, myindeces = dedupe(records, indeces, comparator)
     myindeces.write_indeces(outpath("1-"))
-    comparator.write_comparisons(myindeces, myindeces, comparisons, outfile("2-comparisons.csv"))
+    matches, nonmatches = classifier(comparisons)
+
+    ## Write the match and nonmatch pairs with scores
+    comparator.write_comparisons(myindeces, myindeces, comparisons, 
+                                 matches, outfile("2-matches.csv"))
+    comparator.write_comparisons(myindeces, myindeces, comparisons, 
+                                 nonmatches, outfile("2-nonmatches.csv"))
 
     ## Classify and output
-    matches, nonmatches = classifier(comparisons)
     fields = records[0]._fields
     writegroups(matches, records, fields, outfile('3-groups.csv'))

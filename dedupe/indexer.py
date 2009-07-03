@@ -293,29 +293,36 @@ class RecordComparator(OrderedDict):
                                 comparisons[pair] = self.compare(*pair)
         return comparisons
 
-    def write_comparisons(self, indeces1, indeces2, comparisons, stream):
+    def write_comparisons(self, indeces1, indeces2, comparisons, scores, stream):
         """Write pairs of compared records, together with index keys and 
         field comparison weights.  Inspection shows which index keys matched,
         and the field-by-field similarity.
         
         @param other: Indeces used on right-hand records (may be the same as self)
+
         @param recordcomparator: RecordComparator instance that produced L{comparisons},
         used to recreate the calculated non-encoded field values.
+
         @param comparisons: Map from (rec1,rec2) to weight vector.
+
+        @param scores: Map from (rec1,rec2) to classifier score.  Only output
+        the pairs found in scores.
+        
         @param stream: Output stream to write the results to.
         """
         writer = csv.writer(stream)
-        writer.writerow(indeces1.keys() + self.keys())
+        writer.writerow(["Score"] + indeces1.keys() + self.keys())
         field1 = [ comparator.field1 for comparator in self.itervalues() ]
         field2 = [ comparator.field2 for comparator in self.itervalues() ]
-        for (rec1, rec2), weights in comparisons.iteritems():
+        for (rec1, rec2), score in scores.iteritems():
+            weights = comparisons[(rec1,rec2)] # look up comparison vector
             keys1 = [ idx.makekey(rec1) for idx in indeces1.itervalues() ]
             keys2 = [ idx.makekey(rec2) for idx in indeces2.itervalues() ]
-            writer.writerow(keys1 + [ str(getfield(rec1,f)) for f in field1 ])
-            writer.writerow(keys2 + [ str(getfield(rec2,f)) for f in field2 ])
+            writer.writerow([""] + keys1 + [ str(getfield(rec1,f)) for f in field1 ])
+            writer.writerow([""] + keys2 + [ str(getfield(rec2,f)) for f in field2 ])
             # Tuple of booleans indicating whether index keys are equal
-            weightrow = [ int(k1 == k2) if (k1 is not None and k2 is not None) else ""
-                             for k1,k2 in zip(keys1,keys2) ]
-            weightrow += list(weights)
+            idxmatch = [ int(k1 == k2) if (k1 is not None and k2 is not None) else ""
+                         for k1,k2 in zip(keys1,keys2) ]
+            weightrow = [score] + idxmatch + list(weights)
             writer.writerow(weightrow)
 
