@@ -21,12 +21,12 @@ class TestClassification(unittest.TestCase):
     
     ## Basic tests of the classifiers        
         
-    def test_kmeans_febrl(self):
-        matches, nomatches = kmeans.classify_febrl(
+    def test_kmeans(self):
+        matches, nomatches = kmeans.classify(
             comparisons = {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
             distance = distance.L2)
-        self.assertEqual(matches, set([(1, 2), (2, 3), (3, 4)]))
-        self.assertEqual(nomatches, set([(4, 5)]))
+        self.assertEqual(set(matches.keys()), set([(1, 2), (2, 3), (3, 4)]))
+        self.assertEqual(set(nomatches.keys()), set([(4, 5)]))
         
     def test_nearest(self):
         matches, nomatches = nearest.classify(

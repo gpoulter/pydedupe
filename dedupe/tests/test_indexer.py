@@ -34,8 +34,8 @@ class TestIndex(unittest.TestCase):
 
         # Indexing Result
         self.indeces_out = copy.deepcopy(self.indeces)
-        self.indeces_out['PhoneIdx']['AB^12'] = set([self.recs[0]])
-        self.indeces_out['RevNameIdx']['GFE DCBA'] = set([self.recs[0]])
+        self.indeces_out['PhoneIdx']['AB^12'] = [self.recs[0]]
+        self.indeces_out['RevNameIdx']['GFE DCBA'] = [self.recs[0]]
 
         self.namecompare = ValueComparator(
             comparevalues = lambda a,b:0.5, 
@@ -75,13 +75,13 @@ class TestIndex(unittest.TestCase):
         self.assertEqual(self.namecompare(self.recs[0], self.recs[1]), 0.5)
     
     def test_SetComparator(self):
-        phone_setcomp = self.comparator['PhoneComp']
-        isinstance(phone_setcomp, SetComparator)
+        phonecomp = self.phonecompare
+        isinstance(phonecomp, SetComparator)
         
         # Returns 0.2 for missing values, otherwise 0.5
-        phone_setcomp.comparevalues = lambda x,y: 0.2 if not (x and y) else 0.5 
-        self.assertEqual(phone_setcomp(self.recs[3], self.recs[3]), 0.2)  # rec[3] has phone missing
-        self.assertEqual(phone_setcomp(self.recs[2], self.recs[1]), 0.5)  # rec[1] and rec[2] have phone
+        phonecomp.comparevalues = lambda x,y: 0.2 if not (x and y) else 0.5 
+        self.assertEqual(phonecomp(self.recs[3], self.recs[3]), 0.2)  # rec[3] has phone missing
+        self.assertEqual(phonecomp(self.recs[2], self.recs[1]), 0.5)  # rec[1] and rec[2] have phone
 
     def test_RecordComparator_compare_all_pairs(self):
         self.assertEqual(self.comparator.compare(self.recs[0], self.recs[1]),

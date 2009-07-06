@@ -35,8 +35,8 @@ def getfield(record, field):
     
 
 class Index(dict):
-    """A dictionary mapping index keys to the set of records that 
-    share the index key.
+    """A dictionary mapping index keys to a list of records that were
+    inserted with that index key.
     
     The makekey function takes a record and returns a list of keys
     under which the record should be indexed.  The makekey could return
@@ -55,7 +55,9 @@ class Index(dict):
         self.makekey = makekey
         
     def insert(self, record):
-        """Index a record by its keys.
+        """Index a record by its keys. Only indexes keys for which bool(key)
+        evaluates to True, meaning that keys such as False, 0, "", None are
+        not included in the index.
         
         @param record: The record object to index.
         @return: The sequence of keys under which the record was inserted.
@@ -66,8 +68,8 @@ class Index(dict):
             keys = (keys,)
         for key in keys:
             if key: # Skip over non-keys like "", 0, None
-                recordsforkey = self.setdefault(key, set())
-                recordsforkey.add(record)
+                recordsforkey = self.setdefault(key, list())
+                recordsforkey.append(record)
         return keys
     
     def count_comparisons(self, other=None):
@@ -275,7 +277,6 @@ class RecordComparator(OrderedDict):
         comparisons = {} # Map from (record1,record2) to L{Weights}
         for index in indeces.itervalues():
             for indexkey, records in index.iteritems():
-                records = list(records)
                 for i in range(len(records)):
                     for j in range(i):
                         pair = records[i], records[j]
