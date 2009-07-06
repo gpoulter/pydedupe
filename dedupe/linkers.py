@@ -29,7 +29,7 @@ def dedupe(records, indeces, comparator):
     indeces.insert(records)
     logging.info("Dedupe index statistics follow...")
     indeces.log_index_stats()
-    comparisons = comparator.compare_indexed(indeces)
+    comparisons = comparator.dedupe(indeces)
     return comparisons, indeces
 
 
@@ -48,7 +48,7 @@ def link(records1, records2, indeces, comparator):
     indeces1, indeces2 = [ index(records) for records in (records1, records2) ]
     logging.info("Record linkage index statistics follow...")
     indeces1.log_index_stats(indeces2)
-    comparisons = comparator.compare_indexed(indeces1, indeces2)
+    comparisons = comparator.link(indeces1, indeces2)
     return comparisons, indeces1, indeces2
 
 

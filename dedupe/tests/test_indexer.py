@@ -86,7 +86,7 @@ class TestIndex(unittest.TestCase):
     def test_RecordComparator_compare_all_pairs(self):
         self.assertEqual(self.comparator.compare(self.recs[0], self.recs[1]),
             self.comparator.Weights(0.5,0.5))
-        self.comparator.compare_all_pairs(self.recs)
+        self.comparator.allpairs(self.recs)
         
     def test_RecordComparator_compare_indexed(self):
         """L{Indeces}, L{RecordComparator}"""
@@ -94,8 +94,8 @@ class TestIndex(unittest.TestCase):
         indeces2 = copy.deepcopy(self.indeces)
         indeces1.insert(self.recs)
         indeces2.insert(self.recs)
-        self.comparator.compare_indexed(indeces1)
-        self.comparator.compare_indexed(indeces1, indeces2)
+        self.comparator.dedupe(indeces1)
+        self.comparator.link(indeces1, indeces2)
         
 if __name__ == "__main__":
     logging.basicConfig(level = logging.DEBUG)

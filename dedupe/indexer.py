@@ -54,6 +54,7 @@ class Index(dict):
         super(Index, self).__init__()
         self.makekey = makekey
         
+       
     def insert(self, record):
         """Index a record by its keys. Only indexes keys for which bool(key)
         evaluates to True, meaning that keys such as False, 0, "", None are
@@ -73,14 +74,16 @@ class Index(dict):
         return keys
     
     def count_comparisons(self, other=None):
-        """Count the number of comparisons implied by the index.
+        """Count the number of comparisons implied by the index.  By default
+        count the maximum pairwise comparisons for dedupe of this index 
+        against itself.
 
-        @param other: An optional Index instance to compare this one against.
+        @param other: Index instance to compare this one against, to count
+        linkage comparisons instead of dedupe comparisons.
         
-        @return: Total number of comparisons that need to be made, assuming
-        that each comparison is distinct. Fewer actual comparisons actually
-        take place if records appear in multiple index blocks, since the
-        RecordComparator caches its comparisons.
+        @return: Maximum pairwise comparisons that need to be made, if each
+        comparison is distinct. Fewer comparisons take place if records appear
+        in multiple index blocks, due to caching.
         """
         comparisons = 0
         if not other or (other is self):
@@ -107,8 +110,56 @@ class Index(dict):
         nkeys = len(self)
         log.info(prefix + "%d records in %d blocks. Largest block: %d, Average block: %.2f",
                  nrecords, nkeys, biggroup, float(nrecords)/nkeys)
+        
+    def dedupe(self, compare, comparisons):
+        """Perform dedupe comparisons on the index.  Note that this sorts
+        the lists of records in each index key to ensure that rec1<rec2 
+        in each resulting comparison tuple.
+        
+        @param compare: Function of two records returning a similarity vector
+        such as [0.3,0.8,1.0,...].
+        
+        @param comparisons: Cache of comparisons, mapping (rec1,rec2) 
+        to similarity vector, where rec1 < rec2.
+        """
+        for indexkey, records in self.iteritems():
+            records.sort()
+            for j in range(len(records)):
+                for i in range(j):
+                    # i < j, rec[i] < rec[j]
+                    pair = records[i], records[j] 
+                    assert pair[0] < pair[1]
+                    if pair not in comparisons:
+                        comparisons[pair] = compare(*pair)
+                        
+    def link(self, other, compare, comparisons):
+        """Perform linkage comparisons for this index against the other index.
+        
+        @param other: Index object against which to perform linkage comparison.
+        
+        @param compare: Function of two records returning a similarity vector
+        such as [0.3,0.8,1.0,...].
+        
+        @param comparisons: Cache of comparisons mapping (rec1,rec2) to
+        similarity vector. Inserted pairs will have rec1 from self and rec2
+        from other.
+        """
+        for indexkey in self.iterkeys():
+            if indexkey in other.iterkeys():
+                for rec1 in self[indexkey]:
+                    for rec2 in other[indexkey]:
+                        pair = (rec1, rec2)
+                        if pair not in comparisons:
+                            comparisons[pair] = compare(*pair)
+                            
+    def write_csv(self, stream):
+        """Write the contents of this index in CSV format to the given stream."""
+        writer = csv.writer(stream)
+        for indexkey, rows in self.iteritems():
+            for row in rows:
+                writer.writerow((indexkey,) + row)
 
-    
+
 class Indeces(OrderedDict):
     """Represents multiple Index instances as an ordered dictionary."""
 
@@ -144,10 +195,7 @@ class Indeces(OrderedDict):
         """Write the contents of the index dictionaries in CSV format."""
         for indexname, index in self.iteritems():
             with open(basepath + indexname + ".csv", "w") as stream:
-                writer = csv.writer(stream)
-                for indexkey, rows in index.iteritems():
-                    for row in rows:
-                        writer.writerow((indexkey,) + row)
+                index.write_csv(stream)
 
 class ValueComparator(object):
     """Defines a callable comparison of a pair of records on a defined field.
@@ -228,7 +276,7 @@ class RecordComparator(OrderedDict):
     functions, returning namedtuple vectors corresponding to the
     results of each comparison function applied to the record.
     
-    @ivar Weights: Namedtuple for the weight vector, with field names
+    @ivar Weights: Namedtuple type of the similarity vector, with field names
     provided in the constructor.
     """
     
@@ -243,12 +291,14 @@ class RecordComparator(OrderedDict):
         return self.Weights._make(
             comparator(recordA, recordB) for comparator in self.itervalues())
     
-    def compare_all_pairs(self, records):
+    __call__ = compare
+    
+    def allpairs(self, records):
         """Compare all distinct pairs of records given a single in a list of records.
 
         @param records: List of record namedtuples.
 
-        @return: Mapping pairs (record1, record2) to L{Weights} vector.
+        @return: Mapping pairs (record1, record2) to L{Weights} similarity vector.
         """
         comparisons = {}
         for i in range(len(records)):
@@ -259,16 +309,8 @@ class RecordComparator(OrderedDict):
                 if pair not in comparisons:
                     comparisons[pair] = self.compare(rec1, rec2)
         return comparisons
-    
-    def compare_indexed(self, indeces1, indeces2=None):
-        """Perform indexed comparison.  Polymorphic to perform
-        either a single-index comparison or a dual-index comparison."""
-        if indeces2 is indeces1 or indeces2 is None:
-            return self.compare_indexed_single(indeces1)
-        else:
-            return self.compare_indexed_dual(indeces1, indeces2)
 
-    def compare_indexed_single(self, indeces):
+    def dedupe(self, indeces):
         """Compare records against themselves, using indexing to reduce number
         of comparisons and caching to avoid comparing same two records twice.
         
@@ -277,15 +319,11 @@ class RecordComparator(OrderedDict):
         """
         comparisons = {} # Map from (record1,record2) to L{Weights}
         for index in indeces.itervalues():
-            for indexkey, records in index.iteritems():
-                for i in range(len(records)):
-                    for j in range(i):
-                        pair = tuple(sorted([records[i], records[j]]))
-                        if pair not in comparisons:
-                            comparisons[pair] = self.compare(*pair)
+            index.dedupe(self.compare, comparisons)
         return comparisons
+    
 
-    def compare_indexed_dual(self, indeces1, indeces2):
+    def link(self, indeces1, indeces2):
         """Compare two sets of records using indexing to reduce number of comparisons.
         
         @param indeces1: List of L{Index} objects for first dataset.
@@ -300,26 +338,21 @@ class RecordComparator(OrderedDict):
         assert indeces1 is not indeces2 # Must be different!
         comparisons = {}
         for index1, index2 in zip(indeces1.itervalues(), indeces2.itervalues()):
-            for indexkey in index1.iterkeys():
-                if indexkey in index2:
-                    for rec1 in index1[indexkey]:
-                        for rec2 in index2[indexkey]:
-                            pair = (rec1, rec2)
-                            if pair not in comparisons:
-                                comparisons[pair] = self.compare(*pair)
+            index1.link(index2, self.compare, comparisons)
         return comparisons
+
 
     def write_comparisons(self, indeces1, indeces2, comparisons, scores, stream):
         """Write pairs of compared records, together with index keys and 
         field comparison weights.  Inspection shows which index keys matched,
         and the field-by-field similarity.
         
-        @param other: Indeces used on right-hand records (may be the same as self)
+        @param indeces1: L{Index} of the left-hand records
+        
+        @param indeces2: L{Index} of the right-hand records for linkage (set
+        equal to index1 for dedupe).
 
-        @param recordcomparator: RecordComparator instance that produced L{comparisons},
-        used to recreate the calculated non-encoded field values.
-
-        @param comparisons: Map from (rec1,rec2) to weight vector.
+        @param comparisons: Map from (rec1,rec2) to similarity vector.
 
         @param scores: Map from (rec1,rec2) to classifier score.  Only output
         the pairs found in scores.
@@ -342,4 +375,3 @@ class RecordComparator(OrderedDict):
                          for k1,k2 in zip(keys1,keys2) ]
             weightrow = [score] + idxmatch + list(weights)
             writer.writerow(weightrow)
-
