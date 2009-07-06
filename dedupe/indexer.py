@@ -128,7 +128,7 @@ class Index(dict):
                 for i in range(j):
                     # i < j, rec[i] < rec[j]
                     pair = records[i], records[j] 
-                    assert pair[0] < pair[1]
+                    assert pair[0] <= pair[1]
                     if pair not in comparisons:
                         comparisons[pair] = compare(*pair)
                         
