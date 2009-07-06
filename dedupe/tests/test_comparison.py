@@ -27,6 +27,10 @@ class TestLevenshtein(unittest.TestCase):
         self.assertEqual(dale.compare(0.5, "abcd","abdc"), 0.5)
         self.assertEqual(dale.compare(0.5, "abcd","badc"), 0.0)
         
+        ## Check maxdiffs: should make it less lenient at smaller values
+        self.assertAlmostEqual(dale.compare(1.0, "abcdef","abcd"), 2/3)
+        self.assertAlmostEqual(dale.compare(0.5, "abcdef","abcd"), 1/3)
+        
     def test_levenshtein_distance(self):
         self.assertEqual(edit.distance("abcd","ab"), 2)
         self.assertEqual(edit.distance("abcd","abdc"), 2)
