@@ -273,13 +273,14 @@ class RecordComparator(OrderedDict):
         of comparisons and caching to avoid comparing same two records twice.
         
         @return: Map from compared (record1,record2) to L{Weights} vector.
+        Each compared tuple is lexicographically ordered (record1 < record2).
         """
         comparisons = {} # Map from (record1,record2) to L{Weights}
         for index in indeces.itervalues():
             for indexkey, records in index.iteritems():
                 for i in range(len(records)):
                     for j in range(i):
-                        pair = records[i], records[j]
+                        pair = tuple(sorted([records[i], records[j]]))
                         if pair not in comparisons:
                             comparisons[pair] = self.compare(*pair)
         return comparisons
@@ -287,9 +288,14 @@ class RecordComparator(OrderedDict):
     def compare_indexed_dual(self, indeces1, indeces2):
         """Compare two sets of records using indexing to reduce number of comparisons.
         
-        @param indeces1: List of L{Index} for first dataset.
-        @param indeces2: List of corresponding L{Index} for second data set.
-        @return: Map from (rec1,rec2) to comparison weights.
+        @param indeces1: List of L{Index} objects for first dataset.
+        
+        @param indeces2: List of corresponding L{Index} objects for second
+        data set.
+
+        @return: Map from (rec1,rec2) to comparison weights. The tuple has
+        rec1 from indeces1 and rec2 from indeces2, unlike
+        compare_indexed_single where (rec1,rec2) is ordered lexicographically.
         """
         assert indeces1 is not indeces2 # Must be different!
         comparisons = {}
