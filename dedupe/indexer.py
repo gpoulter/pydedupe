@@ -35,15 +35,21 @@ def getfield(record, field):
     
 
 class Index(dict):
-    """A dictionary from index key to the set of unique records sharing tha
-    index key. The index key is automatically created by the key-making
-    function on insertion of the record."""
+    """A dictionary mapping index keys to the set of records that 
+    share the index key.
+    
+    The makekey function takes a record and returns a list of keys
+    under which the record should be indexed.  The makekey could return
+    a single value (like soundex), two values (double-metaphone), or 
+    many values (n-gram combinations)."""
     
     def __init__(self, makekey):
         """Parameterise the Index. 
         
-        @param makekey: Function from record tuple -> to string of index key,
-        or a tuple of index keys for the record.
+        @param makekey: Function of the record tuple returning a list/tuple
+        of index keys under which the record should be inserted. It may
+        instead return a single string, being the only key under which
+        to insert the record.
         """
         super(Index, self).__init__()
         self.makekey = makekey
@@ -51,8 +57,8 @@ class Index(dict):
     def insert(self, record):
         """Index a record by its keys.
         
-        @param: The record to index.
-        @return: The key with which the record was inserted.
+        @param record: The record object to index.
+        @return: The sequence of keys under which the record was inserted.
         """
         keys = self.makekey(record)
         # makekey might return a single key or a sequence of keys
@@ -69,7 +75,10 @@ class Index(dict):
 
         @param other: An optional Index instance to compare this one against.
         
-        @return: Total number of comparisons that need to be made.
+        @return: Total number of comparisons that need to be made, assuming
+        that each comparison is distinct. Fewer actual comparisons actually
+        take place if records appear in multiple index blocks, since the
+        RecordComparator caches its comparisons.
         """
         comparisons = 0
         if not other or (other is self):
