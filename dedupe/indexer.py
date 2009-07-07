@@ -348,7 +348,7 @@ class RecordComparator(OrderedDict):
         return comparisons
 
 
-    def write_comparisons(self, indeces1, indeces2, comparisons, scores, stream):
+    def write_comparisons(self, indeces1, indeces2, comparisons, scores, stream, origstream=None):
         """Write pairs of compared records, together with index keys and 
         field comparison weights.  Inspection shows which index keys matched,
         and the field-by-field similarity.
@@ -363,11 +363,20 @@ class RecordComparator(OrderedDict):
         @param scores: Map from (rec1,rec2) to classifier score.  Only output
         the pairs found in scores.
         
-        @param stream: Output stream to write the results to.
+        @param stream: Output stream for the detailed comparison results.
+        
+        @param origstream: Output stream for the pairs of original records.
         """
         if not comparisons or not scores: return
+        # File for comparison statistics
         writer = csv.writer(stream)
         writer.writerow(["Score"] + indeces1.keys() + self.keys())
+        # File for original records
+        record_writer = None
+        if origstream is not None:
+            record_writer = csv.writer(origstream)
+            record_writer.writerow(scores.iterkeys().next()[0]._fields)
+        # Field-getters for each comparison
         field1 = [ comparator.field1 for comparator in self.itervalues() ]
         field2 = [ comparator.field2 for comparator in self.itervalues() ]
         for (rec1, rec2), score in scores.iteritems():
@@ -381,3 +390,9 @@ class RecordComparator(OrderedDict):
                          for k1,k2 in zip(keys1,keys2) ]
             weightrow = [score] + idxmatch + list(weights)
             writer.writerow(weightrow)
+            if record_writer:
+                record_writer.writerow(rec1)
+                record_writer.writerow(rec2)
+            
+            
+    

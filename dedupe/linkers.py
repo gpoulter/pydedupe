@@ -84,11 +84,13 @@ def csvdedupe(indeces, comparator, classifier, inputfile, outputdir):
     matches, nonmatches = classifier(comparisons)
 
     ## Write the match and nonmatch pairs with scores
-    comparator.write_comparisons(myindeces, myindeces, comparisons, 
-                                 matches, outfile("2-matches.csv"))
-    comparator.write_comparisons(myindeces, myindeces, comparisons, 
-                                 nonmatches, outfile("2-nonmatches.csv"))
+    comparator.write_comparisons(
+        myindeces, myindeces, comparisons, matches, 
+        outfile("2-matches.csv"), outfile("3-matches-orig.csv"))
+    comparator.write_comparisons(
+        myindeces, myindeces, comparisons, nonmatches, 
+        outfile("2-nonmatches.csv"), outfile("3-nonmatches-orig.csv"))
 
     ## Classify and output
     fields = records[0]._fields
-    writegroups(matches, records, fields, outfile('3-groups.csv'))
+    writegroups(matches, records, fields, outfile('4-groups.csv'))
