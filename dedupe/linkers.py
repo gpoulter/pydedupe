@@ -80,7 +80,7 @@ def csvdedupe(indeces, comparator, classifier, inputfile, outputdir):
     ## Index records, compare pairs, identify match/nonmatch pairs
     records = list(NamedCSVReader(inputfile))
     comparisons, myindeces = dedupe(records, indeces, comparator)
-    myindeces.write_indeces(outpath("1-"))
+    myindeces.write_csv(outpath("1-"))
     matches, nonmatches = classifier(comparisons)
 
     ## Write the match and nonmatch pairs with scores

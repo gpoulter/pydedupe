@@ -197,7 +197,7 @@ class Indeces(OrderedDict):
             if other:
                 index2.log_block_statistics(" Master %s: " % i2name, log)
             
-    def write_indeces(self, basepath):
+    def write_csv(self, basepath):
         """Write the contents of the index dictionaries in CSV format."""
         for indexname, index in self.iteritems():
             with open(basepath + indexname + ".csv", "w") as stream:
