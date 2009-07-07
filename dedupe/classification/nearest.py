@@ -14,14 +14,16 @@ def classify(comparisons, examples, distance):
     @param comparisons: Map (item1,item2):comparison    
 
     @param examples: List of (comparison, boolean) example pairs - True for
-    match and False for non-match.
+    match and False for non-match
 
     @param distance: Function to compute distance between comparison vectors.
 
     @return: set of matched record pair, set of non-matched record pairs.
-    """    
+    """
     match_examples = [ vec for vec, ismatch in examples if ismatch ]
     nomatch_examples = [ vec for vec, ismatch in examples if not ismatch ]
+    logging.info("Nearest Neighbour classifier with %s match examples and %d non-match.", 
+                 len(match_examples), len(nomatch_examples))
     match, nomatch = {}, {}
     for pair, comparison in comparisons.iteritems():
         match_dist = min(distance(comparison, example) for example in match_examples)
@@ -33,5 +35,7 @@ def classify(comparisons, examples, distance):
             match[pair] = score
         else:
             nomatch[pair] = score
+    logging.info("Nearest Neighbour found %d matches and %d non-matches",
+                 len(match), len(nomatch))
     return match, nomatch
 
