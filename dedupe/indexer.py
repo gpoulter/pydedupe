@@ -111,7 +111,7 @@ class Index(dict):
         log.info(prefix + "%d records in %d blocks. Largest block: %d, Average block: %.2f",
                  nrecords, nkeys, biggroup, float(nrecords)/nkeys)
         
-    def dedupe(self, compare, comparisons):
+    def dedupe(self, compare, comparisons=None):
         """Perform dedupe comparisons on the index.  Note that this sorts
         the lists of records in each index key to ensure that rec1<rec2 
         in each resulting comparison tuple.
@@ -122,6 +122,8 @@ class Index(dict):
         @param comparisons: Cache of comparisons, mapping (rec1,rec2) 
         to similarity vector, where rec1 < rec2.
         """
+        if comparisons is None:
+            comparisons = {}
         for indexkey, records in self.iteritems():
             records.sort()
             for j in range(len(records)):
@@ -131,8 +133,9 @@ class Index(dict):
                     assert pair[0] <= pair[1]
                     if pair not in comparisons:
                         comparisons[pair] = compare(*pair)
+        return comparisons
                         
-    def link(self, other, compare, comparisons):
+    def link(self, other, compare, comparisons=None):
         """Perform linkage comparisons for this index against the other index.
         
         @param other: Index object against which to perform linkage comparison.
@@ -144,6 +147,8 @@ class Index(dict):
         similarity vector. Inserted pairs will have rec1 from self and rec2
         from other.
         """
+        if comparisons is None:
+            comparisons = {}
         for indexkey in self.iterkeys():
             if indexkey in other.iterkeys():
                 for rec1 in self[indexkey]:
@@ -151,6 +156,7 @@ class Index(dict):
                         pair = (rec1, rec2)
                         if pair not in comparisons:
                             comparisons[pair] = compare(*pair)
+        return comparisons
                             
     def write_csv(self, stream):
         """Write the contents of this index in CSV format to the given stream."""
