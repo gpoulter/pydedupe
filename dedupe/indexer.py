@@ -10,8 +10,6 @@ Record ID is always assumed to be the first field of a record.
 
 from __future__ import with_statement
 
-from operator import attrgetter
-from UserDict import UserDict
 import csv, logging
 from compat import namedtuple, OrderedDict
 
@@ -254,15 +252,16 @@ class SetComparator(ValueComparator):
     """
     
     def __call__(self, record1, record2):
-        """Compare two records on a set-type field (either from
+        """Compare two records on a multivalued field (either from
         splitting a single column, or combining multiple columns).
         
-        @return: The average of the best comparison values for each
-        string in the small set.
+        @return: The average over the best comparison values to the larger set,
+        for each string in the smaller set.  If all items in the smaller set
+        have a perfect match in the larger set, the similarity will be 1.0.
         """
         f1 = set(self.encode1(v1) for v1 in self.field1(record1))
         f2 = set(self.encode2(v2) for v2 in self.field2(record2))
-        f1, f2 = sorted([f1, f2], key=len) # short sed, long set
+        f1, f2 = sorted([f1, f2], key=len) # short set, long set
         if len(f1) == 0 or len(f2) == 0:
             # Return the missing value result
             return self.comparevalues(None,None) 
