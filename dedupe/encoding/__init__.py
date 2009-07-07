@@ -61,24 +61,23 @@ def wrap(*funcs):
     return _wrapper
 
 
-## Function factories for creating computed fields that contain a set of values
-## instead of a single value.  The factories generate functions that can
-## that split up a single delimited column or combines multiple columns.
+## Factories to create functions that can split up a single delimited 
+## column or combine multiple columns. 
 
 from dedupe.indexer import getfield
 
-def combined_fields(fields):
-    """Creates a function that computes a set-type field from several string columns."""
-    def set_of_fields(record):
-        """Construct a set-type field from columns %s."""
+def combine_fields(*fields):
+    """Creates a function that computes a multi-valued field from multiple columns."""
+    def field_combiner(record):
+        """Construct a multi-valued field from columns %s."""
         return [getfield(record, field).strip() for field in fields if getfield(record, field).strip()]
-    set_of_fields.__doc__ %= ", ".join(fields) # Document the function
-    return set_of_fields
+    field_combiner.__doc__ %= ", ".join([str(x) for x in fields]) # Document the function
+    return field_combiner
 
 def split_field(field, sep=";"):
-    """Create a function to compute a set-type field from a delimited string column."""
-    def set_from_field(record):
+    """Create a function to compute a multi-valued field from a delimited column."""
+    def field_splitter(record):
         """Create a set-type field from column %s using delimiter %s."""
         return [s.strip() for s in getfield(record, field).split(sep) if s.strip()]
-    set_from_field.__doc__ %= (field, sep) # Document the function
-    return set_from_field
+    field_splitter.__doc__ %= (field, sep) # Document the function
+    return field_splitter

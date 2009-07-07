@@ -3,6 +3,7 @@
 import logging, unittest
 
 from dedupe.encoding import (
+    combine_fields,
     digits,
     dmetaphone,
     emaildomain, 
@@ -11,6 +12,7 @@ from dedupe.encoding import (
     nospace, 
     reverse, 
     sorted_words, 
+    split_field,
     urldomain, 
     wrap, 
 )
@@ -45,6 +47,12 @@ class TestEncoding(unittest.TestCase):
         
     def test_dmetaphone(self):
         self.assertEqual(dmetaphone("Cape Town"), ("KPTN", None))
+        
+    def test_combine_fields(self):
+        self.assertEqual(combine_fields(0,2)(['A','B','C']), ['A','C'])
+    
+    def test_split_field(self):
+        self.assertEqual(split_field(0)(['1;2;3']), ['1','2','3'])
 
         
 if __name__ == "__main__":
