@@ -27,11 +27,14 @@ def normL2(vec1, vec2, stdevs):
     """The normalised L2 distance, being the Mahalanobis distance with a
     diagonal covariance matrix. Discards vector components having None values.
     
-    @note: Setting stdev[0]=0.5 is equivalent to having the first component
-    range from 0.0 to 2.0 instead of 0.0 to 1.0. Intuitively, a point can be
-    considered "close" if it is less than one standard deviation from the
-    centroid as defined by items known to be members. Thus stdev[0]=0.5
-    defines close as "less than 0.5 away".
+    @note: Intuitively, a point can be considered "close" to a cluster of
+    points if it is less than one standard deviation from the centroid of the
+    cluster defined by items known to be members. Setting stdev[0]=0.5, for
+    example, is equivalent to the first component range from 0.0 to 2.0
+    instead of from 0.0 to 1.0, and defines "close" as being "less than 0.5
+    away". Guideline: if you are not estimating the stdev empirically, for
+    each vector component set it to the absolute difference below which the
+    component values should be considered close together.
     
     @param vec1, vec2: Equal-length sequences of floating-point values.
     
