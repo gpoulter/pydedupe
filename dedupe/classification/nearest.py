@@ -8,34 +8,33 @@ non-matches.
 
 import logging, math
 
-def classify(comparisons, examples, distance):
+def classify(comparisons, ex_matches, ex_nonmatches, distance):
     """Nearest-neighbour classification of comparisons vectors.
 
     @param comparisons: Map (item1,item2):comparison    
 
-    @param examples: List of (comparison, boolean) example pairs - True for
-    match and False for non-match
+    @param ex_matches: List of examples of matching similarity vectors.
+    
+    @param ex_nonmatches: List examples of non-matching similarity vectors.
 
     @param distance: Function to compute distance between comparison vectors.
 
     @return: set of matched record pair, set of non-matched record pairs.
     """
-    match_examples = [ vec for vec, ismatch in examples if ismatch ]
-    nomatch_examples = [ vec for vec, ismatch in examples if not ismatch ]
-    logging.info("Nearest Neighbour classifier with %s match examples and %d non-match.", 
-                 len(match_examples), len(nomatch_examples))
-    match, nomatch = {}, {}
+    logging.info("Nearest neighbour: %s match examples and %d non-match examples.", 
+                 len(ex_matches), len(ex_nonmatches))
+    matches, nonmatches = {}, {}
     for pair, comparison in comparisons.iteritems():
-        match_dist = min(distance(comparison, example) for example in match_examples)
-        nomatch_dist = min(distance(comparison, example) for example in nomatch_examples)
+        match_dist = min(distance(comparison, example) for example in ex_matches)
+        nonmatch_dist = min(distance(comparison, example) for example in ex_nonmatches)
         # Calculate a smoothed score as the log of the ratio of distances
         # of the similarity vector to the nearest match and non-match.
-        score = math.log10((nomatch_dist+0.1) / (match_dist+0.1))
+        score = math.log10((nonmatch_dist+0.1) / (match_dist+0.1))
         if score >= 0:
-            match[pair] = score
+            matches[pair] = score
         else:
-            nomatch[pair] = score
-    logging.info("Nearest Neighbour found %d matches and %d non-matches",
-                 len(match), len(nomatch))
-    return match, nomatch
+            nonmatches[pair] = score
+    logging.info("Nearest neighbour: %d matches and %d non-matches",
+                 len(matches), len(nonmatches))
+    return matches, nonmatches
 

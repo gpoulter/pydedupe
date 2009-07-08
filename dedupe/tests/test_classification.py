@@ -31,7 +31,8 @@ class TestClassification(unittest.TestCase):
     def test_nearest(self):
         matches, nomatches = nearest.classify(
             comparisons= {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
-            examples = [ ([0.3],False), ([1.0],True) ],
+            ex_matches = [[1.0]],
+            ex_nonmatches = [[0.3]],
             distance = distance.L2)
         self.assertEqual(set(matches.keys()), set([(2, 3), (3, 4)]))
         self.assertEqual(set(nomatches.keys()), set([(1, 2), (4, 5)]))
@@ -48,7 +49,8 @@ class TestClassification(unittest.TestCase):
     def test_nearest_nulls(self):
         matches, nomatches = nearest.classify(
             comparisons= {(1,2):[0.5,None], (2,3):[0.8,0.7], (3,4):[0.9,0.5], (4,5):[0.0,0.5]},
-            examples = [ ([0.3,0.3],False), ([1.0,0.8],True), ([1.0,None],True) ],
+            ex_matches = [[1.0,0.8],[1.0,None]],
+            ex_nonmatches = [[0.3,0.3]],
             distance = distance.L2)
         self.assertEqual(set(matches.keys()), set([(2, 3), (3, 4)]))
         self.assertEqual(set(nomatches.keys()), set([(1, 2), (4, 5)]))
