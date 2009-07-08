@@ -68,43 +68,4 @@ def makeoutputdir(dirname, open=open):
         return open(outpath(filename), 'w')
     return outpath, outfile
 
-### Functions for deriving examples of matching and non-matching
-### similarity vectors from file or sample records with indications
-### of which records are valid match.
 
-def read_examples(stream):
-    """Read training data from CSV stream (first row contains headings). First
-    column is the ID, second column is semicolon-separated list of IDs that
-    the row matches, remaining colums are record fields.
-    
-    @param stream: CSV input stream with the example records.
-    
-    @return: Two values: (1) a list of record namedtuples, and (2) a map from
-    record ID to adjacent record IDs (duplicates). The map bi-directional: a
-    in adjacent[b] if and only if b in adjacent[a].
-    """
-    reader = NamedCSVReader(stream, typename="ExampleRecord")
-    Record = reader.RecordType
-    records = list(reader)
-    adjacency = defaultdict(set)
-    for record in records:
-        # IDs of adjacent records
-        currentid = record[0] 
-        neighbourids = set(record[1].split(';'))
-        neighbourids.discard('')
-        adjacency[currentid].update(neighbourids)
-        # Put in the backwards adjacency links
-        for otherid in neighbourids:
-            adjacency[otherid].add(currentid)
-    return records, adjacency
-
-def compare_examples(stream, comparator):
-    """Read example comparisons from training file.
-    
-    @return: List of comparison vectors, each vector paired with True
-    as an example match and False as an example non-match."""
-    # Adjacency list mapping record ID to matched record IDs.
-    records, adjacency = read_examples(stream)
-    comparisons = comparator.allpairs(records)
-    return [ (comparison, rec2[0] in adjacency[rec1[0]]) for 
-             (rec1,rec2), comparison in comparisons.iteritems() ]
