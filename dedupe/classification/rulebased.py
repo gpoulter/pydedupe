@@ -1,50 +1,31 @@
-"""Functions for rule-based classification, to create some
-known training examples for stronger classifiers."""
+"""Function to a apply a rule-based classifier that returns True, False or
+None. Generally, using a strict rule-based classifier to create training
+examples for a stronger classifiers."""
 
-def classify_uncertain(comparisons, rule):
-    """Run through comparisons as (rec1,rec2):simvec and return judgements
-    as simvec:result where result is True (match), False (non-match),
-    or None (cannot say)
+import logging
+
+def classify(comparisons, rule):
+    """Use provided rule to judge provided similarity vectors as being True
+    (match), False (non-match), while discarding the None results from the rule.
+    
+    @param comparisons: Mapping from (rec1,rec2) to vector of similarity values.
     
     @param rule: Function of similarity vector that returns True, False or None.
    
     @return: List of (similarity vector, judgement) with judgement as
-    True, False or None for all similarity vectors.
+    True or False for distinct similarity vectors that could be classified.
     """
-    return [ (simvec, rule(simvec)) for simvec in comparisons.itervaules() ]
-
-def classify_strict(comparisons, rule):
-    """Run through comparisons as (rec1,rec2):simvec and return judgements
-    as simvec:result where result is True (match) or False (non-match). 
-    Uncertain judgements are not included.
-   
-    @param rule: Function of similarity vector that returns True, False or None.
-   
-    @return: List of (simvec, judgement) with judgement as True or False, for
-    similarity vectors that could be classified.
-    """
-    results = []
+    matches, nonmatches, uncertain = set(), set(), set()
     for simvec in comparisons.itervalues():
         ismatch = rule(simvec)
-        if ismatch is not None:
-            results.append((simvec,ismatch))
-    return results
-
-def split_judgements(judgements):
-    """Split simvec judgements into disjoint sets.
-    
-    @param judgements: Iteration of (simvec, judgement) as True, False, or None.
-    
-    @return: Sets of match, nonmatch, uncertain similarity vectors.
-    """
-    match, nomatch, uncertain = set(), set(), set()
-    for simvec, result in judgements:
-        if result is True:
-            match.add(simvec)
-        elif result is None:
+        if ismatch is True:
+            matches.add(simvec)
+        elif ismatch is False:
+            nonmatches.add(simvec)
+        elif ismatch is None:
             uncertain.add(simvec)
-        elif result is False:
-            nomatch.add(simvec)
         else:
-            raise ValueError("Classifier judgement %s is not True/False/None" % str(result))
-    return match, nomatch, uncertain
+            raise ValueError("rulebased classify: %s is not True/False/None" % repr(ismatch))
+    logging.debug("rulebased classifier on %d vectors: %d matches, %d non-matches, %d uncertain", 
+                  len(comparisons), len(matches), len(nonmatches), len(uncertain))
+    return matches, nonmatches, uncertain
