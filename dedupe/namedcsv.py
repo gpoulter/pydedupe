@@ -9,7 +9,6 @@ from __future__ import with_statement
 
 import csv, os, logging
 from compat import namedtuple
-from collections import defaultdict
 
 
 class NamedCSVReader(object):

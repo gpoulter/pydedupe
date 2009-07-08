@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
-import logging, math, unittest
+from __future__ import division
 
-from dedupe.classification import distance, kmeans, nearest
+import csv, logging, math, os, tempfile, unittest
+
+from dedupe.classification import distance, kmeans, nearest, examples
 
 class TestClassification(unittest.TestCase):
+    
+    ## Testing the distance functions
     
     def test_distance_L2(self):
         self.assertEqual(distance.L2([2,None],[5,None]), 3)
@@ -18,7 +22,7 @@ class TestClassification(unittest.TestCase):
         self.assertEqual(distance.normL2([2,None],[5,1],[1,1]), 3)
         self.assertEqual(distance.normL2([2,2],[3,3],[1,1]), math.sqrt(2))
         self.assertEqual(distance.normL2([2,2],[3,3],[0.5,1]), math.sqrt(5))
-    
+        
     ## Basic tests of the classifiers        
         
     def test_kmeans(self):
@@ -54,6 +58,33 @@ class TestClassification(unittest.TestCase):
             distance = distance.L2)
         self.assertEqual(set(matches.keys()), set([(2, 3), (3, 4)]))
         self.assertEqual(set(nomatches.keys()), set([(1, 2), (4, 5)]))
+
+
+class TestExamples(unittest.TestCase):
+    
+    def setUp(self):
+        f, self.examplefile = tempfile.mkstemp(prefix="test_examples")
+        f = open(self.examplefile, 'w')
+        w = csv.writer(f)
+        w.writerow(("GroupID", "Name", "Age"))
+        w.writerow(("1", "Joe1", "8"))
+        w.writerow(("1", "Joe2", "7"))
+        w.writerow(("1", "Joe3", "3"))
+        w.writerow(("2", "Abe1", "3"))
+        w.writerow(("2", "Abe2", "5"))
+        w.writerow(("3", "Zip1", "9"))
+        f.close()
+
+    def tearDown(self):
+        os.remove(self.examplefile)
+   
+    def test_examples_read_similarities(self):
+        def compare(rec1, rec2):
+            a, b = int(rec1[2]), int(rec2[2])
+            return 1.0 - abs(a-b)/10
+        similarities = examples.read_similarities(compare, self.examplefile)
+        self.assertEqual(similarities, set([ 5/10,9/10,6/10, 8/10]))
+
 
 if __name__ == "__main__":
     logging.basicConfig(level = logging.DEBUG)
