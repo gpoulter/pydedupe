@@ -360,13 +360,13 @@ class RecordComparator(OrderedDict):
         @param comparisons: Map from (rec1,rec2) to similarity vector.
 
         @param scores: Map from (rec1,rec2) to classifier score.  Only output
-        the pairs found in scores.
+        the pairs found in scores.  If None, output all without classifier score.
         
         @param stream: Output stream for the detailed comparison results.
         
         @param origstream: Output stream for the pairs of original records.
         """
-        if not comparisons or not scores: return
+        if not comparisons: return
         # File for comparison statistics
         writer = csv.writer(stream)
         writer.writerow(["Score"] + indeces1.keys() + self.keys())
@@ -374,10 +374,14 @@ class RecordComparator(OrderedDict):
         record_writer = None
         if origstream is not None:
             record_writer = csv.writer(origstream)
-            record_writer.writerow(scores.iterkeys().next()[0]._fields)
-        # Field-getters for each comparison
+            record_writer.writerow(comparisons.iterkeys().next()[0]._fields)
+        # Obtain field-getter for each value comparator
         field1 = [ comparator.field1 for comparator in self.itervalues() ]
         field2 = [ comparator.field2 for comparator in self.itervalues() ]
+        # Use dummy classifier scores if None were provided
+        if scores is None:
+            scores = dict((k,0) for k in comparisons.iterkeys())
+        # Write similarity vectors to output
         for (rec1, rec2), score in scores.iteritems():
             weights = comparisons[(rec1,rec2)] # look up comparison vector
             keys1 = [ idx.makekey(rec1) for idx in indeces1.itervalues() ]

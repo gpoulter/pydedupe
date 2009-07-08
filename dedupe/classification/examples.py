@@ -7,26 +7,35 @@ similarity vectors.
 @license: GPL
 """
 
-from dedupe.indexer import Index, RecordComparator
+import csv
+from dedupe.indexer import Index, Indeces, RecordComparator
 from dedupe.namedcsv import NamedCSVReader
 
-def read_similarities(comparator, path):
+def read_similarities(comparator, inpath, outpath=None):
     """Read groups of records from a file and perform all-pairs comparisons
     within each group, and return the set of all comparison vectors.
 
-    @param comparator: L{RecordComparator} for comparing pairs of records.
+    @param comparator: L{RecordComparator} for comparing pairs of records. May
+    provide a simple comparison function instead provided that outpath is
+    None.
 
-    @param path: Path to CSV file, where the first column is the group
+    @param inpath: Path to CSV file, where the first column is the group
     ID for blocking comparisons and the rest of the file has the columns
     needed by the RecordComparator.
     
+    @param outpath: Optional path to write a CSV file containing the
+    comparison vectors.
+    
     @return: Set of comparison vectors for the comparisons within each group
     """
-    reader = NamedCSVReader(path, typename="Record")
+    reader = NamedCSVReader(inpath, typename="Record")
     records = list(reader)
     index = Index(lambda r: r[0].strip())
-    for record in records:
-        index.insert(record)
+    indeces = Indeces(("Block",index))
+    indeces.insert(records)
     comparisons = index.dedupe(comparator)
+    if outpath is not None:
+        assert isinstance(comparator, RecordComparator)
+        comparator.write_comparisons(indeces, indeces, comparisons, None, open(outpath, 'w'))
     return set(comparisons.values())
  
