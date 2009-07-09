@@ -37,22 +37,19 @@ class Index(dict):
     inserted with that index key.
     
     The makekey function takes a record and returns a list of keys
-    under which the record should be indexed.  The makekey could return
-    a single value (like soundex), two values (double-metaphone), or 
-    many values (n-gram combinations)."""
+    under which the record should be indexed.  For something like soundex
+    there would only be one key in the list, but double-metaphone might
+    return two keys, and n-gram combinations always return several keys."""
     
     def __init__(self, makekey):
         """Parameterise the Index. 
         
-        @param makekey: Function of the record tuple returning a list/tuple
-        of index keys under which the record should be inserted. It may
-        instead return a single string, being the only key under which
-        to insert the record.
+        @param makekey: Function of the record tuple that returns
+        list or tuple of index keys under which the record should be inserted. 
         """
         super(Index, self).__init__()
         self.makekey = makekey
         
-       
     def insert(self, record):
         """Index a record by its keys. Only indexes keys for which bool(key)
         evaluates to True, meaning that keys such as False, 0, "", None are
@@ -62,13 +59,12 @@ class Index(dict):
         @return: The sequence of keys under which the record was inserted.
         """
         keys = self.makekey(record)
-        # makekey might return a single key or a sequence of keys
-        if not (isinstance(keys, tuple) or isinstance(keys, list)): 
-            keys = (keys,)
+        assert isinstance(keys, tuple) or isinstance(keys, list) or isinstance(keys, set)
         for key in keys:
-            if key: # Skip over non-keys like "", 0, None
-                recordsforkey = self.setdefault(key, list())
-                recordsforkey.append(record)
+            if key is None or key == "":
+                raise ValueError("Empty index key in %s" % repr(keys))
+            recordsforkey = self.setdefault(key, list())
+            recordsforkey.append(record)
         return keys
     
     def count_comparisons(self, other=None):
@@ -126,11 +122,13 @@ class Index(dict):
             records.sort()
             for j in range(len(records)):
                 for i in range(j):
-                    # i < j, rec[i] < rec[j]
-                    pair = records[i], records[j] 
-                    assert pair[0] <= pair[1]
-                    if pair not in comparisons:
-                        comparisons[pair] = compare(*pair)
+                    # i < j, and sorting means record[i] <= record[j]
+                    a,b = records[i], records[j] 
+                    # same record indexed under multiple keys!
+                    if a is b: continue
+                    # now compare a and b, keeping a <= b
+                    if (a,b) not in comparisons:
+                        comparisons[(a,b)] = compare(a,b)
         return comparisons
                         
     def link(self, other, compare, comparisons=None):
@@ -352,10 +350,10 @@ class RecordComparator(OrderedDict):
         field comparison weights.  Inspection shows which index keys matched,
         and the field-by-field similarity.
         
-        @param indeces1: L{Index} of the left-hand records
+        @param indeces1: L{Indeces} for the left-hand records
         
-        @param indeces2: L{Index} of the right-hand records for linkage (set
-        equal to index1 for dedupe).
+        @param indeces2: L{Indeces} for the right-hand records for linkage.
+        Use the same as indeces1 in the case of dedupe.
 
         @param comparisons: Map from (rec1,rec2) to similarity vector.
 
@@ -389,7 +387,8 @@ class RecordComparator(OrderedDict):
             writer.writerow([""] + keys1 + [ str(getfield(rec1,f)) for f in field1 ])
             writer.writerow([""] + keys2 + [ str(getfield(rec2,f)) for f in field2 ])
             # Tuple of booleans indicating whether index keys are equal
-            idxmatch = [ int(k1 == k2) if (k1 is not None and k2 is not None) else ""
+            idxmatch = [ bool(set(k1).intersection(set(k2))) if 
+                         (k1 is not None and k2 is not None) else ""
                          for k1,k2 in zip(keys1,keys2) ]
             weightrow = [score] + idxmatch + list(weights)
             writer.writerow(weightrow)

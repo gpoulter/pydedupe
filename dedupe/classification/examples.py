@@ -30,7 +30,7 @@ def read_similarities(comparator, inpath, outpath=None):
     """
     reader = NamedCSVReader(inpath, typename="Record")
     records = list(reader)
-    index = Index(lambda r: r[0].strip())
+    index = Index(lambda r: [r[0].strip()])
     indeces = Indeces(("Block",index))
     indeces.insert(records)
     comparisons = index.dedupe(comparator)

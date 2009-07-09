@@ -18,8 +18,8 @@ class TestIndex(unittest.TestCase):
     
     def setUp(self):
         self.indeces = Indeces(
-            ('PhoneIdx', Index(lambda x: (x.Name[:2] + "^" + x.Phone[:2]))),
-            ('RevNameIdx', Index(lambda x: x.Name[::-1])),
+            ('PhoneIdx', Index(lambda x: [x.Name[:2] + "^" + x.Phone[:2]])),
+            ('RevNameIdx', Index(lambda x: [x.Name[::-1]])),
         )
     
         self.Record = namedtuple('Record', 'Name Phone')
@@ -58,8 +58,8 @@ class TestIndex(unittest.TestCase):
         indeces = copy.deepcopy(self.indeces)
         isinstance(indeces, Indeces)
         
-        self.assertEqual(indeces['PhoneIdx'].makekey(self.recs[0]), 'AB^12')
-        self.assertEqual(indeces['RevNameIdx'].makekey(self.recs[0]), 'GFE DCBA')
+        self.assertEqual(indeces['PhoneIdx'].makekey(self.recs[0]), ['AB^12'])
+        self.assertEqual(indeces['RevNameIdx'].makekey(self.recs[0]), ['GFE DCBA'])
 
         # Index the first record
         indeces.insert(self.recs[:1]) 
