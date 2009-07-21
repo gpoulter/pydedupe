@@ -19,7 +19,8 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance):
 
     @param distance: Function to compute distance between comparison vectors.
 
-    @return: set of matched record pair, set of non-matched record pairs.
+    @return: Two sets, one with matches and one with non-matches. 
+    Each set contains (rec1,rec2) pairs of compared records.
     """
     logging.info("Nearest neighbour: %s match examples and %d non-match examples.", 
                  len(ex_matches), len(ex_nonmatches))

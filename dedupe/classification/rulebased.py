@@ -12,18 +12,18 @@ def classify(comparisons, rule):
     
     @param rule: Function of similarity vector that returns True, False or None.
    
-    @return: List of (similarity vector, judgement) with judgement as
-    True or False for distinct similarity vectors that could be classified.
+    @return: Three sets for matches, non-matches and uncertain pairs. Each
+    set contains (rec1,rec2) representing the compared pair.
     """
     matches, nonmatches, uncertain = set(), set(), set()
-    for simvec in comparisons.itervalues():
+    for pair, simvec in comparisons.iteritems():
         ismatch = rule(simvec)
         if ismatch is True:
-            matches.add(simvec)
+            matches.add(pair)
         elif ismatch is False:
-            nonmatches.add(simvec)
+            nonmatches.add(pair)
         elif ismatch is None:
-            uncertain.add(simvec)
+            uncertain.add(pair)
         else:
             raise ValueError("rulebased classify: %s is not True/False/None" % repr(ismatch))
     logging.debug("rulebased classifier on %d vectors: %d matches, %d non-matches, %d uncertain", 

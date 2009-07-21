@@ -30,9 +30,11 @@ def read_similarities(comparator, inpath, outpath=None):
     """
     reader = NamedCSVReader(inpath, typename="Record")
     records = list(reader)
-    index = Index(lambda r: [r[0].strip()])
+    # Index on the contents of the first column
+    index = Index(lambda r: [r[0].strip()]) 
     indeces = Indeces(("Block",index))
     indeces.insert(records)
+    # Compare records within index blocks
     comparisons = index.dedupe(comparator)
     if outpath is not None:
         assert isinstance(comparator, RecordComparator)
