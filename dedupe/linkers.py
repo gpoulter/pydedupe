@@ -52,7 +52,7 @@ def link(records1, records2, indeces, comparator):
     return comparisons, indeces1, indeces2
 
 
-def csvdedupe(indeces, comparator, classifier, inputfile, outputdir):
+def csvdedupe(indeces, comparator, classifier, inputfile, outputdir, masterfile=None):
     """Run a dedupe task using the specified indeces, comparator and classifier.
     
     @param indeces: Instance of L{indexer.Indeces}.
@@ -67,6 +67,9 @@ def csvdedupe(indeces, comparator, classifier, inputfile, outputdir):
     @param inputfile: CSV file of input records to dedupe
     
     @param outputdir: Directory to log the output files to.
+    
+    @param masterfile: Optional CSV file of master records.  The output will
+    instead list input records that are dups of the master records.
     """
 
     outpath, outfile = makeoutputdir(outputdir)
@@ -79,18 +82,29 @@ def csvdedupe(indeces, comparator, classifier, inputfile, outputdir):
 
     ## Index records, compare pairs, identify match/nonmatch pairs
     records = list(NamedCSVReader(inputfile))
-    comparisons, myindeces = dedupe(records, indeces, comparator)
-    myindeces.write_csv(outpath("1-"))
+
+    if masterfile:
+        ## Link input records to master records
+        master = list(NamedCSVReader(masterfile))
+        comparisons, indeces, master_indeces = link(records, master, indeces, comparator)
+        master_indeces.write_csv(outpath("1B-"))
+    else:
+        ## Dedupe input records against themselves
+        comparisons, indeces = dedupe(records, indeces, comparator)
+        master_indeces = indeces
+
+    indeces.write_csv(outpath("1A-"))
     matches, nonmatches = classifier(comparisons)
 
     ## Write the match and nonmatch pairs with scores
     comparator.write_comparisons(
-        myindeces, myindeces, comparisons, matches, 
+        indeces, master_indeces, comparisons, matches, 
         outfile("2-matches.csv"), outfile("3-matches-orig.csv"))
     comparator.write_comparisons(
-        myindeces, myindeces, comparisons, nonmatches, 
+        indeces, master_indeces, comparisons, nonmatches, 
         outfile("2-nonmatches.csv"), outfile("3-nonmatches-orig.csv"))
 
     ## Classify and output
     fields = records[0]._fields
     writegroups(matches, records, fields, outfile('4-groups.csv'))
+
