@@ -8,6 +8,7 @@ representing groups of matching records.
 
 import csv, optparse, os, sys
 from itertools import chain
+from collections import defaultdict
 
 def adjacency_list(nodepairs):
     """Construct adjacency list from edge list provided as pairs of nodes.
@@ -18,10 +19,8 @@ def adjacency_list(nodepairs):
     
     @return: nodes:[node] adjacency list representing the match graph.
     """
-    neighbours = {}
+    neighbours = defaultdict(list)
     for node1, node2 in nodepairs:
-        neighbours.setdefault(node1, [])
-        neighbours.setdefault(node2, [])
         neighbours[node1].append(node2)
         neighbours[node2].append(node1)
     return neighbours
