@@ -102,7 +102,7 @@ Why is there no .insert()?
     >>> l = d.items()
     >>> l.insert(1, ('x', 0))
     >>> OrderedDict(l)
-    OrderedDictedDict([('a', 42), ('x', 0), ('b', 23), ('c', 19)])
+    OrderedDict([('a', 42), ('x', 0), ('b', 23), ('c', 19)])
 """
 from itertools import izip, imap
 from copy import deepcopy

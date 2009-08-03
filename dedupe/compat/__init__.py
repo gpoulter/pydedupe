@@ -4,9 +4,9 @@ versions of Python."""
 try:
     from collections import namedtuple
 except ImportError:
-    from namedtuple import namedtuple
+    from _namedtuple import namedtuple
     
 try:
     from collections import OrderedDict
 except ImportError:
-    from ordereddict import OrderedDict
+    from _ordereddict import OrderedDict
