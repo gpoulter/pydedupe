@@ -236,32 +236,29 @@ class ValueComparator(object):
             self.encode2(getfield(record2, self.field2)))
 
     
-class SetComparator(ValueComparator):
-    """Compares fields which contain not a single string value but
-    a set of string value (typically in the form of a delimited string).
+class SetComparatorAvg(ValueComparator):
+    """Compare the similarity of two sets of values. Set of values obtained 
+    either from splitting a single column, or combining multiple columns.
     
-    @ivar field1, field2: Each takes a record as a paremeter, and 
-    returns a set of values representing the computed field. This
-    may be achieved by splitting a single delimited column into values,
-    or combining multiple columns.
+    The similarity is from looping over the smaller set of values, finding the
+    best match in the larger set, and taking the average by dividing the total
+    by the length of the smaller set. If each item in the smaller set has a
+    perfect match in the larger, the similarity is 1.0.
     
-    @ivar encode1, encode2: Functions applied to encode each value in the sets
-    resulting from L{field1} and L{field2}, prior to comparing the sets.
+    @ivar field1, field2: Take a record and return a set of values (computed
+    field).
+    
+    @ivar encode1, encode2: Apply these functions each value in the sets
+    obtained from L{field1} and L{field2}, just prior to comparing the sets.
     """
     
     def __call__(self, record1, record2):
-        """Compare two records on a multivalued field (either from
-        splitting a single column, or combining multiple columns).
-        
-        @return: The average over the best comparison values to the larger set,
-        for each string in the smaller set.  If all items in the smaller set
-        have a perfect match in the larger set, the similarity will be 1.0.
-        """
+        """Compare two records on a set-of-values field."""
         f1 = set(self.encode1(v1) for v1 in self.field1(record1))
         f2 = set(self.encode2(v2) for v2 in self.field2(record2))
         f1, f2 = sorted([f1, f2], key=len) # short set, long set
+        # Missing value check
         if len(f1) == 0 or len(f2) == 0:
-            # Return the missing value result
             return self.comparevalues(None,None) 
         total = 0.0
         for v1 in f1:
@@ -271,7 +268,35 @@ class SetComparator(ValueComparator):
                 best = max(best, comp)
             total += best # score of most similar item in the long set
         return total / len(f1)
-
+    
+class SetComparatorMax(ValueComparator):
+    """Compare the similarity of two sets of values. Set of values obtained 
+    either from splitting a single column, or combining multiple columns.
+    
+    The similarity is the maximum of the pair-wise comparisons between the two
+    sets. One perfectly matching pair of values between the two sets returns a
+    similarity of 1.0.
+    
+    @ivar field1, field2: Take a record and return a set of values (computed
+    field).
+    
+    @ivar encode1, encode2: Apply these functions each value in the sets
+    obtained from L{field1} and L{field2}, just prior to comparing the sets.
+    """
+    
+    def __call__(self, record1, record2):
+        """Compare two records on a set-of-values field."""
+        f1 = set(self.encode1(v1) for v1 in self.field1(record1))
+        f2 = set(self.encode2(v2) for v2 in self.field2(record2))
+        # Missing value check
+        if len(f1) == 0 or len(f2) == 0:
+            return self.comparevalues(None,None) 
+        best = 0.0
+        for v1 in f1:
+            for v2 in f2:
+                comp = self.comparevalues(v1,v2)
+                best = max(best, comp)
+        return best
 
 class RecordComparator(OrderedDict):
     """Ordered dictionary mapping comparison weight fields to field comparison

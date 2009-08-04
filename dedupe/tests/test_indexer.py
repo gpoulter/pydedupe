@@ -2,7 +2,7 @@
 
 import copy, logging, sys, os, unittest
 
-from dedupe.encoding import lowstrip, split_field
+from dedupe.encoding import digits, lowstrip, split_field
 from dedupe.compat import namedtuple
 
 from dedupe.indexer import (
@@ -10,7 +10,8 @@ from dedupe.indexer import (
     Indeces, 
     RecordComparator, 
     ValueComparator, 
-    SetComparator
+    SetComparatorAvg,
+    SetComparatorMax,
 )
         
 class TestIndex(unittest.TestCase):
@@ -43,11 +44,16 @@ class TestIndex(unittest.TestCase):
             encode1 = lowstrip, 
             field2 = lambda r:r.Name)
         
-        self.phonecompare = SetComparator(
+        self.phonecompare = SetComparatorAvg(
             comparevalues = lambda a,b:0.5, 
             field1 = lambda r: set(r.Phone.split(";")),
-            encode1 = lowstrip)
+            encode1 = digits)
         
+        self.phonecomparemax = SetComparatorMax(
+            comparevalues = lambda a,b:0.5, 
+            field1 = lambda r: set(r.Phone.split(";")),
+            encode1 = digits)
+
         # Record comparison definition
         self.comparator = RecordComparator(
             ("NameComp", self.namecompare),
@@ -74,14 +80,25 @@ class TestIndex(unittest.TestCase):
     def test_ValueComparator(self):
         self.assertEqual(self.namecompare(self.recs[0], self.recs[1]), 0.5)
     
-    def test_SetComparator(self):
+    def test_SetComparatorAvg(self):
         phonecomp = self.phonecompare
-        isinstance(phonecomp, SetComparator)
-        
-        # Returns 0.2 for missing values, otherwise 0.5
-        phonecomp.comparevalues = lambda x,y: 0.2 if not (x and y) else 0.5 
+        assert isinstance(phonecomp, SetComparatorAvg)
+        # 0.2 for missing values, otherwise 0.5
+        phonecomp.comparevalues = lambda x,y: 1.0 if x and y else 0.2
+        self.assertEqual(phonecomp(self.recs[3], self.recs[3]), 0.2)  # 3 has no phone
+        self.assertEqual(phonecomp(self.recs[2], self.recs[1]), 1.0)  # 1 and 2 have phone
+        phonecomp.comparevalues = lambda x,y: 1.0 if x == y else 0.0
+        self.assertEqual(phonecomp(self.recs[1], self.recs[0]), 0.5)  # 0 and 1 share one phone
+
+    def test_SetComparatorMax(self):
+        phonecomp = self.phonecomparemax
+        assert isinstance(phonecomp, SetComparatorMax)        
+        # 0.2 for missing values, otherwise 0.5
+        phonecomp.comparevalues = lambda x,y: 1.0 if x and y else 0.2
         self.assertEqual(phonecomp(self.recs[3], self.recs[3]), 0.2)  # rec[3] has phone missing
-        self.assertEqual(phonecomp(self.recs[2], self.recs[1]), 0.5)  # rec[1] and rec[2] have phone
+        self.assertEqual(phonecomp(self.recs[2], self.recs[1]), 1.0)  # 1 and 2 have phone
+        phonecomp.comparevalues = lambda x,y: 1.0 if x == y else 0.0
+        self.assertEqual(phonecomp(self.recs[1], self.recs[0]), 1.0)  # 0 and 1 share one phone
 
     def test_RecordComparator_compare_all_pairs(self):
         self.assertEqual(self.comparator.compare(self.recs[0], self.recs[1]),
