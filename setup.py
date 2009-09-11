@@ -1,19 +1,23 @@
 #!/usr/bin/python
 
-import ez_setup
-ez_setup.use_setuptools()
-from setuptools import setup
+try:
+    from distutils.core import setup
+    raise ImportError()
+except ImportError:
+    import ez_setup
+    ez_setup.use_setuptools()
+    from setuptools import setup
 
 setup(
     name='dedupe',
     version='1.0',
-    zip_safe=True,
-
+    description="Identifies similar records within a table or between two tables.",
     author='Graham Poulter',
-    author_url='http://www.grahampoulter.com',
-    license='GPL',
-    test_suite="dedupe.tests",
-
+    author_email='http://www.grahampoulter.com',
     url='http://launchpad.net/pydedupe',
-    description="Library for identifying similar pairs of records within or between sets for records."""
+    packages='dedupe',
+    zip_safe=True,
+    license='GPL',
+    platforms='any',
+    test_suite="dedupe.tests",
 )
