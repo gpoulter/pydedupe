@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
 from __future__ import division
-
-import csv, logging, math, os, tempfile, unittest
+import logging, math, os, sys, tempfile, unittest
+from os.path import dirname, join
+sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
 from dedupe.classification import distance, kmeans, nearest, examples
+from dedupe import namedcsv
 
 class TestClassifyDistance(unittest.TestCase):
     
@@ -68,7 +70,7 @@ class TestExamples(unittest.TestCase):
     def setUp(self):
         f, self.examplefile = tempfile.mkstemp(prefix="test_examples")
         f = open(self.examplefile, 'w')
-        w = csv.writer(f)
+        w = namedcsv.uwriter(f)
         w.writerow(("GroupID", "Name", "Age"))
         w.writerow(("1", "Joe1", "8"))
         w.writerow(("1", "Joe2", "7"))

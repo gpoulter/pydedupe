@@ -16,9 +16,22 @@ defined in the L{indexer.RecordComparator}
 @license: GPL
 """
 
-from namedcsv import makeoutputdir, NamedCSVReader
+import logging, os
+import namedcsv
 from recordgroups import writegroups
-import logging
+
+def makeoutputdir(dirname, open=open):
+    """Create a directory and return opener factories for files
+    in that directory."""
+    if not os.path.exists(dirname): 
+        os.mkdir(dirname)
+    def outpath(filename):
+        """Return path to named output file."""
+        return os.path.join(dirname, filename)
+    def outfile(filename):
+        """Return write-only stream for named output file."""
+        return open(outpath(filename), 'w')
+    return outpath, outfile
 
 def dedupe(records, indeces, comparator):
     """Dedupe records against itself.
@@ -82,12 +95,12 @@ def csvdedupe(indeces, comparator, classifier, inputfile, outputdir, masterfile=
     logging.getLogger().addHandler(filehandler)
 
     ## Index records, compare pairs, identify match/nonmatch pairs
-    records = list(NamedCSVReader(inputfile))
+    records = list(namedcsv.ureader(inputfile))
     master_records = []
 
     if masterfile:
         ## Link input records to master records
-        master_records = list(NamedCSVReader(masterfile))
+        master_records = list(namedcsv.ureader(masterfile))
         comparisons, indeces, master_indeces = link(
             records, master_records, indeces, comparator)
         master_indeces.write_csv(outpath("1B-"))

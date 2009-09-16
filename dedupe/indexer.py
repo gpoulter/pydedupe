@@ -10,8 +10,9 @@ Record ID is always assumed to be the first field of a record.
 
 from __future__ import with_statement
 
-import csv, logging
+import logging
 from compat import namedtuple, OrderedDict
+import namedcsv
 
 def getfield(record, field):
     """Retrieve a field from a record. The field may be specified with an
@@ -156,7 +157,7 @@ class Index(dict):
                             
     def write_csv(self, stream):
         """Write the contents of this index in CSV format to the given stream."""
-        writer = csv.writer(stream)
+        writer = namedcsv.uwriter(stream)
         for indexkey, rows in self.iteritems():
             for row in rows:
                 writer.writerow((indexkey,) + row)
@@ -391,12 +392,12 @@ class RecordComparator(OrderedDict):
         """
         if not comparisons: return
         # File for comparison statistics
-        writer = csv.writer(stream)
+        writer = namedcsv.uwriter(stream)
         writer.writerow(["Score"] + indeces1.keys() + self.keys())
         # File for original records
         record_writer = None
         if origstream is not None:
-            record_writer = csv.writer(origstream)
+            record_writer = namedcsv.uwriter(origstream)
             record_writer.writerow(comparisons.iterkeys().next()[0]._fields)
         # Obtain field-getter for each value comparator
         field1 = [ comparator.field1 for comparator in self.itervalues() ]
@@ -409,14 +410,14 @@ class RecordComparator(OrderedDict):
             weights = comparisons[(rec1,rec2)] # look up comparison vector
             keys1 = [ idx.makekey(rec1) for idx in indeces1.itervalues() ]
             keys2 = [ idx.makekey(rec2) for idx in indeces2.itervalues() ]
-            writer.writerow([""] + keys1 + [ str(getfield(rec1,f)) for f in field1 ])
-            writer.writerow([""] + keys2 + [ str(getfield(rec2,f)) for f in field2 ])
+            writer.writerow([""] + [";".join(x) for x in keys1] + [ str(getfield(rec1,f)) for f in field1 ])
+            writer.writerow([""] + [";".join(x) for x in keys2] + [ str(getfield(rec2,f)) for f in field2 ])
             # Tuple of booleans indicating whether index keys are equal
             idxmatch = [ bool(set(k1).intersection(set(k2))) if 
                          (k1 is not None and k2 is not None) else ""
                          for k1,k2 in zip(keys1,keys2) ]
             weightrow = [score] + idxmatch + list(weights)
-            writer.writerow(weightrow)
+            writer.writerow(str(x) for x in weightrow)
             if record_writer:
                 record_writer.writerow(rec1)
                 record_writer.writerow(rec2)

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 from __future__ import division
-
-import logging, math, unittest
+import logging, math, unittest, sys
 from functools import partial
+from os.path import dirname, join
+sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
 from dedupe.compat import namedtuple
 

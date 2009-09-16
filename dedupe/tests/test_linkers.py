@@ -3,10 +3,14 @@
 import csv, logging, os, shutil, sys, tempfile, unittest
 from functools import partial
 
+from os.path import dirname, join
+sys.path.insert(0, dirname(dirname(dirname(__file__))))
+
 from dedupe.comparison.dameraulevenshtein import compare as dale
 from dedupe.encoding import lowstrip, dmetaphone
 from dedupe.indexer import Index, Indeces, ValueComparator, RecordComparator
 from dedupe.linkers import csvdedupe
+from dedupe import namedcsv
 
 def classify(comparisons):
     """Takes a map of (rec1,rec2):similarity, and returns a set of (r1,r2)
@@ -45,7 +49,7 @@ class TestCSVDedupe(unittest.TestCase):
         self.outdir = tempfile.mkdtemp(prefix="test_linkers_")
         self.inpath = os.path.join(self.outdir, "input.csv")
         csvfile = open(self.inpath,'w') 
-        writer = csv.writer(csvfile, lineterminator='\n')
+        writer = namedcsv.uwriter(csvfile, lineterminator='\n')
         writer.writerow(("Name",))
         writer.writerows(self.records)
         csvfile.close()

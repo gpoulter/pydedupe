@@ -1,4 +1,10 @@
-"""Classes for reading CSV files with rows as L{namedtuple} instances.
+"""Classes for reading Excel CSV files with rows as L{namedtuple} instances,
+supporting the extended CP1252 characters.
+
+The ureader takes byte string input and returns unicode namedtuples. The
+uwriter takes unicode tuples and and writes byte string output. The default
+encoding is CP1252, but utf-8 is supported. Null-using encodings like UTF-16
+are *not* supported, due to the underlying csv module.
 
 @author: Graham Poulter
 @copyright: MIH Holdings
@@ -7,64 +13,54 @@
 
 from __future__ import with_statement
 
-import csv, os, logging
+import csv
 from compat import namedtuple
 
-
-class NamedCSVReader(object):
-    """Produces named tuples for its records.
-    @ivar reader: Wrapped CSV reader instance from L{csv}
-    @ivar RecordType: The namedtuple class for records.    
+class ureader:
+    """An Excel CSV reader (for CP1252 encoding by default) that parses a
+    file-like iteration of byte-strings and yields namedtuples where the
+    field strings have been decoded to unicode. The resulting tuples can be
+    written back to file using the L{uwriter} class.
+    
+    @ivar Row: namedtuple class of the returned rows
     """
     
-    def __init__(self, iterable, dialect='excel', typename='Record', fields=None):
+    def __init__(self, iterable, dialect=csv.excel, encoding='cp1252', typename='Row', fields=None):
         """Initialise namedtuple reader.
-        @param iterable: File or other source of lines (or path to ASCII file)
-        @param dialect: Dialect for of the CSV file (see L{csv})
-        @param typename: Name for the namedtuple class.
-        @param fields: List/string with record fields.  If None, use CSV header.
+        @param iterable: File or other iteration of byte-string lines.
+        @param dialect: Dialect of the CSV file (see L{csv})
+        @param typename: Name for the created namedtuple class.
+        @param fields: namedtuple fields parameter, or None to use the CSV header line.
         """
         if isinstance(iterable, basestring):
             iterable = open(iterable) 
+        self.encoding = encoding
         self.reader = csv.reader(iterable, dialect)
-        self.RecordType = namedtuple(typename, fields if fields else self.reader.next())
+        self.Row = namedtuple(typename, fields if fields else self.reader.next())
         
     def __iter__(self):
         return self
         
     def next(self):
         try:
-            row = self.reader.next()
-            return self.RecordType._make(row)
+            row = [unicode(s, self.encoding) for s in self.reader.next()]
+            return self.Row._make(row)
         except TypeError, err:
             raise IOError(str(err) + ": " + str(row))
 
 
-### Now support progress logging by wrapping the iterator.    
-    
-def logiterator(k, iterator, format='Completed %d items', log=logging.info):
-    """Wrap an iterator so that it logs the progress of indexing.
-    @param k: Message every k items.
-    @param format: Message format string with a %d for the number of records.
-    @param log: Logging function to use.
-    """
-    assert k >= 1
-    for idx, item in enumerate(iterator):
-        yield item
-        if (idx+1) % k == 0:
-            log(format % (idx+1))
+class uwriter:
+    """An Excel CSV writer (with CP1252 encoding by default), which takes rows
+    of unicode strings and encodes before writing them to the file stream. Do
+    not specify encodings that use nulls (such as utf-16)."""
 
-def makeoutputdir(dirname, open=open):
-    """Create a directory and return opener factories for files
-    in that directory."""
-    if not os.path.exists(dirname): 
-        os.mkdir(dirname)
-    def outpath(filename):
-        """Return path to named output file."""
-        return os.path.join(dirname, filename)
-    def outfile(filename):
-        """Return write-only stream for named output file."""
-        return open(outpath(filename), 'w')
-    return outpath, outfile
+    def __init__(self, stream, dialect=csv.excel, encoding='cp1252', **kwds):
+        self.encoding = encoding
+        self.writer = csv.writer(stream, dialect=dialect, **kwds)
 
+    def writerow(self, row):
+        self.writer.writerow([s.encode(self.encoding) for s in row])
 
+    def writerows(self, rows):
+        for row in rows:
+            self.writerow(row)

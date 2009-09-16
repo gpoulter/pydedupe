@@ -7,9 +7,8 @@ similarity vectors.
 @license: GPL
 """
 
-import csv
-from dedupe.indexer import Index, Indeces, RecordComparator
-from dedupe.namedcsv import NamedCSVReader
+from ..indexer import Index, Indeces, RecordComparator
+from .. import namedcsv
 
 def read_similarities(comparator, inpath, outpath=None):
     """Read groups of records from a file and perform all-pairs comparisons
@@ -28,7 +27,7 @@ def read_similarities(comparator, inpath, outpath=None):
     
     @return: Set of comparison vectors for the comparisons within each group
     """
-    reader = NamedCSVReader(inpath, typename="Record")
+    reader = namedcsv.ureader(inpath, typename="Record")
     records = list(reader)
     # Index on the contents of the first column
     index = Index(lambda r: [r[0].strip()]) 

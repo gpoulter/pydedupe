@@ -12,7 +12,7 @@ def dmetaphone(st) :
 	returns the double metaphone codes for given string - always a tuple
 	there are no checks done on the input string, but it should be a single	word or name."""
 	vowels = ['A', 'E', 'I', 'O', 'U', 'Y']
-	st = st.decode('ascii', 'ignore')
+	#st = st.decode('ascii', 'ignore') (assume unicode)
 	st = st.upper() # st is short for string. I usually prefer descriptive over short, but this var is used a lot!
 	is_slavo_germanic = (st.find('W') > -1 or st.find('K') > -1 or st.find('CZ') > -1 or st.find('WITZ') > -1)
 	length = len(st)

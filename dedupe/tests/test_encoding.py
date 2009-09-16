@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-import logging, unittest
+import logging, unittest, sys	
+from os.path import dirname, join
+sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
 from dedupe.encoding import (
     combine_fields,

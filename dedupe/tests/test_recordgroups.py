@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-import logging, unittest
+import logging, sys, unittest
+from os.path import dirname, join
+sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
 from dedupe.recordgroups import (
     adjacency_list, 

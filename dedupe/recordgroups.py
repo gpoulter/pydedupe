@@ -6,9 +6,11 @@ representing groups of matching records.
 @license: GPL
 """
 
-import csv, optparse, os, sys
+import optparse, os, sys
 from itertools import chain
 from collections import defaultdict
+
+import namedcsv
 
 def adjacency_list(nodepairs):
     """Construct adjacency list from edge list provided as pairs of nodes.
@@ -79,7 +81,7 @@ def writegroups(matches, records, fields, output_stream):
     """
     
     singles, groups = singles_and_groups(matches, records)
-    out = csv.writer(output_stream, dialect='excel') 
+    out = namedcsv.uwriter(output_stream, dialect='excel') 
     out.writerow(["GroupID"] + list(fields))
     # Write groups of similar records
     for groupid, group in enumerate(groups):
