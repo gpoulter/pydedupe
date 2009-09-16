@@ -410,8 +410,8 @@ class RecordComparator(OrderedDict):
             weights = comparisons[(rec1,rec2)] # look up comparison vector
             keys1 = [ idx.makekey(rec1) for idx in indeces1.itervalues() ]
             keys2 = [ idx.makekey(rec2) for idx in indeces2.itervalues() ]
-            writer.writerow([""] + [";".join(x) for x in keys1] + [ str(getfield(rec1,f)) for f in field1 ])
-            writer.writerow([""] + [";".join(x) for x in keys2] + [ str(getfield(rec2,f)) for f in field2 ])
+            writer.writerow([u""] + [u";".join(x) for x in keys1] + [ unicode(getfield(rec1,f)) for f in field1 ])
+            writer.writerow([u""] + [u";".join(x) for x in keys2] + [ unicode(getfield(rec2,f)) for f in field2 ])
             # Tuple of booleans indicating whether index keys are equal
             idxmatch = [ bool(set(k1).intersection(set(k2))) if 
                          (k1 is not None and k2 is not None) else ""

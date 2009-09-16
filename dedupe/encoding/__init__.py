@@ -16,11 +16,11 @@ from functools import partial
 
 def normspace(text):
     """Strip multiple and trailing spaces."""
-    return re.sub(r"\s+", " ", text.strip())
+    return re.sub(ur"\s+", u" ", text.strip())
 
 def nospace(text):
     """Strip all whitespace."""
-    return re.sub(r"\s+", "", text.strip())
+    return re.sub(ur"\s+", u"", text.strip())
 
 def lowstrip(text):
     """Lowcase and strip extra space."""
@@ -28,7 +28,7 @@ def lowstrip(text):
 
 def digits(text):
     """Strip all except digits (for phone numbers)."""
-    return re.sub(r"\D+", "", text.strip())
+    return re.sub(ur"\D+", "", text.strip())
 
 def sorted_words(text):
     """Sort words."""
@@ -40,13 +40,13 @@ def reverse(text):
 
 def urldomain(text):
     """Obtain the domain from the text of a URL."""
-    match = re.match(r'(?:http://)?(?:www\.)?([^/]+)(?:/.*)?', text)
+    match = re.match(ur'(?:http://)?(?:www\.)?([^/]+)(?:/.*)?', text)
     if match is None: return text
     return match.group(1)
 
 def emaildomain(text):
     """Obtain the domain from the text of an email address"""
-    match = re.match(r'([^@]+)@(.+)', text)
+    match = re.match(ur'([^@]+)@(.+)', text)
     if match is None: return text
     return match.group(2)
 
