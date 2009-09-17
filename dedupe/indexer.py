@@ -100,11 +100,14 @@ class Index(dict):
         @param log: Logging object to use.
         """
         if log is None: log = logging.getLogger()
-        nrecords = sum(len(recs) for recs in self.itervalues())
-        biggroup = max(len(recs) for recs in self.itervalues())
-        nkeys = len(self)
-        log.info(prefix + "%d records in %d blocks. Largest block: %d, Average block: %.2f",
-                 nrecords, nkeys, biggroup, float(nrecords)/nkeys)
+        if not self:
+            log.info("The index is empty.")
+        else:
+            nrecords = sum(len(recs) for recs in self.itervalues())
+            biggroup = max(len(recs) for recs in self.itervalues())
+            nkeys = len(self)
+            log.info(prefix + "%d records in %d blocks. Largest block: %d, Average block: %.2f",
+                     nrecords, nkeys, biggroup, float(nrecords)/nkeys)
         
     def dedupe(self, compare, comparisons=None):
         """Perform dedupe comparisons on the index.  Note that this sorts
