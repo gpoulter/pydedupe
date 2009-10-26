@@ -4,9 +4,10 @@ examples for a stronger classifiers."""
 
 import logging
 
-def classify(comparisons, rule):
-    """Use provided rule to judge provided similarity vectors as being True
-    (match), False (non-match), while discarding the None results from the rule.
+def classify_bool(rule, comparisons):
+    """Use provided rule function to judge comparison 
+    similarity vectors as matches (if True), non-matches (if False)
+    and uncertain (if None).  
     
     @param comparisons: Mapping from (rec1,rec2) to vector of similarity values.
     
@@ -29,3 +30,9 @@ def classify(comparisons, rule):
     logging.debug("rulebased classifier on %d vectors: %d matches, %d non-matches, %d uncertain", 
                   len(comparisons), len(matches), len(nonmatches), len(uncertain))
     return matches, nonmatches, uncertain
+
+def classify_score(rule, comparisons):
+    """Use L{classify_bool} but maps True to 1.0 and False to 0.0, to make
+    the rule classifier into score classifier."""
+    match,nomatch,unknown = rulebased.classify(rule, comparisons)
+    return dict((x,1.0) for x in match), dict((x,0.0) for x in nomatch)

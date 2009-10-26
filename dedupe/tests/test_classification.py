@@ -71,24 +71,24 @@ class TestExamples(unittest.TestCase):
         f, self.examplefile = tempfile.mkstemp(prefix="test_examples")
         f = open(self.examplefile, 'w')
         w = namedcsv.uwriter(f)
-        w.writerow(("GroupID", "Name", "Age"))
-        w.writerow(("1", "Joe1", "8"))
-        w.writerow(("1", "Joe2", "7"))
-        w.writerow(("1", "Joe3", "3"))
-        w.writerow(("2", "Abe1", "3"))
-        w.writerow(("2", "Abe2", "5"))
-        w.writerow(("3", "Zip1", "9"))
+        w.writerow(("Match","GroupID", "Name", "Age"))
+        w.writerow(("TRUE","1", "Joe1", "8"))
+        w.writerow(("TRUE","1", "Joe2", "7"))
+        w.writerow(("TRUE","1", "Joe3", "3"))
+        w.writerow(("TRUE","2", "Abe1", "3"))
+        w.writerow(("TRUE","2", "Abe2", "5"))
+        w.writerow(("TRUE","3", "Zip1", "9"))
         f.close()
 
     def tearDown(self):
         os.remove(self.examplefile)
    
-    def test_examples_read_similarities(self):
+    def test(self):
         def compare(rec1, rec2):
-            a, b = int(rec1[2]), int(rec2[2])
+            a, b = int(rec1.Age), int(rec2.Age)
             return 1.0 - abs(a-b)/10
-        similarities = examples.read_similarities(compare, self.examplefile)
-        self.assertEqual(similarities, set([ 5/10,9/10,6/10, 8/10]))
+        t_comparisons, f_comparisons = examples.read_examples(compare, self.examplefile)
+        self.assertEqual(t_comparisons, set([ 5/10,9/10,6/10, 8/10]))
 
 
 if __name__ == "__main__":
