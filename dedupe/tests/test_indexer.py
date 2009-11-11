@@ -4,7 +4,7 @@ import copy, logging, sys, os, unittest
 from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
-from dedupe.encoding import digits, lowstrip, split_field
+from dedupe.encoding import digits, lowstrip
 from dedupe.compat import namedtuple
 
 from dedupe.indexer import (

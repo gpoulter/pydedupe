@@ -34,5 +34,5 @@ def classify_bool(rule, comparisons):
 def classify_score(rule, comparisons):
     """Use L{classify_bool} but maps True to 1.0 and False to 0.0, to make
     the rule classifier into score classifier."""
-    match,nomatch,unknown = rulebased.classify(rule, comparisons)
+    match,nomatch,unknown = classify_bool(rule, comparisons)
     return dict((x,1.0) for x in match), dict((x,0.0) for x in nomatch)

@@ -5,16 +5,16 @@ from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
 from dedupe.encoding import (
-    combine_fields,
+    combine,
     digits,
     dmetaphone,
     emaildomain, 
     lowstrip, 
+    multivalue,
     normspace, 
     nospace, 
     reverse, 
     sorted_words, 
-    split_field,
     urldomain, 
     wrap, 
 )
@@ -50,12 +50,11 @@ class TestEncoding(unittest.TestCase):
     def test_dmetaphone(self):
         self.assertEqual(dmetaphone("Cape Town"), ("KPTN", None))
         
-    def test_combine_fields(self):
-        self.assertEqual(combine_fields(0,2)(['A','B','C']), ['A','C'])
+    def test_combine(self):
+        self.assertEqual(combine(0,2)(['A','B','C']), ['A','C'])
     
-    def test_split_field(self):
-        self.assertEqual(split_field(0)(['1;2;3']), ['1','2','3'])
-
+    def test_multivalue(self):
+        self.assertEqual(multivalue(";",0)(['1;2;3']), ['1','2','3'])
         
 if __name__ == "__main__":
     logging.basicConfig(level = logging.DEBUG)

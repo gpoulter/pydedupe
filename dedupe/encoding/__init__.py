@@ -64,20 +64,21 @@ def wrap(*funcs):
 ## Factories to create functions that can split up a single delimited 
 ## column or combine multiple columns. 
 
-from dedupe.indexer import getfield
-
-def combine_fields(*fields):
-    """Creates a function that computes a multi-valued field from multiple columns."""
-    def field_combiner(record):
-        """Construct a multi-valued field from columns %s."""
-        return [getfield(record, field).strip() for field in fields if getfield(record, field).strip()]
-    field_combiner.__doc__ %= ", ".join([str(x) for x in fields]) # Document the function
-    return field_combiner
-
-def split_field(field, sep=";"):
-    """Create a function to compute a multi-valued field from a delimited column."""
+def multivalue(sep, *fields):
+    """Return a function that combines multiple delimited fielsd as a 
+    multi-value fields."""
+    from dedupe.indexer import getfield
     def field_splitter(record):
-        """Create a set-type field from column %s using delimiter %s."""
-        return [s.strip() for s in getfield(record, field).split(sep) if s.strip()]
-    field_splitter.__doc__ %= (field, sep) # Document the function
+        """Create a multi-value from multiple delimited fields %s using delimiter %s"""
+        result = []
+        for field in fields:
+            value = getfield(record, field)
+            values = [value] if sep is None else value.split(sep)
+            result += [s.strip() for s in values if s.strip()]
+        return result
+    field_splitter.__doc__ %= ",".join([str(x) for x in fields]), sep
     return field_splitter
+
+def combine(*fields):
+    """Return a function that combines single-value fields as a multi-value"""
+    return multivalue(None, *fields)
