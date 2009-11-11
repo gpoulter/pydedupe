@@ -17,13 +17,14 @@ def read_examples(comparator, inpath, outpath=None):
     @param comparator: L{RecordComparator} to compare pairs of records. If
     outpath outpath is None, a simple comparison function could be used instead.
 
-    @param inpath: Path of CSV example file with headings. The first column is
-    the name of the index block. Rows with empty first column are ignored.
-    The remaining columns should be titled with all the column names 
+    @param inpath: Path to CSV example file.  The file must have column
+    headings for namedtuple loading.  Rows are only read which have
+    TRUE or FALSE in the first column, and must have an index block identifier
+    in the second column.  The remaining columns must include the
+    headings used by the RecordComparator. with all the column names 
     needed by the RecordComparator.
     
-    @param outpath: Optional path for writing a CSV file of the
-    comparison vectors.
+    @param outpath: Path to write CSV log of the pairwise comparisons.
     
     @return: Set of comparison vectors, union of all comparisons made
     within each of the groups.
