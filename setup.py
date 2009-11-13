@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
 try:
-    from distutils.core import setup
-    raise ImportError()
+    from setuptools import setup
 except ImportError:
     import ez_setup
     ez_setup.use_setuptools()
@@ -11,11 +10,12 @@ except ImportError:
 setup(
     name='dedupe',
     version='1.0',
-    description="Identifies similar records within a table or between two tables.",
+    description="""Identifies similar tuples in a list or between two lists.
+    Has modules to handle CSV input and output..""",
     author='Graham Poulter',
     author_email='http://www.grahampoulter.com',
     url='http://launchpad.net/pydedupe',
-    packages='dedupe',
+    packages=['dedupe'],
     zip_safe=True,
     license='GPL',
     platforms='any',
