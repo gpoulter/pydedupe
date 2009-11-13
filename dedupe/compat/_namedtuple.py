@@ -1,8 +1,8 @@
 """Creates subclasses of tuple with named fields.
 
-@note: Source code from http://code.activestate.com/recipes/500261/
+Source code from http://code.activestate.com/recipes/500261/
 
-@author: Raymond Hettinger (2007)
+.. moduleauthor: Raymond Hettinger (2007)
 """
 
 from operator import itemgetter as _itemgetter

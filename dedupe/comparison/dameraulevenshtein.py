@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-"""Implementation of Damerau-Levenshtein distance by mwh.geek.nz:
+"""
+:mod:`comparison.dameraulevenshtein` -- Damerau-Levenshtein string distance
+---------------------------------------------------------------------------
+
+Implementation of Damerau-Levenshtein distance by mwh.geek.nz:
 
 http://mwh.geek.nz/2009/04/26/python-damerau-levenshtein-distance/
 
@@ -70,12 +74,13 @@ def compare(maxdiff, s1, s2, missing=None):
     """A Damerau-Levenshtein string comparator, returning a similarity
     value between 0.0 and 1.0.
     
-    @param maxdiff: Float between 0.0 and 1.0 to scale the maximum allowable
-    differences before returning similarity of 0. Maxdiff 0 always returns
-    zero, and maxdiff of 1.0 allows up to max(len(s1),len(s2)) differences.
-    Higher values of maxdiff allow more lenient comparison.
+    :param maxdiff: Float between 0.0 and 1.0.
+    :param missing: If one of the strings is empty or None, returns this value.
     
-    @param missing: If one of the strings is empty or None, returns this value.
+    `maxdiff` scales the maximum allowable differences before returning
+    similarity of 0. Maxdiff 0 always returns zero, and maxdiff of 1.0 allows
+    up to max(len(s1),len(s2)) differences. Higher values of maxdiff allow
+    more lenient comparison.
     """
     if not (0.0 <= maxdiff <= 1.0):
         raise ValueError("Difference threshold must be between 0.0 and 1.0.")

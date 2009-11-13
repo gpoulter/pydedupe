@@ -1,4 +1,5 @@
-"""Provide convenience functions for linking similar records.  
+"""
+:mod:`linkcsv` -- Record linkage framework for CSV files
 
 The "dedupe" function compares one set of records against itself, and the
 "link" function compares it against a master set of records.
@@ -11,9 +12,9 @@ A "comparison" is a tuple of floats between 0.0  and 1.0, representing
 the field-by-field similarity of a pair of records for the comparisons
 defined in the L{indexer.RecordComparator}
 
-@author: Graham Poulter
-@copyright: MIH Holdings
-@license: GPL
+.. module:: linkcsv
+   :synopsis: Convenience framework for linking CSV files.
+.. moduleauthor:: Graham Poulter
 """
 
 import logging, os
@@ -35,9 +36,9 @@ def makeoutputdir(dirname, open=open):
 
 def dedupe(records, indeces, comparator):
     """Dedupe records against itself.
-    @param records: Iteration of record namedtuples.
-    @param comparator: L{indexer.RecordComparator}
-    @return: comparisons as (rec1,rec2):weights, and indeces as L{Indeces}
+    :param records: Iteration of record namedtuples.
+    :param comparator: L{indexer.RecordComparator}
+    :return: comparisons as (rec1,rec2):weights, and indeces as L{Indeces}
     """
     indeces.insert(records)
     logging.info("Dedupe index statistics follow...")
@@ -48,10 +49,10 @@ def dedupe(records, indeces, comparator):
 
 def link(records1, records2, indeces, comparator):
     """Link records1 against records2.
-    @param records1, records2: Iterations of record namedtuples.
-    @param indeces: L{indexer.Indeces}
-    @param comparator: L{indexer.RecordComparator}
-    @return: comparisons as (rec1,rec2):weights, and two Indeces instances
+    :param records1, records2: Iterations of record namedtuples.
+    :param indeces: L{indexer.Indeces}
+    :param comparator: L{indexer.RecordComparator}
+    :return: comparisons as (rec1,rec2):weights, and two Indeces instances
     """
     import copy
     def index(records):
@@ -68,20 +69,20 @@ def link(records1, records2, indeces, comparator):
 def csvdedupe(indeces, comparator, classifier, inputfile, outputdir, masterfile=None):
     """Run a dedupe task using the specified indeces, comparator and classifier.
     
-    @param indeces: Instance of L{indexer.Indeces}.
+    :param indeces: Instance of L{indexer.Indeces}.
 
-    @param comparator: Instance of L{indexer.RecordComparator}, taking
+    :param comparator: Instance of L{indexer.RecordComparator}, taking\
     a pair of records and returning a similarity tuple.
     
-    @param classifier: Function of a list of comparisons (as a mapping from
-    similarity vector to pair of compared tuples) that returns two lists of
+    :param classifier: Function of a list of comparisons (as a mapping from\
+    similarity vector to pair of compared tuples) that returns two lists of\
     records, one for matches and one for non-matches.
     
-    @param inputfile: CSV file of input records to dedupe
+    :param inputfile: CSV file of input records to dedupe
     
-    @param outputdir: Directory to log the output files to.
+    :param outputdir: Directory to log the output files to.
     
-    @param masterfile: Optional CSV file of master records.  The output will
+    :param masterfile: Optional CSV file of master records.  The output will\
     instead list input records that are dups of the master records.
     """
 

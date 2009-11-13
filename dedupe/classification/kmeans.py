@@ -1,5 +1,9 @@
-"""K-means clustering of similarity vectors into two groups (matches and
-non-matches).
+"""
+:mod:`classification.kmeans` -- K-Means clustering of vectors.
+==============================================================
+
+K-means clustering of similarity vectors into two groups (matches and
+non-matches), that is K=2.
 
 This is a special K-Means implementation which handles "None" values
 for similarity, which occur when two field values could not be compared,
@@ -15,9 +19,11 @@ vectors. That is, (0.95,0.2,None,0.5) is treated like a
 In centroid calculation, a None does contributes to the mean by reducing the
 denominator of the averaging step for that component.
 
-@author: Graham Poulter
-@copyright: MIH Holdings
-@license: GPL
+.. todo:: Revise kmeans docs
+
+.. moduleauthor:: Graham Poulter
+
+
 """
 
 from __future__ import division
@@ -31,16 +37,16 @@ def classify(comparisons, distance, maxiter=10):
     The match/nonmatch centroids are initialised using the largest/smallest
     occuring value for each component.
        
-    @param comparisons: mapping (rec1,rec2):weights from record pair to
+    :param comparisons: mapping (rec1,rec2):weights from record pair to\
     field-by-field comparison vector.
     
-    @param distance: Function distance(v1,v2) of two similarity vectors
-    returninng the floating point distance between them, discarding components
+    :param distance: Function distance(v1,v2) of two similarity vectors\
+    returninng the floating point distance between them, discarding components\
     having a None value.
     
-    @param maxiter: Maximum number of loops for adjusting the centroid.
+    :param maxiter: Maximum number of loops for adjusting the centroid.
     
-    @return: two mappings, one for matched pairs and one for non-matched pairs,
+    :return: two mappings, one for matched pairs and one for non-matched pairs,\
     mapping (record1,record2) to classifier score.
     """
     # Get length of the comparison vector

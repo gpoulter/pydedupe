@@ -7,7 +7,7 @@ representing groups of matching records.
 
 .. module:: recordgroups
    :synopsis: Create a graph from pairwise matches and calculate the mutually matching groups of records.
-.. moduleauthor:: Graham Poulter
+.. moduleauthor::: Graham Poulter
 
 """
 
@@ -23,7 +23,7 @@ def adjacency_list(nodepairs):
     absent from the adjacency list.
     
     :param nodepairs: List of (node1, node2) pairs as edge list.
-    :rtype: nodes=[node] adjacency list representing the match graph.
+    :return: nodes=[node] adjacency list representing the match graph.
     """
     neighbours = defaultdict(list)
     for node1, node2 in nodepairs:
@@ -36,7 +36,7 @@ def components(adjlist):
     """Construct of groups as graph components using breadth-first search.
     
     :param adjlist: adjacency list mapping nodes to list of neighbouring nodes .
-    :rtype:  Groups of nodes [[node1,...]...] 
+    :return:  Groups of nodes [[node1,...]...] 
     """
     groups = [] # List of lists describing groups
     visited = set() # Has node been visited?
@@ -64,7 +64,7 @@ def singles_and_groups(matches, allrecords):
     :param matches: List of (rec1,rec2) matching record pairs.
     :param records: Iteration over all records.
     
-    :rtype: singles (list of single ids that match nothing else), and\
+    :return: singles (list of single ids that match nothing else), and\
             groups (list of groups, each group being a lists of ids).
 
     """
@@ -82,9 +82,9 @@ def write_csv(matches, records, fields, output_stream):
     :param fields: List of CSV headings for the records.
     :param output: Output stream for CSV rowd
     
-    :rtype: (`singles`,`groups`) where `singles` is are a list of\
-    row IDs that have no matches, and `groups` are a list of lists,\
-    with each list being a group of matching IDs.
+    :return: (`singles`,`groups`) 
+    :rtype: `singles` is a list of row IDs that have no matches\
+    and `groups` is a list of lists representing groups of matching IDs.
     """
     singles, groups = singles_and_groups(matches, records)
     out = namedcsv.uwriter(output_stream, dialect='excel') 

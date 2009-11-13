@@ -1,10 +1,16 @@
-"""Load training records from disk and perform all-pair comparisons to produce
+"""
+:mod:`dedupe.examples`
+======================
+
+Load training records from disk and perform all-pair comparisons to produce
 match and non-match similarity vectors for training a supervised classifier of
 similarity vectors.
 
-@author: Graham Poulter
-@copyright: MIH Holdings
-@license: GPL
+.. todo:: Move this to the `linkcsv` module
+
+.. moduleauthor:: Graham Poulter
+
+
 """
 
 from ..indexer import Index, Indeces, RecordComparator
@@ -14,19 +20,20 @@ def read_examples(comparator, inpath, outpath=None):
     """Read groups of records from a file and perform all-pairs comparisons
     within each group, and return the set of all comparison vectors.
 
-    @param comparator: L{RecordComparator} to compare pairs of records. If
+    The example CSV file must have column headings for namedtuple loading.
+    Rows are only read which have TRUE or FALSE in the first column, and must
+    have an index block identifier in the second column. The remaining columns
+    must include the headings used by the RecordComparator. with all the
+    column names needed by the RecordComparator.
+    
+    :param comparator: L{RecordComparator} to compare pairs of records. If\
     outpath outpath is None, a simple comparison function could be used instead.
 
-    @param inpath: Path to CSV example file.  The file must have column
-    headings for namedtuple loading.  Rows are only read which have
-    TRUE or FALSE in the first column, and must have an index block identifier
-    in the second column.  The remaining columns must include the
-    headings used by the RecordComparator. with all the column names 
-    needed by the RecordComparator.
+    :param inpath: Path to CSV example file.  
     
-    @param outpath: Path to write CSV log of the pairwise comparisons.
+    :param outpath: Path to write CSV log of the pairwise comparisons.
     
-    @return: Set of comparison vectors, union of all comparisons made
+    :return: Set of comparison vectors, union of all comparisons made\
     within each of the groups.
     """
     MATCH, BLOCK = 0, 1	

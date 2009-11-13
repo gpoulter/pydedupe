@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+"""
+:mod:`comparison.geo` -- Similarity of geographic coordinates
+-------------------------------------------------------------
 
-"""Compare the similarity of two geographic coordinates by distance.
-
-@author: Graham Poulter
-@copyright: MIH Holdings
-@license: GPL
+.. module:: comparison.geo
+   :synopsis: Calculate distance between geographic coordinates.
+.. moduleauthor:: Graham Poulter
 """
 
 from __future__ import division
@@ -31,9 +31,9 @@ def field(latfield, lonfield, record):
 def valid(coords):
     """Check whether the argument constitutes valid geographic coordinates. 
     
-    @param coords: Geographic (latitude, longitude) tuple of coordinates.
+    :param coords: Geographic (latitude, longitude) tuple of coordinates.
     
-    @return: True only if coords is a tuple pair of floats in -90.0 to 90.0 
+    :return: True only if coords is a tuple pair of floats in -90.0 to 90.0\
     on the latitude and -180.0 to 180.0 on the longitude.
     """
     if not (isinstance(coords,tuple) and len(coords) == 2):
@@ -51,9 +51,9 @@ def distance(loc1, loc2):
     is greater than max_distance, the similarity is 0.  Assumes that
     the coordinates are valid!
     
-    @param loc1: (latitude,longitude) of first location.
-    @param loc2: (latitude,longitude) of second location.
-    @return: Kilometer distance between locations.
+    :param loc1: (latitude,longitude) of first location.
+    :param loc2: (latitude,longitude) of second location.
+    :return: Kilometer distance between locations.
     """
     import math
     earth_radius = 6372.0 
@@ -79,7 +79,7 @@ def compare(max_distance, point1, point2):
     Also returns None (no comparison possible) if either of the
     geographic coordinates is invalid according to L{valid_coordinate}.
     
-    @ivar max_distance: The maximum distance in kilometers beyond which
+    :param max_distance: The maximum distance in kilometers beyond which\
     the similarity is considered to be 0.
     """
     if not (valid(point1) and valid(point2)):
@@ -91,5 +91,5 @@ def compare(max_distance, point1, point2):
         return 1.0 - (dist / max_distance)
 
 if __name__=="__main__":
-    from sys import argv as a
-    print distance((float(a[1]), float(a[2])), (float(a[3]),float(a[4])))
+    from sys import argv as _v
+    print distance((float(_v[1]), float(_v[2])), (float(_v[3]),float(_v[4])))

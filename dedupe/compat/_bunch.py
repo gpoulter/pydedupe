@@ -1,6 +1,6 @@
 
 class bunch(object):
-    """Populate the attributes passed via the constructor.  Syntactic
+    """Populate an object the attributes passed via the constructor.  Syntactic
     sugar for a dictionary with well-known keys."""
 
     def __init__(self, **kwds):

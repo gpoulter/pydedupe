@@ -1,11 +1,8 @@
-"""Field value encoding functions. 
+"""
+:mod:`encoding` -- Transformation and encoding of values.
+=========================================================
 
-Be careful to combine encoders in a compatible type sequence. If one encoder
-produces a floating point value, don't wrap it in one that expects a string.
-
-@author: Graham Poulter
-@copyright: MIH Holdings
-@license: GPL
+.. moduleauthor:: Graham Poulter
 """
 
 import re
@@ -52,7 +49,7 @@ def emaildomain(text):
 
 def wrap(*funcs):
     """Create a composited function from a list of unitary functions.
-    @note: wrap(f1, f2, f3)(text) == f1(f2(f3(text)))"""
+    For example, wrap(f1, f2, f3)(text) == f1(f2(f3(text)))"""
     def _wrapper(text):
         # Innermost function gets applies first
         for func in funcs[::-1]:

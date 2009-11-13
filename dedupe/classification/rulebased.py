@@ -1,4 +1,8 @@
-"""Function to a apply a rule-based classifier that returns True, False or
+"""
+:mod:`classification.rulebased` -- Rule-based classifier of vector
+==================================================================
+
+Function to a apply a rule-based classifier that returns True, False or
 None. Generally, using a strict rule-based classifier to create training
 examples for a stronger classifiers."""
 
@@ -9,11 +13,11 @@ def classify_bool(rule, comparisons):
     similarity vectors as matches (if True), non-matches (if False)
     and uncertain (if None).  
     
-    @param comparisons: Mapping from (rec1,rec2) to vector of similarity values.
+    :param comparisons: Mapping from (rec1,rec2) to vector of similarity values.
     
-    @param rule: Function of similarity vector that returns True, False or None.
+    :param rule: Function of similarity vector that returns True, False or None.
    
-    @return: Three sets for matches, non-matches and uncertain pairs. Each
+    :return: Three sets for matches, non-matches and uncertain pairs. Each\
     set contains (rec1,rec2) representing the compared pair.
     """
     matches, nonmatches, uncertain = set(), set(), set()
@@ -32,7 +36,7 @@ def classify_bool(rule, comparisons):
     return matches, nonmatches, uncertain
 
 def classify_score(rule, comparisons):
-    """Use L{classify_bool} but maps True to 1.0 and False to 0.0, to make
+    """Use :func:`classify_bool` but maps True to 1.0 and False to 0.0, to make
     the rule classifier into score classifier."""
     match,nomatch,unknown = classify_bool(rule, comparisons)
     return dict((x,1.0) for x in match), dict((x,0.0) for x in nomatch)

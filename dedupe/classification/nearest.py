@@ -1,9 +1,12 @@
-"""Nearest Neighbour classification of similarity vectors into matches and
+"""
+:mod:`nearest` -- Nearest neighbour classification of vectors.
+==============================================================
+
+Nearest Neighbour classification of similarity vectors into matches and
 non-matches.
 
-@author: Graham Poulter
-@copyright: MIH Holdings
-@license: GPL
+.. module:: nearest
+.. moduleauthor:: Graham Poulter
 """
 
 import logging, math
@@ -11,15 +14,15 @@ import logging, math
 def classify(comparisons, ex_matches, ex_nonmatches, distance):
     """Nearest-neighbour classification of comparisons vectors.
 
-    @param comparisons: Map (item1,item2):comparison    
+    :param comparisons: Map (item1,item2):comparison    
 
-    @param ex_matches: List of examples of matching similarity vectors.
+    :param ex_matches: List of examples of matching similarity vectors.
     
-    @param ex_nonmatches: List examples of non-matching similarity vectors.
+    :param ex_nonmatches: List examples of non-matching similarity vectors.
 
-    @param distance: Function to compute distance between comparison vectors.
+    :param distance: Function to compute distance between comparison vectors.
 
-    @return: Two sets, one with matches and one with non-matches. 
+    :return: Two sets, one with matches and one with non-matches. \
     Each set contains (rec1,rec2) pairs of compared records.
     """
     logging.info("Nearest neighbour: %s match examples and %d non-match examples.", 

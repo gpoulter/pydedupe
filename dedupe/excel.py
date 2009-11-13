@@ -1,14 +1,16 @@
-"""Classes for reading Excel CSV files with rows as L{namedtuple} instances,
-supporting the extended CP1252 characters.
+"""
+:mod:`excel` -- Excel CSV input and output
+==========================================
 
-The ureader takes byte string input and returns unicode namedtuples. The
-uwriter takes unicode tuples and and writes byte string output. The default
-encoding is CP1252, but utf-8 is supported. Null-using encodings like UTF-16
-are *not* supported, due to the underlying csv module.
+Classes for reading Excel CSV files with rows as L{namedtuple} instances.
+Automatically converts between CP1252 (or other file encoding that
+does not use null values) and unicode Python strings.
 
-@author: Graham Poulter
-@copyright: MIH Holdings
-@license: GPL
+.. todo:: Rename ureader/uwriter and use module namespacing in import
+
+.. module:: excel
+   :synopsis: Read and write CSV files in Excel format and CP1252 encoding.
+.. moduleauthor:: Graham Poulter
 """
 
 from __future__ import with_statement
@@ -28,10 +30,10 @@ class ureader:
     def __init__(self, iterable, dialect=csv.excel, encoding='cp1252', 
                  typename='Row', fields=None):
         """Initialise namedtuple reader.
-        @param iterable: File or other iteration of byte-string lines.
-        @param dialect: Dialect of the CSV file (see L{csv})
-        @param typename: Name for the created namedtuple class.
-        @param fields: namedtuple of fields, or None to use the CSV header line.
+        :param iterable: File or other iteration of byte-string lines.
+        :param dialect: Dialect of the CSV file (see L{csv})
+        :param typename: Name for the created namedtuple class.
+        :param fields: namedtuple of fields, or None to use the CSV header line.
         """
         if isinstance(iterable, basestring):
             iterable = open(iterable) 

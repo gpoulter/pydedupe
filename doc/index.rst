@@ -11,7 +11,13 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   modules
    why
+
+To-Do List
+==========
+
+.. todolist::
 
 Installation
 ============
@@ -54,12 +60,6 @@ Deduplication takes place in three stages:
  would be a total non-match.  
  
 See the page on :doc:`why we made PyDedupe <why>`
-
-Module index
-============
-
-.. automodule:: dedupe.recordgroups
-   :members:
 
 Indices and tables
 ==================

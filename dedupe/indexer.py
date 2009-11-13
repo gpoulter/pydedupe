@@ -1,11 +1,15 @@
-"""Inverted index of records, and comparator of records that can use
+"""
+:mod:`indexer` -- Inverted index of records
+===========================================
+
+Inverted index of records, and comparator of records that can use
 an inverted index to reduce the required number of comparisons.
 
 Record ID is always assumed to be the first field of a record.
 
-@author: Graham Poulter
-@copyright: MIH Holdings
-@license: GPL
+.. moduleauthor:: Graham Poulter
+
+
 """
 
 from __future__ import with_statement
@@ -19,9 +23,8 @@ def getfield(record, field):
     integer index (for tuple records), string attribute names (for record objects), 
     or a function (for computed fields)).
     
-    @return: Any object representing the field value. Most often a string
-    value of some field, but may be an integer, a set of strings, or a
-    coordinate pair, etc.
+    :return: Any object representing the field value. 
+    :rtype: Any object (usually string, number, or list/set of strings)
     """
     if isinstance(field, str):
         return record.__getattribute__(field)
@@ -43,10 +46,13 @@ class Index(dict):
     return two keys, and n-gram combinations always return several keys."""
     
     def __init__(self, makekey):
-        """Parameterise the Index. 
+        """Initialise the Index. 
         
-        @param makekey: Function of the record tuple that returns
-        list or tuple of index keys under which the record should be inserted. 
+        :param makekey: Function :func:`makekey`
+        
+        .. function:: makekey(record)
+           :arg record: Record tuple
+           :return: List of keys under which to index the record.
         """
         super(Index, self).__init__()
         self.makekey = makekey
@@ -56,8 +62,8 @@ class Index(dict):
         evaluates to True, meaning that keys such as False, 0, "", None are
         not included in the index.
         
-        @param record: The record object to index.
-        @return: The sequence of keys under which the record was inserted.
+        :param record: The record object to index.
+        :return: The sequence of keys under which the record was inserted.
         """
         keys = self.makekey(record)
         assert isinstance(keys, tuple) or isinstance(keys, list) or isinstance(keys, set)
@@ -72,13 +78,13 @@ class Index(dict):
         """Count the number of comparisons implied by the index.  By default
         count the maximum pairwise comparisons for dedupe of this index 
         against itself.
-
-        @param other: Index instance to compare this one against, to count
-        linkage comparisons instead of dedupe comparisons.
         
-        @return: Maximum pairwise comparisons that need to be made, if each
-        comparison is distinct. Fewer comparisons take place if records appear
-        in multiple index blocks, due to caching.
+        Due to caching, fewe comparisons may in fact take place when records
+        appear in multiple index blocks.
+
+        :param other: Optional :class:`Index` to compare against.
+        
+        :return: Maximum pairwise comparisons that need to be made.
         """
         comparisons = 0
         if not other or (other is self):
@@ -96,8 +102,8 @@ class Index(dict):
     def log_block_statistics(self, prefix="", log=None):
         """Log statistics about the average and largest block sizes
         
-        @param prefix: Print before the log message.
-        @param log: Logging object to use.
+        :param prefix: Print before the log message.
+        :param log: Logging object to use.
         """
         if log is None: log = logging.getLogger()
         if not self:
@@ -114,10 +120,10 @@ class Index(dict):
         the lists of records in each index key to ensure that rec1<rec2 
         in each resulting comparison tuple.
         
-        @param compare: Function of two records returning a similarity vector
-        such as [0.3,0.8,1.0,...].
+        :param compare: Comparison function
+        :type compare: Function of record pair, returning vector of similarities.
         
-        @param comparisons: Cache of comparisons, mapping (rec1,rec2) 
+        :param comparisons: Cache of comparisons, mapping (rec1,rec2)\
         to similarity vector, where rec1 < rec2.
         """
         if comparisons is None:
@@ -138,13 +144,13 @@ class Index(dict):
     def link(self, other, compare, comparisons=None):
         """Perform linkage comparisons for this index against the other index.
         
-        @param other: Index object against which to perform linkage comparison.
+        :param other: Index object against which to perform linkage comparison.
         
-        @param compare: Function of two records returning a similarity vector
+        :param compare: Function of two records returning a similarity vector\
         such as [0.3,0.8,1.0,...].
         
-        @param comparisons: Cache of comparisons mapping (rec1,rec2) to
-        similarity vector. Inserted pairs will have rec1 from self and rec2
+        :param comparisons: Cache of comparisons mapping (rec1,rec2) to\
+        similarity vector. Inserted pairs will have rec1 from self and rec2\
         from other.
         """
         if comparisons is None:
@@ -184,8 +190,8 @@ class Indeces(OrderedDict):
     def log_index_stats(self, other=None, log=None):
         """Log statistics and expected number of comparisons about the indeces.
         
-        @param other: L{Indeces} object, being an ordered dictionary of Index
-        objects.  None to log statistics for just this index.
+        :param other: Index being compared against, set :keyword:`None` for self-compare.
+        :type other: Instance of :class:`Indeces` (ordered dict of Index)
         """
         if log is None: log = logging.getLogger()
         # Loop over pairs of corresponding indeces
@@ -206,30 +212,32 @@ class Indeces(OrderedDict):
 class ValueComparator(object):
     """Defines a callable comparison of a pair of records on a defined field.
     
-    @ivar comparevalues: Function to compare the computed, encoded field values.
-    @ivar field1: Field specifier applied to the first record.
-    @ivar encode1: Function to encode field values from the first record.
-    @ivar field2: Field specifier applied to the second record (default is field1).
-    @ivar encode2: Function to encode field values from second record (default is encode1).
-    
-    @note: The L{field1} and L{field2} specifiers may be an integer index into the record, 
+    The `field1` and `field2` specifiers may be an integer index into the record, 
     a string key or attribute to look up in the record, or in the most general
     case a function applied to the record to compute a field value.
     
-    @note: The L{encode1} and L{encode2} functions transform the retrieved field values
+    The `encode1` and `encode2` functions transform the retrieved field values
     just prior to comparison, for example to remove spaces and fold case.  Each
     accepts one paramenter of the type returned by the corresponding field
     parameter, and returns a value suitable for comparevalues.
     
-    @note: The L{comparevalues} function takes two parameters, of the
+    The comparevalues function takes two parameters, of the
     value types returned by encode1 and encode2 respectively. 
     """
     
-    def __init__(self, comparevalues, field1, encode1=lambda x:x, field2=None, encode2=None):
-        """Initialise field comparison object"""
+    def __init__(self, comparevalues, field1, encode1=None, field2=None, encode2=None):
+        """Initialise field comparison object
+        
+        :param comparevalues: Function to compare the computed, encoded field values.
+        :param field1: Field specifier applied to the first record.
+        :param encode1: Function to encode field values from the first record.
+        :param field2: Field specifier applied to the second record (default is field1).
+        :param encode2: Function to encode field values from second record (default is encode1).
+    
+        """
         self.comparevalues = comparevalues
         self.field1 = field1
-        self.encode1 = encode1
+        self.encode1 = encode1 if encode1 else lambda x:x
         self.field2 = field2 or field1
         self.encode2 = encode2 or encode1
 
@@ -249,10 +257,9 @@ class SetComparatorAvg(ValueComparator):
     by the length of the smaller set. If each item in the smaller set has a
     perfect match in the larger, the similarity is 1.0.
     
-    @ivar field1, field2: Take a record and return a set of values (computed
-    field).
+    :param field1, field2: Take a record and return a set of values.
     
-    @ivar encode1, encode2: Apply these functions each value in the sets
+    :param encode1, encode2: Apply these functions each value in the sets\
     obtained from L{field1} and L{field2}, just prior to comparing the sets.
     """
     
@@ -281,10 +288,9 @@ class SetComparatorMax(ValueComparator):
     sets. One perfectly matching pair of values between the two sets returns a
     similarity of 1.0.
     
-    @ivar field1, field2: Take a record and return a set of values (computed
-    field).
+    :param field1, field2: Functions taking a record and return a set of values .
     
-    @ivar encode1, encode2: Apply these functions each value in the sets
+    :param encode1, encode2: Apply these functions each value in the sets\
     obtained from L{field1} and L{field2}, just prior to comparing the sets.
     """
     
@@ -308,7 +314,7 @@ class RecordComparator(OrderedDict):
     functions, returning namedtuple vectors corresponding to the
     results of each comparison function applied to the record.
     
-    @ivar Weights: Namedtuple type of the similarity vector, with field names
+    :ivar: Weights: Namedtuple type of the similarity vector, with field names\
     provided in the constructor.
     """
     
@@ -328,9 +334,9 @@ class RecordComparator(OrderedDict):
     def allpairs(self, records):
         """Compare all distinct pairs of records given a single in a list of records.
 
-        @param records: List of record namedtuples.
+        :param records: List of record namedtuples.
 
-        @return: Mapping pairs (record1, record2) to L{Weights} similarity vector.
+        :return: Mapping pairs (record1, record2) to L{Weights} similarity vector.
         """
         comparisons = {}
         for i in range(len(records)):
@@ -346,7 +352,7 @@ class RecordComparator(OrderedDict):
         """Compare records against themselves, using indexing to reduce number
         of comparisons and caching to avoid comparing same two records twice.
         
-        @return: Map from compared (record1,record2) to L{Weights} vector.
+        :return: Map from compared (record1,record2) to L{Weights} vector.\
         Each compared tuple is lexicographically ordered (record1 < record2).
         """
         comparisons = {} # Map from (record1,record2) to L{Weights}
@@ -358,13 +364,12 @@ class RecordComparator(OrderedDict):
     def link(self, indeces1, indeces2):
         """Compare two sets of records using indexing to reduce number of comparisons.
         
-        @param indeces1: List of L{Index} objects for first dataset.
+        :param indeces1: List of L{Index} objects for first dataset.
         
-        @param indeces2: List of corresponding L{Index} objects for second
-        data set.
+        :param indeces2: List of L{Index} objects for second data set.
 
-        @return: Map from (rec1,rec2) to comparison weights. The tuple has
-        rec1 from indeces1 and rec2 from indeces2, unlike
+        :return: Map from (rec1,rec2) to comparison weights. The tuple has\
+        rec1 from indeces1 and rec2 from indeces2, unlike\
         compare_indexed_single where (rec1,rec2) is ordered lexicographically.
         """
         assert indeces1 is not indeces2 # Must be different!
@@ -379,19 +384,19 @@ class RecordComparator(OrderedDict):
         field comparison weights.  Inspection shows which index keys matched,
         and the field-by-field similarity.
         
-        @param indeces1: L{Indeces} for the left-hand records
+        :param indeces1: L{Indeces} for the left-hand records
         
-        @param indeces2: L{Indeces} for the right-hand records for linkage.
+        :param indeces2: L{Indeces} for the right-hand records for linkage.\
         Use the same as indeces1 in the case of dedupe.
 
-        @param comparisons: Map from (rec1,rec2) to similarity vector.
+        :param comparisons: Map from (rec1,rec2) to similarity vector.
 
-        @param scores: Map from (rec1,rec2) to classifier score.  Only output
+        :param scores: Map from (rec1,rec2) to classifier score.  Only output\
         the pairs found in scores.  If None, output all without classifier score.
         
-        @param stream: Output stream for the detailed comparison results.
+        :param stream: Output stream for the detailed comparison results.
         
-        @param origstream: Output stream for the pairs of original records.
+        :param origstream: Output stream for the pairs of original records.
         """
         if not comparisons: return
         # File for comparison statistics
@@ -424,6 +429,3 @@ class RecordComparator(OrderedDict):
             if record_writer:
                 record_writer.writerow(rec1)
                 record_writer.writerow(rec2)
-            
-            
-    
