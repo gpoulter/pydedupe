@@ -1,9 +1,14 @@
-"""Use breadth-first search to identify components in the match graph,
+"""
+:mod:`recordgroups` -- Groups of mutually matching records
+==========================================================
+
+Use breadth-first search to identify components in the match graph,
 representing groups of matching records.
 
-@author: Graham Poulter
-@copyright: MIH Holdings
-@license: GPL
+.. module:: recordgroups
+   :synopsis: Create a graph from pairwise matches and calculate the mutually matching groups of records.
+.. moduleauthor:: Graham Poulter
+
 """
 
 import optparse, os, sys
@@ -17,9 +22,8 @@ def adjacency_list(nodepairs):
     Nodes not listed in the edge list (thus not adjacent to anything) are
     absent from the adjacency list.
     
-    @param nodepairs: List of (node1, node2) pairs as edge list.
-    
-    @return: nodes:[node] adjacency list representing the match graph.
+    :param nodepairs: List of (node1, node2) pairs as edge list.
+    :rtype: nodes=[node] adjacency list representing the match graph.
     """
     neighbours = defaultdict(list)
     for node1, node2 in nodepairs:
@@ -30,8 +34,9 @@ def adjacency_list(nodepairs):
 
 def components(adjlist):
     """Construct of groups as graph components using breadth-first search.
-    @param adjlist: adjacency list mapping nodes to list of neighbouring nodes .
-    @return:  Groups of nodes [[node1,...]...] 
+    
+    :param adjlist: adjacency list mapping nodes to list of neighbouring nodes .
+    :rtype:  Groups of nodes [[node1,...]...] 
     """
     groups = [] # List of lists describing groups
     visited = set() # Has node been visited?
@@ -56,11 +61,12 @@ def singles_and_groups(matches, allrecords):
     """Given list of matched pairs, and all records, return the groups
     of similar records, and the singlets
     
-    @param matches: List of (rec1,rec2) matching record pairs
-    @param records: Iteration over all records.
+    :param matches: List of (rec1,rec2) matching record pairs.
+    :param records: Iteration over all records.
     
-    @return: singles (list of single ids that match nothing else), and
-    groups (list of groups, each group being a lists of ids),
+    :rtype: singles (list of single ids that match nothing else), and\
+            groups (list of groups, each group being a lists of ids).
+
     """
     adjlist = adjacency_list(matches) # Map from record to neighbours
     groups = components(adjlist) # List of lists of records
@@ -68,18 +74,18 @@ def singles_and_groups(matches, allrecords):
     return singles, groups
     
 
-def writegroups(matches, records, fields, output_stream):
+def write_csv(matches, records, fields, output_stream):
     """Write out the records, with grouping 
 
-    @param matches: List of pairs of matching records.
-    @param records: Iteration over records.
-    @param fields: List of CSV headings for the records.
-    @param output: Output stream for CSV rowd
-
-    @return: singles (list of single ids that match nothing else), and
-    groups (list of groups, each group being a lists of ids),
-    """
+    :param matches: List of pairs of matching records.
+    :param records: Iteration over records.
+    :param fields: List of CSV headings for the records.
+    :param output: Output stream for CSV rowd
     
+    :rtype: (`singles`,`groups`) where `singles` is are a list of\
+    row IDs that have no matches, and `groups` are a list of lists,\
+    with each list being a group of matching IDs.
+    """
     singles, groups = singles_and_groups(matches, records)
     out = namedcsv.uwriter(output_stream, dialect='excel') 
     out.writerow(["GroupID"] + list(fields))

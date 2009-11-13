@@ -18,7 +18,7 @@ defined in the L{indexer.RecordComparator}
 
 import logging, os
 import namedcsv
-from recordgroups import writegroups
+from recordgroups import write_csv
 
 def makeoutputdir(dirname, open=open):
     """Create a directory and return opener factories for files
@@ -122,6 +122,6 @@ def csvdedupe(indeces, comparator, classifier, inputfile, outputdir, masterfile=
 
     ## Classify and output
     fields = records[0]._fields
-    writegroups(matches, records + master_records, fields, 
+    write_csv(matches, records + master_records, fields, 
                 outfile('4-groups.csv'))
 

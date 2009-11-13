@@ -25,12 +25,13 @@ class ureader:
     @ivar Row: namedtuple class of the returned rows
     """
     
-    def __init__(self, iterable, dialect=csv.excel, encoding='cp1252', typename='Row', fields=None):
+    def __init__(self, iterable, dialect=csv.excel, encoding='cp1252', 
+                 typename='Row', fields=None):
         """Initialise namedtuple reader.
         @param iterable: File or other iteration of byte-string lines.
         @param dialect: Dialect of the CSV file (see L{csv})
         @param typename: Name for the created namedtuple class.
-        @param fields: namedtuple fields parameter, or None to use the CSV header line.
+        @param fields: namedtuple of fields, or None to use the CSV header line.
         """
         if isinstance(iterable, basestring):
             iterable = open(iterable) 

@@ -8,7 +8,7 @@ from dedupe.recordgroups import (
     adjacency_list, 
     components, 
     singles_and_groups,
-    writegroups,
+    write_csv,
 )
 
 class TestGrouping(unittest.TestCase):
@@ -57,7 +57,7 @@ class TestGrouping(unittest.TestCase):
         self.assertEqual(groups,  [[('a', 1), ('b', 2), ('c', 3)], 
                                   [('d', 4), ('e', 5), ('f', 6)]])
         
-    def test_writegroups(self):
+    def test_write_csv(self):
         pass # TODO
         
 if __name__ == "__main__":
