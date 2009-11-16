@@ -19,33 +19,23 @@ from compat import namedtuple, OrderedDict
 import excel
 
 class Index(dict):
-    """A dictionary mapping index keys to a list of records that were
-    inserted with that index key.
+    """Mapping from index key to records.
     
-    The makekey function takes a record and returns a list of keys
-    under which the record should be indexed.  For something like soundex
-    there would only be one key in the list, but double-metaphone might
-    return two keys, and n-gram combinations always return several keys."""
+    :type makekey: function(record) [key,...]
+    :param makekey: Generates the index keys for the record.    
+    """
     
     def __init__(self, makekey):
-        """Initialise the Index. 
-        
-        :param makekey: Function :func:`makekey`
-        
-        .. function:: makekey(record)
-           :arg record: Record tuple
-           :return: List of keys under which to index the record.
-        """
         super(Index, self).__init__()
         self.makekey = makekey
         
     def insert(self, record):
-        """Index a record by its keys. Only indexes keys for which bool(key)
-        evaluates to True, meaning that keys such as False, 0, "", None are
-        not included in the index.
-        
+        """Insert a record into the index.
+
+        :type record: :class:`namedtuple`
         :param record: The record object to index.
-        :return: The sequence of keys under which the record was inserted.
+        :rtype: [key,...]
+        :return: Keys under which the record was inserted.
         """
         keys = self.makekey(record)
         assert isinstance(keys, tuple) or isinstance(keys, list) or isinstance(keys, set)
@@ -57,16 +47,15 @@ class Index(dict):
         return keys
     
     def count_comparisons(self, other=None):
-        """Count the number of comparisons implied by the index.  By default
-        count the maximum pairwise comparisons for dedupe of this index 
-        against itself.
+        """Upper bound on the number of comparisons required by this index.
         
-        Due to caching, fewe comparisons may in fact take place when records
-        appear in multiple index blocks.
+        .. note:: caching of comparisons results will generally mean fewer
+           actual calls to the comparison function than.
 
-        :param other: Optional :class:`Index` to compare against.
-        
-        :return: Maximum pairwise comparisons that need to be made.
+        :type: other: :class:`Index` or :keyword:`None`
+        :param other: Count comparisons against this index.
+        :rtype: int
+        :return: Most pairwise comparisons that need to be made.
         """
         comparisons = 0
         if not other or (other is self):
@@ -82,7 +71,7 @@ class Index(dict):
         return comparisons
     
     def log_block_statistics(self, prefix="", log=None):
-        """Log statistics about the average and largest block sizes
+        """Statistics about the average and largest block sizes
         
         :param prefix: Print before the log message.
         :param log: Logging object to use.
@@ -147,7 +136,10 @@ class Index(dict):
         return comparisons
                             
     def write_csv(self, stream):
-        """Write the contents of this index in CSV format to the given stream."""
+        """Write index in CSV format.
+        :type stream: binary stream writer
+        :param stream: Destination for CSV text.
+        """
         writer = excel.writer(stream)
         for indexkey, rows in self.iteritems():
             for row in rows:
@@ -155,16 +147,19 @@ class Index(dict):
 
 
 class Indeces(OrderedDict):
-    """Represents multiple Index instances as an ordered dictionary."""
+    """Represents a sever Index instances as an ordered dictionary.
+
+    :type indeces: (string, :class:`Index`)
+    :param indeces: Use these named indeces.
+    """
 
     def __init__(self, *indeces):
-        """Takes a number of (indexname, index) pairs as arguments."""
         OrderedDict.__init__(self)
         for key, value in indeces:
             self[key] = value
     
     def insert(self, records):
-        """Insert the iteration of records in each Index."""
+        """Insert records into each :class:`Index`."""
         for record in records:
             for index in self.itervalues():
                 index.insert(record)
@@ -186,7 +181,7 @@ class Indeces(OrderedDict):
                 index2.log_block_statistics(" Master %s: " % i2name, log)
             
     def write_csv(self, basepath):
-        """Write the contents of the index dictionaries in CSV format."""
+        """Write the indeces in CSV format to these paths."""
         for indexname, index in self.iteritems():
             with open(basepath + indexname + ".csv", "w") as stream:
                 index.write_csv(stream)
@@ -194,34 +189,35 @@ class Indeces(OrderedDict):
 
 
 class RecordComparator(OrderedDict):
-    """Ordered dictionary mapping comparison weight fields to field comparison
-    functions. The compare methods then compare pairs of records using those
-    functions, returning namedtuple vectors corresponding to the
-    results of each comparison function applied to the record.
+    """Returns a vector of field value similarities between two records.
+
+    :type comparators: [(string,:class:`comparison.Value`),...]
+    :param comparators: Named, ordered field comparisons.
     
-    :ivar: Weights: Namedtuple type of the similarity vector, with field names\
-    provided in the constructor.
+    :type Weights: :class:`namedtuple` (float,...)
+    :ivar Weights: type of similarity vector between records\
+      with field names corresponding to the names in `comparators`.
+    
+    :rtype: callable(R,R) :class:`Weights`
+    :return: Compare two records using each value comparator in turn, giving\
+      a vector of corresponding named similarity values.    
     """
     
     def __init__(self, *comparators):
-        """Parameteries with a variable number of (weight field, comparison
-        function) pairs that will be applied to each pair of records."""
         super(RecordComparator, self).__init__(comparators)
         self.Weights = namedtuple("Weights", self.keys())
 
-    def compare(self, recordA, recordB):
-        """Compare two records and return a tuple of type Weights."""
+    def __call__(self, A, B):
         return self.Weights._make(
-            comparator(recordA, recordB) for comparator in self.itervalues())
-    
-    __call__ = compare
+            comparator(A, B) for comparator in self.itervalues())
     
     def allpairs(self, records):
-        """Compare all distinct pairs of records given a single in a list of records.
-
-        :param records: List of record namedtuples.
-
-        :return: Mapping pairs (record1, record2) to L{Weights} similarity vector.
+        """Return comparisons for all distinct pairs of records.
+        
+        :type records: [R,...]
+        :param records: records to compare
+        :rtype: {(R,R):[float,...],...}
+        :return: Similarity vectors for ordered pairs of compared records.
         """
         comparisons = {}
         for i in range(len(records)):
@@ -230,37 +226,37 @@ class RecordComparator(OrderedDict):
                 assert rec1[0] != rec2[0]
                 pair = tuple(sorted([rec1,rec2], key=lambda x:x[0]))
                 if pair not in comparisons:
-                    comparisons[pair] = self.compare(rec1, rec2)
+                    comparisons[pair] = self(rec1, rec2)
         return comparisons
 
     def dedupe(self, indeces):
-        """Compare records against themselves, using indexing to reduce number
-        of comparisons and caching to avoid comparing same two records twice.
+        """Return comparisons against self for indexed records.
         
-        :return: Map from compared (record1,record2) to L{Weights} vector.\
-        Each compared tuple is lexicographically ordered (record1 < record2).
+        :type indeces: :class:`Indeces`, {str:{obj:[R,...],...},...}
+        :param indeces: indexed left-hand records
+        :rtype: {(R,R):[float,...],...}
+        :return: Similarity vectors for ordered pairs of compared records.
         """
         comparisons = {} # Map from (record1,record2) to L{Weights}
         for index in indeces.itervalues():
-            index.dedupe(self.compare, comparisons)
+            index.dedupe(self, comparisons)
         return comparisons
     
 
     def link(self, indeces1, indeces2):
-        """Compare two sets of records using indexing to reduce number of comparisons.
-        
-        :param indeces1: List of L{Index} objects for first dataset.
-        
-        :param indeces2: List of L{Index} objects for second data set.
+        """Return comparisons between two sets of indexed records.
 
-        :return: Map from (rec1,rec2) to comparison weights. The tuple has\
-        rec1 from indeces1 and rec2 from indeces2, unlike\
-        compare_indexed_single where (rec1,rec2) is ordered lexicographically.
+        :type indeces1: :class:`Indeces`, {str:{obj:[R,...],...},...}
+        :param indeces1: indexed left-hand records
+        :type indeces2: :class:`Indeces`, {str:{obj:[R,...],...},...}
+        :param indeces2: indexed right-hand records
+        :rtype: {(R,R):[float,...],...}
+        :return: Similarity vectors for ordered pairs of compared records.
         """
         assert indeces1 is not indeces2 # Must be different!
         comparisons = {}
         for index1, index2 in zip(indeces1.itervalues(), indeces2.itervalues()):
-            index1.link(index2, self.compare, comparisons)
+            index1.link(index2, self, comparisons)
         return comparisons
 
 
@@ -269,19 +265,24 @@ class RecordComparator(OrderedDict):
         field comparison weights.  Inspection shows which index keys matched,
         and the field-by-field similarity.
         
-        :param indeces1: L{Indeces} for the left-hand records
-        
-        :param indeces2: L{Indeces} for the right-hand records for linkage.\
-        Use the same as indeces1 in the case of dedupe.
+        :type indeces1: :class:`Indeces`, {str:{obj:[R,...],...},...}
+        :param indeces1: indexed left-hand records
+        :type indeces2: :class:`Indeces`, {str:{obj:[R,...],...},...}
+        :param indeces2: indexed right-hand records\
+           (provide same object as indeces1 for self-linkage)
 
-        :param comparisons: Map from (rec1,rec2) to similarity vector.
+        :type comparisons: {(R,R):[float,...],...}
+        :param comparisons: Similarity vectors from pairs of record comparisons.
 
-        :param scores: Map from (rec1,rec2) to classifier score.  Only output\
-        the pairs found in scores.  If None, output all without classifier score.
+        :type scores: {(R,R):float,...} or :keyword:`None`
+        :param scores: Classifier scores for pairs of records. Omitted in\
+        the output if None.
         
-        :param stream: Output stream for the detailed comparison results.
+        :type stream: binary Writer
+        :param stream: Destination of comparison vectors in CSV format.
         
-        :param origstream: Output stream for the pairs of original records.
+        :type origstream: binary Writer
+        :param origstream: Destination of original records pairs in CSV format.
         """
         if not comparisons: return
         from comparison import getvalue

@@ -73,7 +73,7 @@ class TestIndex(unittest.TestCase):
             indeces, indeces, {}, {}, sys.stdout))
         
     def test_RecordComparator_compare_all_pairs(self):
-        self.assertEqual(self.comparator.compare(self.recs[0], self.recs[1]),
+        self.assertEqual(self.comparator(self.recs[0], self.recs[1]),
             self.comparator.Weights(0.5,0.5))
         self.comparator.allpairs(self.recs)
         
