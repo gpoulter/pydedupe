@@ -18,7 +18,7 @@ defined in the L{indexer.RecordComparator}
 """
 
 import logging, os
-import namedcsv
+import excel
 from recordgroups import write_csv
 
 def makeoutputdir(dirname, open=open):
@@ -46,7 +46,6 @@ def dedupe(records, indeces, comparator):
     comparisons = comparator.dedupe(indeces)
     return comparisons, indeces
 
-
 def link(records1, records2, indeces, comparator):
     """Link records1 against records2.
     :param records1, records2: Iterations of record namedtuples.
@@ -64,7 +63,6 @@ def link(records1, records2, indeces, comparator):
     indeces1.log_index_stats(indeces2)
     comparisons = comparator.link(indeces1, indeces2)
     return comparisons, indeces1, indeces2
-
 
 def csvdedupe(indeces, comparator, classifier, inputfile, outputdir, masterfile=None):
     """Run a dedupe task using the specified indeces, comparator and classifier.
@@ -96,12 +94,12 @@ def csvdedupe(indeces, comparator, classifier, inputfile, outputdir, masterfile=
     logging.getLogger().addHandler(filehandler)
 
     ## Index records, compare pairs, identify match/nonmatch pairs
-    records = list(namedcsv.ureader(inputfile))
+    records = list(excel.reader(inputfile))
     master_records = []
 
     if masterfile:
         ## Link input records to master records
-        master_records = list(namedcsv.ureader(masterfile))
+        master_records = list(excel.reader(masterfile))
         comparisons, indeces, master_indeces = link(
             records, master_records, indeces, comparator)
         master_indeces.write_csv(outpath("1B-"))

@@ -14,7 +14,7 @@ similarity vectors.
 """
 
 from ..indexer import Index, Indeces, RecordComparator
-from .. import namedcsv
+from .. import excel
 
 def read_examples(comparator, inpath, outpath=None):
     """Read groups of records from a file and perform all-pairs comparisons
@@ -37,7 +37,7 @@ def read_examples(comparator, inpath, outpath=None):
     within each of the groups.
     """
     MATCH, BLOCK = 0, 1	
-    reader = namedcsv.ureader(inpath, typename="Record")
+    reader = excel.reader(inpath, typename="Record")
     rows = list(row for row in reader)
     t_rows = [r for r in rows if r[MATCH] == "TRUE"]
     f_rows = [r for r in rows if r[MATCH] == "FALSE"]

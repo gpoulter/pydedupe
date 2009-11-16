@@ -1,18 +1,28 @@
 #!/usr/bin/env python
 
 """
-Calculates the Levenshtein distance between a and b.
+:mod:`comparison.levenshtein` -- Levenshtein string distance
+============================================================
 
-Implementation from the Tyriel search engine by caelyx, 
-http://sourceforge.net/projects/tyriel/
+.. module:: comparison.levenshtein
+   :synopsis: Calculate Levenshtein distance between two strings.
 
-Source code from:
- http://www.koders.com/python/fid508C865D6E926EC0C45A7C4872E4F57AB33381B0.aspx
+.. note:: Implementation is from the `Tyriel search engine
+   <http://sourceforge.net/projects/tyriel/>` by caelyx, source code found at:
+   http://www.koders.com/python/fid508C865D6E926EC0C45A7C4872E4F57AB33381B0.aspx
  
 """
 
 def distance(a,b):
-    """Calculates the Levenshtein distance between a and b."""
+    """Calculates the Levenshtein distance between a and b.
+    
+    >>> distance("abcd","ab")
+    2
+    >>> distance("abcd","abdc")
+    2
+    >>> distance("dbca","abcd")
+    2
+    """
     n, m = len(a), len(b)
     if n > m:
         # Make sure n <= m, to use O(min(n,m)) space
@@ -29,19 +39,7 @@ def distance(a,b):
             current[j] = min(add, delete, change)
     return current[n]
 
-def compare(maxdiff, s1, s2, missing=None):
-    """A Damerau-Levenshtein string comparator, returning a similarity
-    value between 0.0 and 1.0.
-    
-    :param maxdiff: Float between 0.0 and 1.0.
-    
-    :param missing: If one of the strings is empty or None, returns this value.
-    
-    `maxdiff` scale the maximum allowable differences before returning
-    similarity of 0. Maxdiff 0 always returns zero, and maxdiff of 1.0 allows
-    up to max(len(s1),len(s2)) differences. Higher values of maxdiff allow
-    more lenient comparison.
-    """
+def _compare(maxdiff, s1, s2, missing, distance):
     if not (0.0 <= maxdiff <= 1.0):
         raise ValueError("Difference threshold must be between 0.0 and 1.0.")
     if not s1 or not s2:
@@ -53,6 +51,29 @@ def compare(maxdiff, s1, s2, missing=None):
     else:
         return 1.0 - (ndiffs / maxdiffs)
 
+def compare(maxdiff, s1, s2, missing=None):
+    """Return similarity of strings based on Levenshtein distance.
+    
+    :type maxdiff: float between 0.0 and 1.0.
+    :param maxdiff: proportion of ``max(len(s1),len(s2))`` beyond which\
+     the similarity is considered similarity of 0. Higher values are more lenient.
+    :param missing: If one of the strings is empty or :keyword:`None`, return `missing`.
+    :rtype: float
+    :return: similarity between 0.0 and 1.0.
+    
+    >>> compare(1.0, "abcd","abcd")
+    1.0
+    >>> compare(1.0, "abcd","abdc")
+    0.5
+    >>> compare(1.0, "abcd","") is None
+    True
+    >>> compare(0.5, "abcd","abdc")
+    0.0
+    >>> compare(0.5, "abcd","badc")
+    0.0
+    """
+    return _compare(maxdiff, s1, s2, missing, distance)
+
 if __name__=="__main__":
-    from sys import argv
-    print distance(argv[1],argv[2])
+    import sys
+    print distance(sys.argv[1],sys.argv[2])

@@ -15,15 +15,21 @@ import optparse, os, sys
 from itertools import chain
 from collections import defaultdict
 
-import namedcsv
+import excel
 
 def adjacency_list(nodepairs):
     """Construct adjacency list from edge list provided as pairs of nodes.
     Nodes not listed in the edge list (thus not adjacent to anything) are
     absent from the adjacency list.
     
-    :param nodepairs: List of (node1, node2) pairs as edge list.
-    :return: nodes=[node] adjacency list representing the match graph.
+    :type nodepairs: [(T,T), ...]
+    :param nodepairs: Connections between nodes (pairs that match).
+    :rtype: {T:[T,...], ...}
+    :return: Nodes adjacent to each node in the graph.
+    
+    >>> edges = [ (1,2), (2,3), (4,5), (1,5) ]
+    >>> dict(adjacency_list(edges))
+    {1: [2, 5], 2: [1, 3], 3: [2], 4: [5], 5: [4, 1]}
     """
     neighbours = defaultdict(list)
     for node1, node2 in nodepairs:
@@ -31,12 +37,17 @@ def adjacency_list(nodepairs):
         neighbours[node2].append(node1)
     return neighbours
 
-
 def components(adjlist):
     """Construct of groups as graph components using breadth-first search.
     
-    :param adjlist: adjacency list mapping nodes to list of neighbouring nodes .
-    :return:  Groups of nodes [[node1,...]...] 
+    :type adjlist: {T:[T,...],...}
+    :param adjlist: Nodes adjacent to each node in the graph.
+    :rtype: [[T,...],...]
+    :return: Connected components as lists of nodes.
+    
+    >>> edges = [ (1,2), (2,3), (4,5), (5,6) ]
+    >>> components(adjacency_list(edges))
+    [[1, 2, 3], [4, 5, 6]]
     """
     groups = [] # List of lists describing groups
     visited = set() # Has node been visited?
@@ -56,45 +67,50 @@ def components(adjlist):
     # Return the list of groups
     return groups
 
-
 def singles_and_groups(matches, allrecords):
     """Given list of matched pairs, and all records, return the groups
     of similar records, and the singlets
     
-    :param matches: List of (rec1,rec2) matching record pairs.
-    :param records: Iteration over all records.
+    :type matches: [(T,T),...]
+    :param matches: Matching pairs of records.
+    :type allrecords: :class:`Iterable` [T,...]
+    :param allrecords: All records (with and without matches)
+    :rtype: [T,...],[[T,...],...]
+    :return: single records (match nothing) and groups (of matching records)
     
-    :return: singles (list of single ids that match nothing else), and\
-            groups (list of groups, each group being a lists of ids).
-
+    >>> singles_and_groups([(1,2),(2,3),(4,5)],[1,2,3,4,5,6,7])
+    ([6, 7], [[1, 2, 3], [4, 5]])
     """
     adjlist = adjacency_list(matches) # Map from record to neighbours
     groups = components(adjlist) # List of lists of records
     singles = [rec for rec in allrecords if rec not in adjlist]
     return singles, groups
-    
 
-def write_csv(matches, records, fields, output_stream):
+def write_csv(matches, records, fields, out):
     """Write out the records, with grouping 
 
+    :type matches: :class:`Sequence` [(T,T),...]
     :param matches: List of pairs of matching records.
+    :type records: :class:`Iterable` [T,...]
     :param records: Iteration over records.
+    :type fields: :class:`Sequence` [:class:`str`,...]
     :param fields: List of CSV headings for the records.
-    :param output: Output stream for CSV rowd
+    :type out: writeable
+    :param out: Output stream for CSV rowd
     
-    :return: (`singles`,`groups`) 
+    :return: (`singles`, `groups`) 
     :rtype: `singles` is a list of row IDs that have no matches\
     and `groups` is a list of lists representing groups of matching IDs.
     """
     singles, groups = singles_and_groups(matches, records)
-    out = namedcsv.uwriter(output_stream, dialect='excel') 
-    out.writerow(["GroupID"] + list(fields))
+    w = excel.writer(out, dialect='excel') 
+    w.writerow(["GroupID"] + list(fields))
     # Write groups of similar records
     for groupid, group in enumerate(groups):
         for row in group:
-            out.writerow((str(groupid),) + row)
+            w.writerow((str(groupid),) + row)
     # Write single records
     for row in singles:
-        out.writerow(("-",) + row)
+        w.writerow(("-",) + row)
     return singles, groups
 

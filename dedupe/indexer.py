@@ -16,7 +16,7 @@ from __future__ import with_statement
 
 import logging
 from compat import namedtuple, OrderedDict
-import namedcsv
+import excel
 
 def getfield(record, field):
     """Retrieve a field from a record. The field may be specified with an
@@ -166,7 +166,7 @@ class Index(dict):
                             
     def write_csv(self, stream):
         """Write the contents of this index in CSV format to the given stream."""
-        writer = namedcsv.uwriter(stream)
+        writer = excel.writer(stream)
         for indexkey, rows in self.iteritems():
             for row in rows:
                 writer.writerow((indexkey,) + row)
@@ -400,12 +400,12 @@ class RecordComparator(OrderedDict):
         """
         if not comparisons: return
         # File for comparison statistics
-        writer = namedcsv.uwriter(stream)
+        writer = excel.writer(stream)
         writer.writerow(["Score"] + indeces1.keys() + self.keys())
         # File for original records
         record_writer = None
         if origstream is not None:
-            record_writer = namedcsv.uwriter(origstream)
+            record_writer = excel.writer(origstream)
             record_writer.writerow(comparisons.iterkeys().next()[0]._fields)
         # Obtain field-getter for each value comparator
         field1 = [ comparator.field1 for comparator in self.itervalues() ]

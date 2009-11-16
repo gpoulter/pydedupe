@@ -1,9 +1,9 @@
 """
-:mod:`comparison.geo` -- Similarity of geographic coordinates
--------------------------------------------------------------
+:mod:`comparison.geo` -- Geographic comparisons
+===============================================
 
 .. module:: comparison.geo
-   :synopsis: Calculate distance between geographic coordinates.
+   :synopsis: Calculate distance and similarity between geographic coordinates.
 .. moduleauthor:: Graham Poulter
 """
 
@@ -19,6 +19,13 @@ def field(latfield, lonfield, record):
     Use for example geo=partial(geofield, "Lat", "Lon") partial function
     application to configure which fields to retrieve using geo(record) ==
     (lat,lon)
+    
+    >>> from functools import partial
+    >>> from collections import namedtuple
+    >>> getter = partial(field, "Lat", "Lon")
+    >>> Record = namedtuple("Record", ("FullName","Lon","Lat"))
+    >>> getter(Record("Joe Bloggs", 10.0, 20.0))
+    (20.0, 10.0)
     """
     try:
         lat = float(getfield(record, latfield))
@@ -30,11 +37,26 @@ def field(latfield, lonfield, record):
 
 def valid(coords):
     """Check whether the argument constitutes valid geographic coordinates. 
-    
+
+    :type coords: (float, float)
     :param coords: Geographic (latitude, longitude) tuple of coordinates.
     
+    :rtype: bool
     :return: True only if coords is a tuple pair of floats in -90.0 to 90.0\
     on the latitude and -180.0 to 180.0 on the longitude.
+    
+    >>> valid((0.0,0))
+    False
+    >>> valid((0.0,0.0))
+    True
+    >>> valid((0.0,90.0))
+    True
+    >>> valid((91.0,0.0))
+    False
+    >>> valid(None)
+    False
+    >>> valid((-1.0,-1.0))
+    True
     """
     if not (isinstance(coords,tuple) and len(coords) == 2):
         return False
@@ -51,9 +73,17 @@ def distance(loc1, loc2):
     is greater than max_distance, the similarity is 0.  Assumes that
     the coordinates are valid!
     
-    :param loc1: (latitude,longitude) of first location.
-    :param loc2: (latitude,longitude) of second location.
+    :type loc1, loc2: float, float
+    :param loc1, loc2: (latitude,longitude) of two locations
+    :rtype: float
     :return: Kilometer distance between locations.
+
+    
+    >>> km_per_degree = 111.21
+    >>> distance((0.0,0.0),(1.0,0.0))
+    111.21237993706758
+    >>> distance((0.0,0.0),(0.0,1.0))
+    111.21237993706758
     """
     import math
     earth_radius = 6372.0 
@@ -76,11 +106,20 @@ def compare(max_distance, point1, point2):
     """Compare two (lat,lon) coordinates. Similarity is 1.0 for identical
     locations, reducing to zero at max_distance in kilometers.
     
-    Also returns None (no comparison possible) if either of the
+    Also returns :keyword:`None` (no comparison possible) if either of the
     geographic coordinates is invalid according to L{valid_coordinate}.
     
     :param max_distance: The maximum distance in kilometers beyond which\
     the similarity is considered to be 0.
+    
+    Set the maximum to be 1.5 degrees (for 0 similarity), Therefore 1 degree
+    should have 33% similarity, to two decimal places
+
+    >>> from functools import partial
+    >>> km_per_deg = 111.21237993706758
+    >>> geocompare = partial(compare, km_per_deg*1.5)
+    >>> geocompare((0.0,0.0), (1.0,0.0))
+    0.33333333333333337
     """
     if not (valid(point1) and valid(point2)):
         return None

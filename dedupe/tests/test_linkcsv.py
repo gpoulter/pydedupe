@@ -6,11 +6,12 @@ from functools import partial
 from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
-from dedupe.comparison.dameraulevenshtein import compare as dale
-from dedupe.encoding import lowstrip, dmetaphone
+from dedupe.comparison.dale import compare as dale
+from dedupe.encoding import lowstrip
+from dedupe.encoding.dmetaphone import encode as dmetaphone
 from dedupe.indexer import Index, Indeces, ValueComparator, RecordComparator
 from dedupe.linkcsv import csvdedupe
-from dedupe import namedcsv
+from dedupe import excel
 
 def classify(comparisons):
     """Takes a map of (rec1,rec2):similarity, and returns a set of (r1,r2)
@@ -49,7 +50,7 @@ class TestCSVDedupe(unittest.TestCase):
         self.outdir = tempfile.mkdtemp(prefix="test_linkers_")
         self.inpath = os.path.join(self.outdir, "input.csv")
         csvfile = open(self.inpath,'w') 
-        writer = namedcsv.uwriter(csvfile, lineterminator='\n')
+        writer = excel.writer(csvfile, lineterminator='\n')
         writer.writerow(("Name",))
         writer.writerows(self.records)
         csvfile.close()

@@ -15,11 +15,24 @@ component in the calculation.
 import math
 
 def L2(vec1, vec2):
-    """L2 or Euclidian distance between two vectors. Discards vector
-    components having None values.
+    """Return L2 Euclidian distance between two vectors. Ignores dimensions
+    that have value :keyword:`None` in one of the vectors.
     
     :param vec1, vec2: Equal-length sequences of floating-point values.
-    :rtype: float    
+    :rtype: float
+    
+    >>> L2([2,None],[5,None])
+    3.0
+    >>> L2([2,None],[5,1])
+    3.0
+    >>> L2([None,None],[1,1])
+    0.0
+    >>> L2([2,2],[3,3]) == math.sqrt(2)
+    True
+    >>> L2([3,2],[3,2])
+    0.0
+    >>> L2([4,3.0,2,3],[4,1.0,3,3]) == math.sqrt(5)
+    True
     """
     assert len(vec1) == len(vec2)
     return math.sqrt(sum((a-b)**2 
@@ -28,7 +41,7 @@ def L2(vec1, vec2):
 
 
 def normL2(vec1, vec2, stdevs):
-    """The normalised L2 distance, being the Mahalanobis distance with a
+    """Normalised L2 distance, being the Mahalanobis distance with a
     diagonal covariance matrix. Discards vector components having None values.
     
     A point can be considered "close" to a cluster of points if it is less
@@ -44,6 +57,14 @@ def normL2(vec1, vec2, stdevs):
     :param stdevs: Standard deviations of vector components. The difference\
     between two components of a vector are divided by the standard deviation.
     :rtype: float
+    
+    
+    >>> normL2([2,None],[5,1],[1,1])
+    3.0
+    >>> normL2([2,2],[3,3],[1,1]) == math.sqrt(2)
+    True
+    >>> normL2([2,2],[3,3],[0.5,1]) == math.sqrt(5)
+    True
     """
     assert len(vec1) == len(vec2) == len(stdevs)
     return math.sqrt(sum(((a-b)/s)**2 

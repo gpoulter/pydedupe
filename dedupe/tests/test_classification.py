@@ -6,25 +6,7 @@ from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
 from dedupe.classification import distance, kmeans, nearest, examples
-from dedupe import namedcsv
-
-class TestClassifyDistance(unittest.TestCase):
-    
-    ## Testing the distance functions
-    
-    def test_distance_L2(self):
-        self.assertEqual(distance.L2([2,None],[5,None]), 3)
-        self.assertEqual(distance.L2([2,None],[5,1]), 3)
-        self.assertEqual(distance.L2([None,None],[1,1]), 0)
-        self.assertEqual(distance.L2([2,2],[3,3]), math.sqrt(2))
-        self.assertEqual(distance.L2([3,2],[3,2]), 0)
-        self.assertEqual(distance.L2([4,3.0,2,3],[4,1.0,3,3]), math.sqrt(5))
-
-    def test_distance_normL2(self):
-        self.assertEqual(distance.normL2([2,None],[5,1],[1,1]), 3)
-        self.assertEqual(distance.normL2([2,2],[3,3],[1,1]), math.sqrt(2))
-        self.assertEqual(distance.normL2([2,2],[3,3],[0.5,1]), math.sqrt(5))
-
+from dedupe import excel
 
 class TestClassifyKmeans(unittest.TestCase):
         
@@ -70,7 +52,7 @@ class TestExamples(unittest.TestCase):
     def setUp(self):
         f, self.examplefile = tempfile.mkstemp(prefix="test_examples")
         f = open(self.examplefile, 'w')
-        w = namedcsv.uwriter(f)
+        w = excel.writer(f)
         w.writerow(("Match","GroupID", "Name", "Age"))
         w.writerow(("TRUE","1", "Joe1", "8"))
         w.writerow(("TRUE","1", "Joe2", "7"))
