@@ -9,7 +9,7 @@ sys.path.insert(0, dirname(dirname(dirname(__file__))))
 from dedupe.comparison.dameraulevenshtein import compare as dale
 from dedupe.encoding import lowstrip, dmetaphone
 from dedupe.indexer import Index, Indeces, ValueComparator, RecordComparator
-from dedupe.linkers import csvdedupe
+from dedupe.linkcsv import csvdedupe
 from dedupe import namedcsv
 
 def classify(comparisons):
