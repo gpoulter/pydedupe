@@ -5,47 +5,8 @@ import logging, math, os, sys, tempfile, unittest
 from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
-from dedupe.classification import distance, kmeans, nearest, examples
+from dedupe.classification import examples
 from dedupe import excel
-
-class TestClassifyKmeans(unittest.TestCase):
-        
-    def test_kmeans(self):
-        matches, nomatches = kmeans.classify(
-            comparisons = {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
-            distance = distance.L2)
-        self.assertEqual(set(matches.keys()), set([(1, 2), (2, 3), (3, 4)]))
-        self.assertEqual(set(nomatches.keys()), set([(4, 5)]))
-        
-    def test_kmeans_nulls(self):
-        matches, nomatches = kmeans.classify(
-            comparisons= {(1,2):[0.5,None], (2,3):[0.8,0.7], (3,4):[0.9,0.5], (4,5):[0.0,0.5]},
-            distance = distance.L2)
-        self.assertEqual(set(matches.keys()), set([(1, 2), (2, 3), (3, 4)]))
-        self.assertEqual(set(nomatches.keys()), set([(4, 5)]))
-
-
-class TestClassifyNearest(unittest.TestCase):
-
-    def test_nearest(self):
-        matches, nomatches = nearest.classify(
-            comparisons= {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
-            ex_matches = [[1.0]],
-            ex_nonmatches = [[0.3]],
-            distance = distance.L2)
-        self.assertEqual(set(matches.keys()), set([(2, 3), (3, 4)]))
-        self.assertEqual(set(nomatches.keys()), set([(1, 2), (4, 5)]))
-        
-    ## Include None values in the similarity vectors
-    def test_nearest_nulls(self):
-        matches, nomatches = nearest.classify(
-            comparisons= {(1,2):[0.5,None], (2,3):[0.8,0.7], (3,4):[0.9,0.5], (4,5):[0.0,0.5]},
-            ex_matches = [[1.0,0.8],[1.0,None]],
-            ex_nonmatches = [[0.3,0.3]],
-            distance = distance.L2)
-        self.assertEqual(set(matches.keys()), set([(2, 3), (3, 4)]))
-        self.assertEqual(set(nomatches.keys()), set([(1, 2), (4, 5)]))
-
 
 class TestExamples(unittest.TestCase):
     

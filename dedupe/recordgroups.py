@@ -97,10 +97,8 @@ def write_csv(matches, records, fields, out):
     :param fields: List of CSV headings for the records.
     :type out: writeable
     :param out: Output stream for CSV rowd
-    
-    :return: (`singles`, `groups`) 
-    :rtype: `singles` is a list of row IDs that have no matches\
-    and `groups` is a list of lists representing groups of matching IDs.
+    :rtype: [T,...], [[T,...],...]
+    :return: list of single rows (no matches) and groups (mutually matching)
     """
     singles, groups = singles_and_groups(matches, records)
     w = excel.writer(out, dialect='excel') 

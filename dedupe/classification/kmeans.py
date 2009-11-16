@@ -48,6 +48,25 @@ def classify(comparisons, distance, maxiter=10):
     
     :return: two mappings, one for matched pairs and one for non-matched pairs,\
     mapping (record1,record2) to classifier score.
+    
+    >>> ## simple test of clustering 1D vectors
+    >>> from distance import L2
+    >>> matches, nomatches = classify(
+    ...   comparisons = {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
+    ...   distance = L2)
+    >>> sorted(matches.keys())
+    [(1, 2), (2, 3), (3, 4)]
+    >>> sorted(nomatches.keys())
+    [(4, 5)]
+
+    >>> ## cluster 2D vectors with some nulled components
+    >>> matches, nomatches = classify(
+    ...  comparisons= {(1,2):[0.5,None], (2,3):[0.8,0.7], (3,4):[0.9,0.5], (4,5):[0.0,0.5]},
+    ...  distance = L2)
+    >>> sorted(matches.keys())
+    [(1, 2), (2, 3), (3, 4)]
+    >>> sorted(nomatches.keys())
+    [(4, 5)]
     """
     # Get length of the comparison vector
     if len(comparisons) == 0:
