@@ -1,19 +1,10 @@
 """
-:mod:`linkcsv` -- Record linkage framework for CSV files
-
-The "dedupe" function compares one set of records against itself, and the
-"link" function compares it against a master set of records.
-
-The "csvdedupe" convenience function identifies similar records in a 
-CSV file, using a specified strategy for indexing records, comparing
-records, and classifying the comparisons into matches and non-matches.
-
-A "comparison" is a tuple of floats between 0.0  and 1.0, representing
-the field-by-field similarity of a pair of records for the comparisons
-defined in the L{indexer.RecordComparator}
+:mod:`linkcsv` -- Record linkage for CSV inputs
+===============================================
 
 .. module:: linkcsv
-   :synopsis: Convenience framework for linking CSV files.
+   :synopsis: Link records together from CSV file input.
+
 .. moduleauthor:: Graham Poulter
 """
 
@@ -23,22 +14,33 @@ from recordgroups import write_csv
 
 def makeoutputdir(dirname, open=open):
     """Create a directory and return opener factories for files
-    in that directory."""
+    in that directory.
+    
+    :type dirname: path string 
+    :param dirname: Where to place the named files
+    :rtype: function(name) abspath, function(name) file
+    :return: output path generator and output file opener
+    """
     if not os.path.exists(dirname): 
         os.mkdir(dirname)
     def outpath(filename):
-        """Return path to named output file."""
         return os.path.join(dirname, filename)
     def outfile(filename):
-        """Return write-only stream for named output file."""
         return open(outpath(filename), 'w')
     return outpath, outfile
 
 def dedupe(records, indeces, comparator):
-    """Dedupe records against itself.
-    :param records: Iteration of record namedtuples.
-    :param comparator: L{indexer.RecordComparator}
-    :return: comparisons as (rec1,rec2):weights, and indeces as L{Indeces}
+    """Find similar pairs within a set of records.
+    
+    :type records: [:class:`namedtuple`,...]
+    :param records: records to be linked
+    :type indeces: :class:`Indeces`
+    :param indeces: index layout for the records
+    :type comparator: :class:`RecordComparator`
+    :param comparator: how to compare records for similarity
+    :rtype: {(R,R):[float,...]}, :class:`Indeces`
+    :return: Similarity vectors for pairwise comparisons, and the\
+    indeces used for comparison.
     """
     indeces.insert(records)
     logging.info("Dedupe index statistics follow...")
@@ -47,18 +49,26 @@ def dedupe(records, indeces, comparator):
     return comparisons, indeces
 
 def link(records1, records2, indeces, comparator):
-    """Link records1 against records2.
-    :param records1, records2: Iterations of record namedtuples.
-    :param indeces: L{indexer.Indeces}
-    :param comparator: L{indexer.RecordComparator}
-    :return: comparisons as (rec1,rec2):weights, and two Indeces instances
+    """Find similar pairs between two sets of records.
+    
+    :type records1: [:class:`namedtuple`,...]
+    :param records1: left-hand records to link to right-hand
+    :type records2: [:class:`namedtuple`,...]
+    :param records2: right-hand being linked to
+    :type indeces: :class:`Indeces`
+    :param indeces: prototypical index layout for the records
+    :type comparator: :class:`RecordComparator`
+    :param comparator: how to compare records for similarity
+    :rtype: {(R,R):[float,...]}, :class:`Indeces`, :class:`Indeces`
+    :return: Similarity vectors for pairwise comparisons, and the\
+    corresponding indeces for `records1` and `records2`.
     """
     import copy
     def index(records):
         myindeces = copy.deepcopy(indeces)
         myindeces.insert(records)
         return myindeces
-    indeces1, indeces2 = [ index(records) for records in (records1, records2) ]
+    indeces1, indeces2 = index(records1), index(records2)
     logging.info("Record linkage index statistics follow...")
     indeces1.log_index_stats(indeces2)
     comparisons = comparator.link(indeces1, indeces2)
@@ -67,21 +77,25 @@ def link(records1, records2, indeces, comparator):
 def csvdedupe(indeces, comparator, classifier, inputfile, outputdir, masterfile=None):
     """Run a dedupe task using the specified indeces, comparator and classifier.
     
-    :param indeces: Instance of L{indexer.Indeces}.
+    :type indeces: :class:`Indeces`
+    :param indeces: Index layout for the records.
 
-    :param comparator: Instance of L{indexer.RecordComparator}, taking\
-    a pair of records and returning a similarity tuple.
+    :type comparator: :class:`RecordComparator`, function(R,R) [float,...]
+    :param comparator: Obtain similarity vectors for record pairs.
     
-    :param classifier: Function of a list of comparisons (as a mapping from\
-    similarity vector to pair of compared tuples) that returns two lists of\
-    records, one for matches and one for non-matches.
+    :type classifier: function({(R,R):[float,...],...}) -> [(R,R),...], [(R,R),...]
+    :param classifier: Takes pairs of record comparisons and separates\
+    it into pairs that match and pairs that don't match.
     
-    :param inputfile: CSV file of input records to dedupe
+    :type intuptfile: path string
+    :param inputfile: CSV input records for left-hand records.
     
-    :param outputdir: Directory to log the output files to.
-    
-    :param masterfile: Optional CSV file of master records.  The output will\
-    instead list input records that are dups of the master records.
+    :type outputdir: path string
+    :param outputdir: Destination directory for output files.
+
+    :type masterfile: path string
+    :param masterfile: Optional CSV of master records, to be used as right-hand\
+    records against which the `inputfile` records will be linked.
     """
 
     outpath, outfile = makeoutputdir(outputdir)

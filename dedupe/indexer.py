@@ -2,13 +2,13 @@
 :mod:`indexer` -- Inverted index of records
 ===========================================
 
-Inverted index of records, and comparator of records that can use
-an inverted index to reduce the required number of comparisons.
+An inverted index lists records sharing an index key. By only comparing
+pairs of records that share index keys the total number of comparisons
+can be vastly reduced over the case of comparing all pairs of records.
 
-Record ID is always assumed to be the first field of a record.
-
+.. module:: indexer
+   :synopsis: Index records and carry out pairwise comparisons.
 .. moduleauthor:: Graham Poulter
-
 
 """
 
