@@ -45,6 +45,8 @@ def load_csv(comparator, inpath, outdir):
         (reader, write_true, write_false):
         load_csv_stream(comparator, reader, write_true, write_false)
 
+   
+        
 def load_iter(comparator, read_data, write_true, write_false):
     """Load example comparisons from CSV streams.
     

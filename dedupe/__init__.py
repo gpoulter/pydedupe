@@ -1,11 +1,11 @@
 """
-Dedupe - Detect similar groups of records within a table of records,
-or match pairs of records across two different tables.
+:mod:`dedupe` - Record linkage analysis
 
+.. module: dedupe
+   :synopsis: Link similar records within or across data sets
 .. moduleauthor:: Graham Poulter
 
-
-
+License::
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or

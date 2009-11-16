@@ -27,6 +27,9 @@ API documentation for PyDedupe modules.
  :mod:`comparison` -- Similarities between values
 ==================================================
 
+.. automodule:: dedupe.comparison
+   :members:
+
 .. automodule:: dedupe.comparison.dale
    :members:
 

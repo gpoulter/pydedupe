@@ -107,32 +107,4 @@ def wrap(*funcs):
     return _wrapper
 
 
-## Factories to create functions that can split up a single delimited 
-## column or combine multiple columns. 
 
-def multivalue(sep, *fields):
-    """Return a function that combines multiple delimited fielsd as a 
-    multi-value fields.
-
-    >>> multivalue(";",0)(['1;2;3'])
-    ['1', '2', '3']
-    """
-    from dedupe.indexer import getfield
-    def field_splitter(record):
-        """Create a multi-value from multiple delimited fields %s using delimiter %s"""
-        result = []
-        for field in fields:
-            value = getfield(record, field)
-            values = [value] if sep is None else value.split(sep)
-            result += [s.strip() for s in values if s.strip()]
-        return result
-    field_splitter.__doc__ %= ",".join([str(x) for x in fields]), sep
-    return field_splitter
-
-def combine(*fields):
-    """Return a function that combines single-value fields as a multi-value.
-    
-    >>> combine(0,2)(['A','B','C'])
-    ['A', 'C']
-    """
-    return multivalue(None, *fields)

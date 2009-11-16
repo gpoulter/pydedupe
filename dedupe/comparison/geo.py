@@ -9,7 +9,6 @@
 
 from __future__ import division
 
-from dedupe.indexer import getfield
 
 def field(latfield, lonfield, record):
     """Return floating (latitude,longitude) from a record using field
@@ -27,9 +26,10 @@ def field(latfield, lonfield, record):
     >>> getter(Record("Joe Bloggs", 10.0, 20.0))
     (20.0, 10.0)
     """
+    from . import getvalue
     try:
-        lat = float(getfield(record, latfield))
-        lon = float(getfield(record, lonfield))
+        lat = float(getvalue(record, latfield))
+        lon = float(getvalue(record, lonfield))
     except (TypeError, ValueError):
         return None
     return (lat,lon)
@@ -129,6 +129,3 @@ def compare(max_distance, point1, point2):
     else:
         return 1.0 - (dist / max_distance)
 
-if __name__=="__main__":
-    from sys import argv as _v
-    print distance((float(_v[1]), float(_v[2])), (float(_v[3]),float(_v[4])))

@@ -18,24 +18,6 @@ import logging
 from compat import namedtuple, OrderedDict
 import excel
 
-def getfield(record, field):
-    """Retrieve a field from a record. The field may be specified with an
-    integer index (for tuple records), string attribute names (for record objects), 
-    or a function (for computed fields)).
-    
-    :return: Any object representing the field value. 
-    :rtype: Any object (usually string, number, or list/set of strings)
-    """
-    if isinstance(field, str):
-        return record.__getattribute__(field)
-    elif isinstance(field, int):
-        return record[field]
-    elif hasattr(field, "__call__"):
-        return field(record)
-    else:
-        raise ValueError("Could not locate field %s in %s", str(field), str(record))
-    
-
 class Index(dict):
     """A dictionary mapping index keys to a list of records that were
     inserted with that index key.
@@ -209,104 +191,7 @@ class Indeces(OrderedDict):
             with open(basepath + indexname + ".csv", "w") as stream:
                 index.write_csv(stream)
 
-class ValueComparator(object):
-    """Defines a callable comparison of a pair of records on a defined field.
-    
-    The `field1` and `field2` specifiers may be an integer index into the record, 
-    a string key or attribute to look up in the record, or in the most general
-    case a function applied to the record to compute a field value.
-    
-    The `encode1` and `encode2` functions transform the retrieved field values
-    just prior to comparison, for example to remove spaces and fold case.  Each
-    accepts one paramenter of the type returned by the corresponding field
-    parameter, and returns a value suitable for comparevalues.
-    
-    The comparevalues function takes two parameters, of the
-    value types returned by encode1 and encode2 respectively. 
-    """
-    
-    def __init__(self, comparevalues, field1, encode1=None, field2=None, encode2=None):
-        """Initialise field comparison object
-        
-        :param comparevalues: Function to compare the computed, encoded field values.
-        :param field1: Field specifier applied to the first record.
-        :param encode1: Function to encode field values from the first record.
-        :param field2: Field specifier applied to the second record (default is field1).
-        :param encode2: Function to encode field values from second record (default is encode1).
-    
-        """
-        self.comparevalues = comparevalues
-        self.field1 = field1
-        self.encode1 = encode1 if encode1 else lambda x:x
-        self.field2 = field2 or field1
-        self.encode2 = encode2 or encode1
 
-    def __call__(self, record1, record2):
-        """Compare the two records on the defined fields."""
-        return self.comparevalues(
-            self.encode1(getfield(record1, self.field1)), 
-            self.encode2(getfield(record2, self.field2)))
-
-    
-class SetComparatorAvg(ValueComparator):
-    """Compare the similarity of two sets of values. Set of values obtained 
-    either from splitting a single column, or combining multiple columns.
-    
-    The similarity is from looping over the smaller set of values, finding the
-    best match in the larger set, and taking the average by dividing the total
-    by the length of the smaller set. If each item in the smaller set has a
-    perfect match in the larger, the similarity is 1.0.
-    
-    :param field1, field2: Take a record and return a set of values.
-    
-    :param encode1, encode2: Apply these functions each value in the sets\
-    obtained from L{field1} and L{field2}, just prior to comparing the sets.
-    """
-    
-    def __call__(self, record1, record2):
-        """Compare two records on a set-of-values field."""
-        f1 = set(self.encode1(v1) for v1 in self.field1(record1))
-        f2 = set(self.encode2(v2) for v2 in self.field2(record2))
-        f1, f2 = sorted([f1, f2], key=len) # short set, long set
-        # Missing value check
-        if len(f1) == 0 or len(f2) == 0:
-            return self.comparevalues(None,None) 
-        total = 0.0
-        for v1 in f1:
-            best = 0.0
-            for v2 in f2:
-                comp = self.comparevalues(v1,v2)
-                best = max(best, comp)
-            total += best # score of most similar item in the long set
-        return total / len(f1)
-    
-class SetComparatorMax(ValueComparator):
-    """Compare the similarity of two sets of values. Set of values obtained 
-    either from splitting a single column, or combining multiple columns.
-    
-    The similarity is the maximum of the pair-wise comparisons between the two
-    sets. One perfectly matching pair of values between the two sets returns a
-    similarity of 1.0.
-    
-    :param field1, field2: Functions taking a record and return a set of values .
-    
-    :param encode1, encode2: Apply these functions each value in the sets\
-    obtained from L{field1} and L{field2}, just prior to comparing the sets.
-    """
-    
-    def __call__(self, record1, record2):
-        """Compare two records on a set-of-values field."""
-        f1 = set(self.encode1(v1) for v1 in self.field1(record1))
-        f2 = set(self.encode2(v2) for v2 in self.field2(record2))
-        # Missing value check
-        if len(f1) == 0 or len(f2) == 0:
-            return self.comparevalues(None,None) 
-        best = 0.0
-        for v1 in f1:
-            for v2 in f2:
-                comp = self.comparevalues(v1,v2)
-                best = max(best, comp)
-        return best
 
 class RecordComparator(OrderedDict):
     """Ordered dictionary mapping comparison weight fields to field comparison
@@ -399,6 +284,7 @@ class RecordComparator(OrderedDict):
         :param origstream: Output stream for the pairs of original records.
         """
         if not comparisons: return
+        from comparison import getvalue
         # File for comparison statistics
         writer = excel.writer(stream)
         writer.writerow(["Score"] + indeces1.keys() + self.keys())
@@ -418,8 +304,8 @@ class RecordComparator(OrderedDict):
             weights = comparisons[(rec1,rec2)] # look up comparison vector
             keys1 = [ idx.makekey(rec1) for idx in indeces1.itervalues() ]
             keys2 = [ idx.makekey(rec2) for idx in indeces2.itervalues() ]
-            writer.writerow([u""] + [u";".join(x) for x in keys1] + [ unicode(getfield(rec1,f)) for f in field1 ])
-            writer.writerow([u""] + [u";".join(x) for x in keys2] + [ unicode(getfield(rec2,f)) for f in field2 ])
+            writer.writerow([u""] + [u";".join(x) for x in keys1] + [ unicode(getvalue(rec1,f)) for f in field1 ])
+            writer.writerow([u""] + [u";".join(x) for x in keys2] + [ unicode(getvalue(rec2,f)) for f in field2 ])
             # Tuple of booleans indicating whether index keys are equal
             idxmatch = [ bool(set(k1).intersection(set(k2))) if 
                          (k1 is not None and k2 is not None) else ""

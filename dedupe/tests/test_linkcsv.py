@@ -9,7 +9,8 @@ sys.path.insert(0, dirname(dirname(dirname(__file__))))
 from dedupe.comparison.dale import compare as dale
 from dedupe.encoding import lowstrip
 from dedupe.encoding.dmetaphone import encode as dmetaphone
-from dedupe.indexer import Index, Indeces, ValueComparator, RecordComparator
+from dedupe.comparison import Value
+from dedupe.indexer import Index, Indeces, RecordComparator
 from dedupe.linkcsv import csvdedupe
 from dedupe import excel
 
@@ -43,7 +44,7 @@ class TestCSVDedupe(unittest.TestCase):
         )
         
         self.comparator = RecordComparator(
-            ("NameCompare", ValueComparator(partial(dale, 1.0), 0, lowstrip)),
+            ("NameCompare", Value(partial(dale, 1.0), 0, lowstrip)),
         )
         
         # Write a temporary file with the 
