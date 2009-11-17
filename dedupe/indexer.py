@@ -24,27 +24,32 @@ class Index(dict):
     :type makekey: function(record) [key,...]
     :param makekey: Generates the index keys for the record.
     
+    :type records: [R,...]
+    :param records: Initial records to load into the index.
+    
     >>> makekey = lambda r: [int(r[1])]
     >>> makekey(('A',3.5))
     [3]
     >>> compare = lambda x,y: float(int(float(x[1]))==int(float(y[1])))
     >>> compare(('A','5.5'),('B','4.5'))
     0.0
-    >>> a = Index(makekey).insertmany([('A',5.5),('B',4.5),('C',5.25)])
+    >>> a = Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
     >>> a.count_comparisons()
     1
     >>> a.link_within(compare)
     {(('A', 5.5), ('C', 5.25)): 1.0}
-    >>> b = Index(makekey).insertmany([('D',5.5),('E',4.5)])
+    >>> b = Index(makekey, [('D',5.5),('E',4.5)])
     >>> a.count_comparisons(b)
     3
     >>> a.link_between(compare, b)
     {(('C', 5.25), ('D', 5.5)): 1.0, (('A', 5.5), ('D', 5.5)): 1.0, (('B', 4.5), ('E', 4.5)): 1.0}
     """
     
-    def __init__(self, makekey):
+    def __init__(self, makekey, records=None):
         super(Index, self).__init__()
         self.makekey = makekey
+        if records:
+            self.insertmany(records)
         
     def insert(self, record):
         """Insert a record into the index.
@@ -66,7 +71,6 @@ class Index(dict):
         """Insert records into the index."""
         for record in records:
             self.insert(record)
-        return self
     
     def count_comparisons(self, other=None):
         """Upper bound on the number of comparisons required by this index.
@@ -151,13 +155,10 @@ class Indices(OrderedDict):
     >>> makekey = lambda r: [int(r[1])]
     >>> makekey(('A',3.5))
     [3]
-    >>> a = Indices(("IntValue",Index(makekey)))
-    >>> a.insertmany([('A',5.5),('B',4.5),('C',5.25)])
+    >>> a = Indices(("IntValue",Index(makekey,[('A',5.5),('B',4.5),('C',5.25)])))
     >>> a
     OrderedDict([('IntValue', {4: [('B', 4.5)], 5: [('A', 5.5), ('C', 5.25)]})])
-    >>> b = a.clone()
-    >>> b.insertmany([('D',5.5),('E',4.5),('F',5.25)])
-    >>> b
+    >>> a.clone([('D',5.5),('E',4.5),('F',5.25)])
     OrderedDict([('IntValue', {4: [('E', 4.5)], 5: [('D', 5.5), ('F', 5.25)]})])
     """
 
@@ -166,9 +167,13 @@ class Indices(OrderedDict):
         for key, value in indices:
             self[key] = value
             
-    def clone(self):
-        """Return a new :class:`Indeces` with same layout as this one."""
-        return Indices(*[(n,Index(idx.makekey)) for n,idx in self.iteritems()])
+    def clone(self, records=None):
+        """Return a new :class:`Indeces` with same layout as this one,
+        and optionally loaded with provided `records`."""
+        indices = Indices(*[(n,Index(idx.makekey)) for n,idx in self.iteritems()])
+        if records:
+            indices.insertmany(records)
+        return indices
     
     def insert(self, record):
         """Insert a record into each :class:`Index`."""

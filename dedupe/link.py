@@ -93,8 +93,7 @@ def within(compare, indices, records):
     :return: comparison similarity vectors for ordered pairs of compared\
     records, and a filled :class:`Indices` instance.
     """
-    indices = indices.clone()
-    indices.insertmany(records)
+    indices = indices.clone(records)
     comparisons = within_indexed(compare, indices)
     return comparisons, indices
 
@@ -113,8 +112,7 @@ def between(compare, indices, records1, records2):
     :return: similarity vectors for pairwise comparisons, and the\
     filled :class:`Indices` instances for `records1` and `records2`.
     """
-    indices1, indices2 = indices.clone(), indices.clone()
-    indices1.insertmany(records1)
-    indices2.insertmany(records2)
+    indices1 = indices.clone(records1)
+    indices2 = indices.clone(records2)
     comparisons = between_indexed(compare, indices1, indices2)
     return comparisons, indices1, indices2

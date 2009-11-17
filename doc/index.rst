@@ -62,8 +62,6 @@ Deduplication takes place in three stages:
  similarity vector (1.0,1.0,1.0) would be a perfect match, and (0.0,0.0,0.0)
  would be a total non-match.  
  
-See the page on :doc:`why we made PyDedupe <why>`
-
 Indices and tables
 ==================
 

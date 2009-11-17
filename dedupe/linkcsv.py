@@ -25,7 +25,7 @@ def write_indices(indices, outdir, prefix, open=open):
     
     >>> makekey = lambda r: [int(r[1])]
     >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
-    >>> idx = Index(makekey).insertmany([('A',5.5),('B',4.5),('C',5.25)])
+    >>> idx = Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
     >>> indices = Indices(("Number",idx))
     >>> data = StringIO()
     >>> data.close = lambda: None
@@ -49,7 +49,7 @@ def index_stats(index, name, log=None):
     prefixing lines with `name`.
     
     >>> makekey = lambda r: [int(r[1])]
-    >>> idx = Index(makekey).insertmany([('A',5.5),('B',4.5),('C',5.25)])
+    >>> idx = Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
     >>> def log(s,*args):
     ...     print s % args
     >>> index_stats(idx, "NumIdx", log)
