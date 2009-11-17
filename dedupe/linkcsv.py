@@ -158,7 +158,7 @@ def filelog(path):
 
 
 def linkcsv(comparator, indices, classifier, instream, odir, 
-            masterstream=None, open=open, logger=None):
+            masterstream=None, logger=None, open=open):
     """Run a dedupe task using the specified indices, comparator and classifier.
     
     :type indices: :class:`Indices`
@@ -174,18 +174,18 @@ def linkcsv(comparator, indices, classifier, instream, odir,
     :type instream: binary reader
     :param instream: where to read CSV of input records
     
-    :type odir: path string
+    :type odir: :class:`string`
     :param odir: Directory in which to open output files.
 
     :type masterstream: binary reader
     :param masterfile: where to read CSV of optional master records,\
     to which the `instream` records should be linked.
     
+    :type logger: :class:`Logger` or :keyword:`None`
+    :param logger: Log to write to, else set up :file:`{odir}/dedupe.log`
+
     :type open: function(path, mode) reader/writer
     :param open: how to open files (defaults to built-in open)
-    
-    :type logger: :class:`Logger` or :keyword:`None`
-    :param logger: Log to write to, else set up :file:`dedupe.log`
     """
     opath = lambda f: os.path.join(odir, f)
     logger = logger if logger else filelog(opath('dedupe.log'))

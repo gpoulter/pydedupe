@@ -12,12 +12,11 @@ as training data for classifiers.
 .. moduleauthor:: Graham Poulter
 """
 
-from __future__ import division
 from ..indexer import Index, Indices
 from ..sim import RecordSim
 from .. import excel
 
-def load_csv(comparator, inpath, outdir):
+def load_csv(comparator, inpath, outdir, open=open):
     """Load example comparisons from CSV file.
     
     The example CSV file must have column headings for namedtuple loading.
@@ -28,14 +27,21 @@ def load_csv(comparator, inpath, outdir):
 
     :type comparator: :class:`dedupe.indexer.RecordSim`, callable (T,T)
     :param comparator: to obtain similarity vectors from pairs of records.
-    :type inpath: path to readable file
-    :param inpath: Example CSV file.
-    :type outdir: path to writeable directory
-    :param outdir: Write comparisons to :file:`{outdir}/{foo}_true.csv` and\
-    :file:`{outdir}/{foo}_false.csv`.
+    :type inpath: str
+    :param inpath: path to example CSV file
+    :type outdir: str
+    :param outdir: write comparisons to :file:`{outdir}/{foo}_true.csv` and\
+      :file:`{outdir}/{foo}_false.csv`.
+    :type open: function(path,mode) file
+    :param open: how to open the files
     
     :rtype: set([float,...],...), set([float,...],...)
     :return: Sets of similarity vectors for true comparisons and false comparisons.
+
+    .. todo:: `examples.load_csv` doctest
+    
+    >>> from contextlib import closing
+    >>> fakeopen = lambda f,m: closing(StringIO())
     """
     from contextlib import nested, closing
     from os.path import basename, join, splitext
@@ -44,7 +50,7 @@ def load_csv(comparator, inpath, outdir):
         open(join(outdir, base+"_true.csv"), 'wb'),
         open(join(outdir, base+"_false.csv"), 'wb')) as \
         (reader, write_true, write_false):
-        load_csv_stream(comparator, reader, write_true, write_false)
+        return load_iter(comparator, reader, write_true, write_false)
 
 def load_iter(comparator, read_data, write_true, write_false):
     """Load example comparisons from CSV streams.
@@ -64,7 +70,7 @@ def load_iter(comparator, read_data, write_true, write_false):
     ... FALSE,3,Zip1,9
     ... FALSE,3,Zip2,1
     ... FALSE,4,Nobody,1''')
-    >>> compare = lambda a, b: 1.0 - abs(float(a.Age)-float(b.Age))/10
+    >>> compare = lambda a, b: 1.0 - abs(float(a.Age)-float(b.Age))/10.0
     >>> t, f = load_iter(compare, data, StringIO(), StringIO())
     >>> sorted(t)
     [0.5, 0.59999999999999998, 0.80000000000000004, 0.90000000000000002]

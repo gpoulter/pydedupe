@@ -16,11 +16,15 @@
 import math
 
 def L2(vec1, vec2):
-    """Return L2 Euclidian distance between two vectors. Ignores dimensions
-    that have value :keyword:`None` in one of the vectors.
+    """Return L2 Euclidian distance between two vectors. 
     
-    :param vec1, vec2: Equal-length sequences of floating-point values.
+    .. note:: components with :keyword:`None` in one or both of the vectors
+       are ignored (reduced dimensionality of the comparison).
+    
+    :type vec1, vec2: [float|None,...]
+    :param vec1, vec2: Nullable floating-point vectors of the same length.
     :rtype: float
+    :return: Euclidian (pythagorean) distance between `vec1` and `vec2`
     
     >>> L2([2,None],[5,None])
     3.0
@@ -42,23 +46,31 @@ def L2(vec1, vec2):
 
 
 def normL2(vec1, vec2, stdevs):
-    """Normalised L2 distance, being the Mahalanobis distance with a
-    diagonal covariance matrix. Discards vector components having None values.
+    """Normalised L2 distance, also called the Mahalanobis distance with a
+    diagonal covariance matrix. 
     
-    A point can be considered "close" to a cluster of points if it is less
-    than one standard deviation from the centroid of the cluster defined by
-    items known to be members. Setting stdev[0]=0.5, for example, is
-    equivalent to the first component range from 0.0 to 2.0 instead of from
-    0.0 to 1.0, and defines "close" as being "less than 0.5 away". Guideline:
-    if you are not estimating the stdev empirically, for each vector component
-    set it to the absolute difference below which the component values should
-    be considered close together.
+    .. note:: components with :keyword:`None` in one or both of the vectors
+       are ignored (reduced dimensionality of the comparison).
+
+    .. note:: the difference between any two components of the vector 
+       is divided by the standard deviation, thus normalising the per-component
+       distance measures.
     
-    :param vec1, vec2: Equal-length sequences of floating-point values.
-    :param stdevs: Standard deviations of vector components. The difference\
-    between two components of a vector are divided by the standard deviation.
+    The principle is that a point can be considered "close" to a cluster of
+    points if it is less than one standard deviation from the centroid of the
+    cluster defined by items known to be members. Setting stdev[0]=0.5, for
+    example, is equivalent to the first component range from 0.0 to 2.0
+    instead of from 0.0 to 1.0, and defines "close" as being "less than 0.5
+    away". If stdev has not been empirically estimated, the thumb-suck for
+    each component should be the absolute difference below which the values
+    should be considered "close".
+
+    :type vec1, vec2: [float|None,...]
+    :param vec1, vec2: Nullable floating-point vectors of the same length.
+    :type stdevs: [float,...]
+    :param stdevs: standard deviations of vector components. 
     :rtype: float
-    
+    :return: Euclidian (pythagorean) distance between `vec1` and `vec2`
     
     >>> normL2([2,None],[5,1],[1,1])
     3.0

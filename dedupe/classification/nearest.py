@@ -12,12 +12,16 @@ import logging, math
 def classify(comparisons, ex_matches, ex_nonmatches, distance):
     """Nearest-neighbour classification of comparisons vectors.
 
-    :param comparisons: Map (item1,item2):comparison    
+    :type comparisons: {(R,R):[float,...],...}
+    :param comparisons: similarity vectors of compared record pairs.
+    :type ex_matches: [[float,...],...]
     :param ex_matches: List of examples of matching similarity vectors.
+    :type ex_matches: [[float,...],...]
     :param ex_nonmatches: List examples of non-matching similarity vectors.
-    :param distance: Function to compute distance between comparison vectors.
-    :return: Two sets, one with matches and one with non-matches. \
-    Each set contains (rec1,rec2) pairs of compared records.
+    :type distance: function([float,...],[float,...]) float
+    :param distance: calculates distance between similarity vectors.
+    :rtype: {(R,R):float}, {(R,R):float}
+    :return: classifier scores for match pairs and non-match pairs
     
     >>> ## Test 1D vectors
     >>> from distance import L2

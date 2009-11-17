@@ -2,25 +2,6 @@
 :mod:`kmeans` -- K-Means vector clustering
 ==========================================
 
-K-means clustering of similarity vectors into two groups (matches and
-non-matches), that is K=2.
-
-This is a special K-Means implementation which handles "None" values
-for similarity, which occur when two field values could not be compared,
-due to missing or invalid values in one or both of the compared records.
-
-FEBRL assigns arbitrary weights to non-comparisons, such as "0.2" or "0", to
-treat "unable to compare" in the same manner as "total mismatch".
-
-In this module, we instead model occurrences of None as reduced-dimensionality
-vectors. That is, (0.95,0.2,None,0.5) is treated like a
-3-dimensional vector in distance calculations.
-
-In centroid calculation, a None does contributes to the mean by reducing the
-denominator of the averaging step for that component.
-
-.. todo:: Revise kmeans docs
-
 .. module:: kmeans
    :synopsis: Cluster match and non-match vectors using K=2 K-means.
 .. moduleauthor:: Graham Poulter
@@ -31,23 +12,24 @@ from __future__ import division
 import logging, math
 
 def classify(comparisons, distance, maxiter=10):
-    """Classify each pair of comparisons as match or nonmatch, by clustering
-    weight vectors around "match centroind" and "nonmatch centroid". 
+    """Classify record pair similarity vectors as matches and non-matches
+    using K-Means (K=2) clustering around match and non-match centroids.
     
-    The match/nonmatch centroids are initialised using the largest/smallest
-    occuring value for each component.
-       
-    :param comparisons: mapping (rec1,rec2):weights from record pair to\
-    field-by-field comparison vector.
-    
-    :param distance: Function distance(v1,v2) of two similarity vectors\
-    returninng the floating point distance between them, discarding components\
-    having a None value.
-    
-    :param maxiter: Maximum number of loops for adjusting the centroid.
-    
-    :return: two mappings, one for matched pairs and one for non-matched pairs,\
-    mapping (record1,record2) to classifier score.
+    .. note:: match and nonmatch centroids are initialised using the
+       largest and smallest occuring values for each component respectively.
+
+    .. note: :keyword:`None` values in vectors are handled by removing the
+       null'ed component for vector distance calculation and totals for
+       averaging.
+
+    :type comparisons: {(R,R):[float,...],...}
+    :param comparisons: similarity vectors of compared record pairs.
+    :type distance: function([float,...],[float,...]) float
+    :param distance: calculates distance between similarity vectors.
+    :type maxiter: int
+    :param maxiter: maximum number of loops to adjust the centroid
+    :rtype: {(R,R):float}, {(R,R):float}
+    :return: classifier scores for match pairs and non-match pairs
     
     >>> ## simple test of clustering 1D vectors
     >>> from distance import L2

@@ -8,13 +8,7 @@
 """
 
 import re
-"""Regular expression library"""
-
-import dmetaphone
-"""Phonetic text encoding with double metaphone"""
-
 from functools import partial
-"""Partial function application to configure encoders"""
 
 def normspace(text):
     """Strip multiple and trailing spaces.
@@ -97,6 +91,9 @@ def emaildomain(text):
 def wrap(*funcs):
     """Create a composited function from a list of unitary functions.
     For example, wrap(f1, f2, f3)(text) == f1(f2(f3(text)))
+    
+    :type funcs: function(U) V
+    :param funcs: transformations to compose
     
     >>> wrap(sorted_words, reverse)("world hello")
     'dlrow olleh'

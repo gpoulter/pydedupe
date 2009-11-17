@@ -18,12 +18,12 @@ def classify_bool(rule, comparisons):
     similarity vectors as matches (if True), non-matches (if False)
     and uncertain (if None).  
     
-    :param comparisons: Mapping from (rec1,rec2) to vector of similarity values.
-    
-    :param rule: Function of similarity vector that returns True, False or None.
-   
-    :return: Three sets for matches, non-matches and uncertain pairs. Each\
-    set contains (rec1,rec2) representing the compared pair.
+    :type rule: function([float,...]) bool or None
+    :param rule: "is this similarity vector a match" - returns True, False or None
+    :type comparisons: {(R,R):[float,...],...}
+    :param comparisons: similarity vectors of compared record pairs.
+    :rtype: {(R,R)...}, {(R,R)...}, {(R,R)...}
+    :return: match, non-match and uncertain record pairs
     """
     matches, nonmatches, uncertain = set(), set(), set()
     for pair, simvec in comparisons.iteritems():
@@ -40,8 +40,14 @@ def classify_bool(rule, comparisons):
                   len(comparisons), len(matches), len(nonmatches), len(uncertain))
     return matches, nonmatches, uncertain
 
-def classify_score(rule, comparisons):
-    """Use :func:`classify_bool` but maps True to 1.0 and False to 0.0, to make
-    the rule classifier into score classifier."""
+def classify(rule, comparisons):
+    """Uses :func:`classify_bool` but returns the boolean results as scores in
+    the same format as results from :mod:`kmeans` and :mod:`nearest`.
+    
+    :type rule: function([float,...]) bool or None
+    :param rule: "is this similarity vector a match" - returns True, False or None
+    :rtype: {(R,R):float}, {(R,R):float}
+    :return: classifier scores for match pairs (1.0) and non-match pairs (0.0)
+    """
     match,nomatch,unknown = classify_bool(rule, comparisons)
     return dict((x,1.0) for x in match), dict((x,0.0) for x in nomatch)
