@@ -25,17 +25,17 @@ class Index(dict):
     :param makekey: Generates the index keys for the record.
     
     >>> makekey = lambda r: [int(r[1])]
-    >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
     >>> makekey(('A',3.5))
     [3]
-    >>> a = Index(makekey)
-    >>> a.insertmany([('A',5.5),('B',4.5),('C',5.25)])
+    >>> compare = lambda x,y: float(int(float(x[1]))==int(float(y[1])))
+    >>> compare(('A','5.5'),('B','4.5'))
+    0.0
+    >>> a = Index(makekey).insertmany([('A',5.5),('B',4.5),('C',5.25)])
     >>> a.count_comparisons()
     1
     >>> a.link_within(compare)
     {(('A', 5.5), ('C', 5.25)): 1.0}
-    >>> b = Index(makekey)
-    >>> b.insertmany([('D',5.5),('E',4.5)])
+    >>> b = Index(makekey).insertmany([('D',5.5),('E',4.5)])
     >>> a.count_comparisons(b)
     3
     >>> a.link_between(compare, b)
@@ -66,6 +66,7 @@ class Index(dict):
         """Insert records into the index."""
         for record in records:
             self.insert(record)
+        return self
     
     def count_comparisons(self, other=None):
         """Upper bound on the number of comparisons required by this index.

@@ -7,75 +7,83 @@
 .. moduleauthor:: Graham Poulter
 """
 
+from StringIO import StringIO
+from contextlib import nested, closing
 import logging, os
 import excel, link, recordgroups 
+from indexer import Index, Indices
 
-def makeoutputdir(dirname, open=open):
-    """Create a directory and return opener factories for files
-    in that directory.
-    
-    :type dirname: path string 
-    :param dirname: Where to place the named files
-    :rtype: function(name) abspath, function(name) file
-    :return: output path generator and output file opener
-    """
-    if not os.path.exists(dirname): 
-        os.mkdir(dirname)
-    def outpath(filename):
-        return os.path.join(dirname, filename)
-    def outfile(filename):
-        return open(outpath(filename), 'w')
-    return outpath, outfile
-
-def write_indices(indices, outdir, prefix):
+def write_indices(indices, outdir, prefix, open=open):
     """Write indices in CSV format.
+
     :type indices: :class:`Indices`
-    :param indices: Write one file per index in this dictionary.
-    :param outdir: Write index files to this directory.
-    :param prefix: Prepend string to each output file name
+    :param indices: write one file per index in this dictionary.
+    :param outdir: write index files to this directory.
+    :param prefix: prepend string to each output file name
+    :type open: function(name,'wb') writer
+    :param open: how to open a files.
+    
+    >>> makekey = lambda r: [int(r[1])]
+    >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
+    >>> idx = Index(makekey).insertmany([('A',5.5),('B',4.5),('C',5.25)])
+    >>> indices = Indices(("Number",idx))
+    >>> data = StringIO()
+    >>> data.close = lambda: None
+    >>> write_indices(indices, outdir="/tmp", prefix="", open=lambda f,m:data)
+    >>> data.getvalue()
+    '4,B,4.5\\r\\n5,A,5.5\\r\\n5,C,5.25\\r\\n'
     """
     def write_index(index, stream):
         """Write a single index in CSV format to a stream"""
         writer = excel.writer(stream)
         for indexkey, rows in index.iteritems():
             for row in rows:
-                writer.writerow((indexkey,) + row)
+                writer.writerow([unicode(indexkey)] + [unicode(v) for v in row])
     from os.path import join
     for indexname, index in indices.iteritems():
-        with open(join(outdir, prefix + indexname + '.csv'), 'wb') as stream:
+        with closing(open(join(outdir, prefix+indexname+'.csv'), 'wb')) as stream:
             write_index(index, stream)
 
 def index_stats(index, name, log=None):
-    """Write statistics about the blocks of `index`, prefixing lines with
-    `name`, to the `log` :class:`Logger`."""
-    log = log if log else logging.getLogger()
+    """Log stats about the blocks of `index`, to :class:`Logger`, 
+    prefixing lines with `name`.
+    
+    >>> makekey = lambda r: [int(r[1])]
+    >>> idx = Index(makekey).insertmany([('A',5.5),('B',4.5),('C',5.25)])
+    >>> def log(s,*args):
+    ...     print s % args
+    >>> index_stats(idx, "NumIdx", log)
+    NumIdx: 3 records, 2 blocks. 2 in largest block, 1.50 per block.
+    """
+    log = log if log else logging.getLogger().info
     if not index:
-        log.info("%s: index is empty." % name)
+        log("%s: index is empty." % name)
     else:
         records = sum(len(recs) for recs in index.itervalues())
         largest = max(len(recs) for recs in index.itervalues())
         blocks = len(index)
-        log.info("%s: %d records, %d blocks. %d in largest block, %.2f per block.",
-                 name, records, blocks, largest, float(records)/blocks)
+        log("%s: %d records, %d blocks. %d in largest block, %.2f per block.",
+            name, records, blocks, largest, float(records)/blocks)
 
 def stat_indexing_within(indices, log=None):
-    """Log expected within-index comparisons"""
-    log = log if log else logging.getLogger()
+    """Log about expected within-index comparisons"""
+    log = log if log else logging.getLogger().info
     for name, index in indices.iteritems():
-        log.info("Index %s may require up to %d comparisons.", name, 
-                 index.count_comparisons())
+        log("Index %s may require up to %d comparisons.", name, 
+            index.count_comparisons())
         index_stats(index, name, log)
 
 def stat_indexing_between(indices1, indices2, log=None):
-    """Log expected between-index comparisons"""
-    log = log if log else logging.getLogger()
+    """Log about expected between-index comparisons"""
+    log = log if log else logging.getLogger().info
     for (n1, i1), (n2, i2) in zip(self.items(), other.items()): 
-        log.info("Index %s to %s may require up to %d comparisons.",
-                 n1, n2, i1.count_comparisons(i2))
+        log("Index %s to %s may require up to %d comparisons.",
+            n1, n2, i1.count_comparisons(i2))
         index_stats(i1, "Input " + n1, log)
         index_stats(i2, "Master " + n2, log)
 
-def write_comparisons(comparator, indices1, indices2, comparisons, scores, stream, origstream=None):
+def write_comparisons(comparator, indices1, indices2, comparisons, scores, 
+                      stream, origstream=None):
     """Write pairs of compared records, together with index keys and 
     field comparison weights.  Inspection shows which index keys matched,
     and the field-by-field similarity.
@@ -94,14 +102,14 @@ def write_comparisons(comparator, indices1, indices2, comparisons, scores, strea
     :param comparisons: Similarity vectors from pairs of record comparisons.
 
     :type scores: {(R,R):float,...} or :keyword:`None`
-    :param scores: Classifier scores for pairs of records. Omitted in\
+    :param scores: classifier scores for pairs of records. Omitted in\
     the output if None.
     
-    :type stream: binary Writer
-    :param stream: Destination of comparison vectors in CSV format.
+    :type stream: binary writer
+    :param stream: where to write CSV for similarity vectors.
     
-    :type origstream: binary Writer
-    :param origstream: Destination of original records pairs in CSV format.
+    :type origstream: binary writer
+    :param origstream: where to write CSV for pairs of compared original records.
     """
     if not comparisons: return
     from sim import getvalue
@@ -124,8 +132,8 @@ def write_comparisons(comparator, indices1, indices2, comparisons, scores, strea
         weights = comparisons[(rec1,rec2)] # look up comparison vector
         keys1 = [ idx.makekey(rec1) for idx in indices1.itervalues() ]
         keys2 = [ idx.makekey(rec2) for idx in indices2.itervalues() ]
-        writer.writerow([u""] + [u";".join(x) for x in keys1] + [ unicode(getvalue(rec1,f)) for f in field1 ])
-        writer.writerow([u""] + [u";".join(x) for x in keys2] + [ unicode(getvalue(rec2,f)) for f in field2 ])
+        writer.writerow([u""] + [u";".join(unicode(x)) for x in keys1] + [ unicode(getvalue(rec1,f)) for f in field1 ])
+        writer.writerow([u""] + [u";".join(unicode(x)) for x in keys2] + [ unicode(getvalue(rec2,f)) for f in field2 ])
         # Tuple of booleans indicating whether index keys are equal
         idxmatch = [ bool(set(k1).intersection(set(k2))) if 
                      (k1 is not None and k2 is not None) else ""
@@ -134,70 +142,83 @@ def write_comparisons(comparator, indices1, indices2, comparisons, scores, strea
         writer.writerow(str(x) for x in weightrow)
         if record_writer:
             record_writer.writerow(rec1)
-            record_writer.writerow(rec2)   
-
-def linkcsv(indices, comparator, classifier, inputfile, outputdir, masterfile=None):
-    """Run a dedupe task using the specified indices, comparator and classifier.
-    
-    :type indices: :class:`Indices`
-    :param indices: Index layout for the records.
-
-    :type comparator: :class:`RecordSim`, function(R,R) [float,...]
-    :param comparator: Obtain similarity vectors for record pairs.
-    
-    :type classifier: function({(R,R):[float,...],...}) -> [(R,R),...], [(R,R),...]
-    :param classifier: Takes pairs of record comparisons and separates\
-    it into pairs that match and pairs that don't match.
-    
-    :type inputfile: path string
-    :param inputfile: CSV input records for left-hand records.
-    
-    :type outputdir: path string
-    :param outputdir: Destination directory for output files.
-
-    :type masterfile: path string
-    :param masterfile: Optional CSV of master records, to be used as right-hand\
-    records against which the `inputfile` records will be linked.
-    """
-    outpath, outfile = makeoutputdir(outputdir)
-    
-    # Set up logging to file
-    filehandler = logging.FileHandler(outpath("dedupe.log"))
+            record_writer.writerow(rec2) 
+            
+def filelog(path):
+    """Set up file logging at `path`."""
+    filehandler = logging.FileHandler(path)
     filehandler.setFormatter(
         logging.Formatter(
             '%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S'))
     logging.getLogger().addHandler(filehandler)
+    return logging.getLogger()
+
+def linkcsv(comparator, indices, classifier, instream, odir, 
+            masterstream=None, open=open, logger=None):
+    """Run a dedupe task using the specified indices, comparator and classifier.
+    
+    :type indices: :class:`Indices`
+    :param indices: index prototype for the records.
+
+    :type comparator: :class:`RecordSim`, function(R,R) [float,...]
+    :param comparator: calculates similarity vectors for record pairs.
+    
+    :type classifier: function({(R,R):[float,...],...}) -> [(R,R),...], [(R,R),...]
+    :param classifier: separates pairs of record comparisons\
+    it into matching pairs and non-matching pairs.
+    
+    :type instream: binary reader
+    :param instream: where to read CSV of input records
+    
+    :type odir: path string
+    :param odir: Directory in which to open output files.
+
+    :type masterstream: binary reader
+    :param masterfile: where to read CSV of optional master records,\
+    to which the `instream` records should be linked.
+    
+    :type open: function(path, mode) reader/writer
+    :param open: how to open files (defaults to built-in open)
+    
+    :type logger: :class:`Logger` or :keyword:`None`
+    :param logger: Log to write to, else set up :file:`dedupe.log`
+    """
+    opath = lambda f: os.path.join(odir, f)
+    logger = logger if logger else filelog(opath('dedupe.log'))
 
     # Index records, compare pairs, identify match/nonmatch pairs
-    records = list(excel.reader(inputfile))
+    records = list(excel.reader(instream))
     master_records = []
 
-    if masterfile:
+    if masterstream:
         # Link input records to master records
-        master_records = list(excel.reader(masterfile))
+        master_records = list(excel.reader(masterstream))
         comparisons, indices, master_indices = link.between(
             comparator, indices, records, master_records)
         stat_indexing_between(indices1, indices2)
-        write_indices(indices, outputdir, "1A-")
-        write_indices(master_indices, outputdir, "1B-")
+        write_indices(indices, odir, "1A-")
+        write_indices(master_indices, odir, "1B-")
     else:
-        # Dedupe input records against themselves
+        # Link input records to themselves
         comparisons, indices = link.within(comparator, indices, records)
         stat_indexing_within(indices)
-        write_indices(indices, outputdir, "1-")
+        write_indices(indices, odir, "1-")
         master_indices = indices
 
     matches, nonmatches = classifier(comparisons)
 
     # Write the match and nonmatch pairs with scores
-    write_comparisons(comparator,
-        indices, master_indices, comparisons, matches, 
-        outfile("2-matches.csv"), outfile("3-matches-orig.csv"))
-    write_comparisons(comparator,
-        indices, master_indices, comparisons, nonmatches, 
-        outfile("2-nonmatches.csv"), outfile("3-nonmatches-orig.csv"))
+    with nested(closing(open(opath("2-matches.csv"),'wb')),
+                closing(open(opath("3-matches-original.csv"),'wb'))) as (scomp,sorig):
+        write_comparisons(comparator, indices, master_indices, 
+                          comparisons, matches, scomp, sorig)
+    with nested(closing(open(opath("2-nonmatches.csv"),'wb')),
+                closing(open(opath("3-nonmatches-original.csv"),'wb'))) as (scomp,sorig):
+        write_comparisons(comparator, indices, master_indices, 
+                          comparisons, nonmatches, scomp, sorig)
 
     # Write groups of linked records
-    recordgroups.write_csv(matches, records + master_records, 
-                           records[0]._fields, outfile('4-groups.csv'))
+    with closing(open(opath('4-groups.csv'),'wb')) as ofile:
+        recordgroups.write_csv(matches, records + master_records, 
+                               records[0]._fields, ofile)
 

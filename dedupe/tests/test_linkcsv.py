@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 
-import csv, logging, os, shutil, sys, tempfile, unittest
-from functools import partial
+import csv, logging, sys, unittest
+from contextlib import closing
+from StringIO import StringIO
 
 from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
-from dedupe.sim.dale import compare as dale
-from dedupe.enc import lowstrip
-from dedupe.enc.dmetaphone import encode as dmetaphone
 from dedupe.sim import ValueSim, RecordSim
 from dedupe.indexer import Index, Indices
 from dedupe.linkcsv import linkcsv
@@ -19,7 +17,8 @@ def classify(comparisons):
     for matched pairs, and for non-matched pairs.  Match is judged by
     whether the first value in the similarity vector is greater than 0.5.
 
-    E.g. classifier({ (1,2):[0.8], (2,3):[0.2] }) == {(1,2)}, {(2,3)}
+    >>> classify({ (1,2):[0.8], (2,3):[0.2] })
+    {(1,2)}, {(2,3)}
     """
     matches, nomatches = {}, {}
     for pair, sim in comparisons.iteritems():
@@ -29,41 +28,34 @@ def classify(comparisons):
             nomatches[pair] = 0.0
     return matches, nomatches
 
-class TestCSVDedupe(unittest.TestCase):
-    
-    def setUp(self):
+class TestLinkCSV(unittest.TestCase):
         
-        self.records = [
-            ("Joe Bloggs",),
-            ("Jo Bloggs",),
-            ("Jimmy Choo",),
-        ]
-        
-        self.indices = Indices(
-            ("NameIdx", Index(lambda r: dmetaphone(lowstrip(r[0])))),
-        )
-        
-        self.comparator = RecordSim(
-            ("NameCompare", ValueSim(partial(dale, 1.0), 0, lowstrip)),
-        )
-        
-        # Write a temporary file with the 
-        self.outdir = tempfile.mkdtemp(prefix="test_linkers_")
-        self.inpath = os.path.join(self.outdir, "input.csv")
-        csvfile = open(self.inpath,'w') 
-        writer = excel.writer(csvfile, lineterminator='\n')
-        writer.writerow(("Name",))
-        writer.writerows(self.records)
-        csvfile.close()
-        
-    def tearDown(self):
-        pass
-        #shutil.rmtree(self.outdir)
-        
-                
     def test(self):
-        linkcsv(self.indices, self.comparator, classify, 
-                  self.inpath, self.outdir)
+        records = [("A","5.5"), ("B","3.5"),("C","5.25")]
+        makekey = lambda r: [int(float(r[1]))]
+        vcompare = lambda x,y: float(int(x) == int(y))
+        indices = Indices(
+            ("NumIdx", Index(makekey)),
+        )
+        comparator = RecordSim(
+            ("NumCompare", ValueSim(vcompare, 1, float)),
+        )
+        iostreams = {}
+        def fakeopen(f,m):
+            stream = StringIO()
+            stream.close = lambda: None
+            iostreams[f] = stream
+            return stream
+        instream = StringIO()
+        writer = excel.writer(instream, lineterminator='\n')
+        writer.writerow(("Name","Age"))
+        writer.writerows(records)
+        instream.seek(0) # start of file
+        linkcsv(comparator, indices, classify, instream, 
+                odir="", masterstream=None, open=fakeopen,
+                logger=logging.getLogger())
+        for name,s in iostreams.iteritems():
+            print name, '\n', s.getvalue()
         
 if __name__ == "__main__":
     logging.basicConfig(level = logging.DEBUG)
