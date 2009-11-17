@@ -49,8 +49,8 @@ class Index(dict):
     def count_comparisons(self, other=None):
         """Upper bound on the number of comparisons required by this index.
         
-        .. note:: caching of comparisons results will generally mean fewer
-           actual calls to the comparison function than.
+        .. note:: comparisons are cached so the actual number of calls to the
+           comparison function will in general be less than this.
 
         :type: other: :class:`Index` or :keyword:`None`
         :param other: Count comparisons against this index.
@@ -70,7 +70,7 @@ class Index(dict):
                     comparisons += len(self[key]) * len(other[key])
         return comparisons
     
-    def dedupe(self, compare, comparisons=None):
+    def link_self(self, compare, comparisons=None):
         """Perform dedupe comparisons on the index.  Note that this sorts
         the lists of records in each index key to ensure that rec1<rec2 
         in each resulting comparison tuple.
@@ -96,7 +96,7 @@ class Index(dict):
                         comparisons[(a,b)] = compare(a,b)
         return comparisons
                         
-    def link(self, other, compare, comparisons=None):
+    def link_other(self, other, compare, comparisons=None):
         """Perform linkage comparisons for this index against the other index.
         
         :param other: Index object against which to perform linkage comparison.
@@ -180,7 +180,7 @@ class RecordComparator(OrderedDict):
                     comparisons[pair] = self(rec1, rec2)
         return comparisons
 
-    def dedupe(self, indices):
+    def link_single(self, indices):
         """Return comparisons against self for indexed records.
         
         :type indices: :class:`Indices`, {str:{obj:[R,...],...},...}
@@ -190,11 +190,11 @@ class RecordComparator(OrderedDict):
         """
         comparisons = {} # Map from (record1,record2) to L{Weights}
         for index in indices.itervalues():
-            index.dedupe(self, comparisons)
+            index.link_self(self, comparisons)
         return comparisons
     
 
-    def link(self, indices1, indices2):
+    def link_pair(self, indices1, indices2):
         """Return comparisons between two sets of indexed records.
 
         :type indices1: :class:`Indices`, {str:{obj:[R,...],...},...}
@@ -207,7 +207,7 @@ class RecordComparator(OrderedDict):
         assert indices1 is not indices2 # Must be different!
         comparisons = {}
         for index1, index2 in zip(indices1.itervalues(), indices2.itervalues()):
-            index1.link(index2, self, comparisons)
+            index1.link_other(index2, self, comparisons)
         return comparisons
 
 

@@ -81,8 +81,8 @@ class TestIndex(unittest.TestCase):
         indices2 = copy.deepcopy(self.indices)
         indices1.insert(self.recs)
         indices2.insert(self.recs)
-        self.comparator.dedupe(indices1)
-        self.comparator.link(indices1, indices2)
+        self.comparator.link_single(indices1)
+        self.comparator.link_pair(indices1, indices2)
         
 if __name__ == "__main__":
     logging.basicConfig(level = logging.DEBUG)

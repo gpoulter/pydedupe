@@ -83,8 +83,8 @@ def load_iter(comparator, read_data, write_true, write_false):
     f_indices = Indices(("Block",Index(lambda r: [r[BLOCK].strip()]) ))
     f_indices.insert(f_rows)
     # Compare records within index blocks
-    t_comparisons = t_indices["Block"].dedupe(comparator)
-    f_comparisons = f_indices["Block"].dedupe(comparator)
+    t_comparisons = t_indices["Block"].link_self(comparator)
+    f_comparisons = f_indices["Block"].link_self(comparator)
     if hasattr(comparator, "write_comparisons"):
         comparator.write_comparisons(t_indices, t_indices, t_comparisons, None, write_true)
         comparator.write_comparisons(f_indices, f_indices, f_comparisons, None, write_false)

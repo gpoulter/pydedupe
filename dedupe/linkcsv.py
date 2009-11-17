@@ -44,7 +44,7 @@ def link_single(records, indices, comparator):
     """
     indices.insert(records)
     log_indexing_single(indices)
-    comparisons = comparator.dedupe(indices)
+    comparisons = comparator.link_single(indices)
     return comparisons, indices
 
 def link_pair(records1, records2, indices, comparator):
@@ -69,7 +69,7 @@ def link_pair(records1, records2, indices, comparator):
         return r
     indices1, indices2 = new_index(records1), new_index(records2)
     log_indexing_pair(indices1, indices2)
-    comparisons = comparator.link(indices1, indices2)
+    comparisons = comparator.link_pair(indices1, indices2)
     return comparisons, indices1, indices2
 
 def write_indices(indices, outdir, prefix):
