@@ -1,108 +1,16 @@
 """
 OrderedDict
-~~~~~~~~~~~
+===========
 
 Source: http://dev.pocoo.org/hg/sandbox/raw-file/tip/odict.py
 
 This module is an example implementation of an ordered dict for the
-collections module.  It's not written for performance (it actually
-performs pretty bad) but to show how the API works.
+collections module. The ordering is maintained with a Python list so the
+performance is poor: only use it for small collections.
 
-
-Questions and Answers
-=====================
-
-Why would anyone need ordered dicts?
-
-    Dicts in python are unordered which means that the order of items when
-    iterating over dicts is undefined.  As a matter of fact it is most of
-    the time useless and differs from implementation to implementation.
-
-    Many developers stumble upon that problem sooner or later when
-    comparing the output of doctests which often does not match the order
-    the developer thought it would.
-
-    Also XML systems such as Genshi have their problems with unordered
-    dicts as the input and output ordering of tag attributes is often
-    mixed up because the ordering is lost when converting the data into
-    a dict.  Switching to lists is often not possible because the
-    complexity of a lookup is too high.
-
-    Another very common case is metaprogramming.  The default namespace
-    of a class in python is a dict.  With Python 3 it becomes possible
-    to replace it with a different object which could be an ordered dict.
-    Django is already doing something similar with a hack that assigns
-    numbers to some descriptors initialized in the class body of a
-    specific subclass to restore the ordering after class creation.
-
-    When porting code from programming languages such as PHP and Ruby
-    where the item-order in a dict is guaranteed it's also a great help
-    to have an equivalent data structure in Python to ease the transition.
-
-Where are new keys added?
-
-    At the end.  This behavior is consistent with Ruby 1.9 Hashmaps
-    and PHP Arrays.  It also matches what common ordered dict
-    implementations do currently.
-
-What happens if an existing key is reassigned?
-
-    The key is *not* moved.  This is consitent with existing
-    implementations and can be changed by a subclass very easily::
-
-        class movingodict(OrderedDict):
-            def __setitem__(self, key, value):
-                self.pop(key, None)
-                OrderedDict.__setitem__(self, key, value)
-
-    Moving keys to the end of a ordered dict on reassignment is not
-    very useful for most applications.
-
-Does it mean the dict keys are sorted by a sort expression?
-
-    That's not the case.  The OrderedDict only guarantees that there is an order
-    and that newly inserted keys are inserted at the end of the dict.  If
-    you want to sort it you can do so, but newly added keys are again added
-    at the end of the dict.
-
-I initializes the OrderedDict with a dict literal but the keys are not
-ordered like they should!
-
-    Dict literals in Python generate dict objects and as such the order of
-    their items is not guaranteed.  Before they are passed to the OrderedDict
-    constructor they are already unordered.
-
-What happens if keys appear multiple times in the list passed to the
-constructor?
-
-    The same as for the dict.  The latter item overrides the former.  This
-    has the side-effect that the position of the first key is used because
-    the key is actually overwritten:
-
-    >>> OrderedDict([('a', 1), ('b', 2), ('a', 3)])
-    OrderedDict([('a', 3), ('b', 2)])
-
-    This behavor is consistent with existing implementation in Python
-    and the PHP array and the hashmap in Ruby 1.9.
-
-This OrderedDict doesn't scale!
-
-    Yes it doesn't.  The delitem operation is O(n).  This is file is a
-    mockup of a real OrderedDict that could be implemented for collections
-    based on an linked list.
-
-Why is there no .insert()?
-
-    There are few situations where you really want to insert a key at
-    an specified index.  To now make the API too complex the proposed
-    solution for this situation is creating a list of items, manipulating
-    that and converting it back into an OrderedDict:
-
-    >>> d = OrderedDict([('a', 42), ('b', 23), ('c', 19)])
-    >>> l = d.items()
-    >>> l.insert(1, ('x', 0))
-    >>> OrderedDict(l)
-    OrderedDict([('a', 42), ('x', 0), ('b', 23), ('c', 19)])
+.. module:: ordereddict
+  :synopsis: Dictionary that remembers the order of keys.
+.. moduleauthor:: Unknown
 """
 from itertools import izip, imap
 from copy import deepcopy

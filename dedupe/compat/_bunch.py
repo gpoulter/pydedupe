@@ -1,3 +1,11 @@
+"""
+:mod:`bunch` -- Attribute-accessible dictionary
+===============================================
+
+.. module:: bunch
+   :synopsis: Turn a dictionary into an object
+.. moduleauthor:: Graham Poulter
+"""
 
 class bunch(object):
     """Populate an object the attributes passed via the constructor.  Syntactic

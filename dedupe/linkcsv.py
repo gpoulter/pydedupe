@@ -8,8 +8,7 @@
 """
 
 import logging, os
-import excel, link
-from recordgroups import write_csv
+import excel, link, recordgroups 
 
 def makeoutputdir(dirname, open=open):
     """Create a directory and return opener factories for files
@@ -198,8 +197,7 @@ def linkcsv(indices, comparator, classifier, inputfile, outputdir, masterfile=No
         indices, master_indices, comparisons, nonmatches, 
         outfile("2-nonmatches.csv"), outfile("3-nonmatches-orig.csv"))
 
-    # Classify and output
-    fields = records[0]._fields
-    write_csv(matches, records + master_records, fields, 
-                outfile('4-groups.csv'))
+    # Write groups of linked records
+    recordgroups.write_csv(matches, records + master_records, 
+                           records[0]._fields, outfile('4-groups.csv'))
 

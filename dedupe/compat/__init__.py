@@ -1,5 +1,11 @@
-"""Compatibility module for handy classes that may only available in newer
-versions of Python."""
+"""
+:mod:`compat` -- Python 2.6 features
+=====================================
+
+.. module:: compat
+   :synopsis: Provide classes only available in newer versions of Python.
+.. moduleauthor: Graham Poulter
+"""
 
 try:
     from collections import namedtuple

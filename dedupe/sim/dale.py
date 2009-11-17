@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 :mod:`dale` -- Damerau-Levenshtein string distance
 ==================================================

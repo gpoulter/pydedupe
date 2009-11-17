@@ -1,8 +1,12 @@
-"""Creates subclasses of tuple with named fields.
+"""
+Subclasses of tuple with named fields
+=====================================
 
 Source code from http://code.activestate.com/recipes/500261/
 
-.. moduleauthor: Raymond Hettinger (2007)
+.. module:: namedtuple
+   :synopsis: Generate tuple classes with named fields.
+.. moduleauthor:: Raymond Hettinger (2007)
 """
 
 from operator import itemgetter as _itemgetter

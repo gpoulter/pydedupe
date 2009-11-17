@@ -1,7 +1,7 @@
 """
 :mod:`dedupe` - Record linkage analysis
 
-.. module: dedupe
+.. module:: dedupe
    :synopsis: Link similar records within or across data sets
 .. moduleauthor:: Graham Poulter
 

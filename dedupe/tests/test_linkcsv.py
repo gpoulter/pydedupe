@@ -7,8 +7,8 @@ from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
 from dedupe.sim.dale import compare as dale
-from dedupe.encoding import lowstrip
-from dedupe.encoding.dmetaphone import encode as dmetaphone
+from dedupe.enc import lowstrip
+from dedupe.enc.dmetaphone import encode as dmetaphone
 from dedupe.sim import ValueSim, RecordSim
 from dedupe.indexer import Index, Indices
 from dedupe.linkcsv import linkcsv

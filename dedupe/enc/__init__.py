@@ -1,7 +1,9 @@
 """
-:mod:`encoding` -- Transformation and encoding of values.
-=========================================================
+:mod:`enc` -- Value transformation
+==================================
 
+.. module:: enc
+   :synopsis: Transform and encode field values.
 .. moduleauthor:: Graham Poulter
 """
 
