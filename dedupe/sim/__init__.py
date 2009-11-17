@@ -1,8 +1,8 @@
 """
-:mod:`comparison` -- Similarity of record fields
+:mod:`sim` -- Similarity of record fields
 ================================================
 
-.. module:: comparison
+.. module:: sim
    :synopsis: Similarity of corresponding fields between records.
 
 """
@@ -74,7 +74,7 @@ def combine(*fields):
     return multivalue(None, *fields)    
 
 
-class Value(object):
+class ValueSim(object):
     """Defines a callable comparison of a pair of records on a defined field.
     
     :type comparevalues: function(V,V) float
@@ -92,11 +92,11 @@ class Value(object):
 
     >>> # define some 'similarity of numbers' measure
     >>> similarity = lambda x,y: abs(x+y)/(abs(x+y)+abs(x-y))
-    >>> Value(similarity, 0, float)([1,2],[1,5])
+    >>> ValueSim(similarity, 0, float)([1,2],[1,5])
     1.0
-    >>> Value(similarity, 0, float)([1,2],[2,5])
+    >>> ValueSim(similarity, 0, float)([1,2],[2,5])
     0.75
-    >>> Value(similarity, 0, None, 1, float)([1,0],['0','2'])
+    >>> ValueSim(similarity, 0, None, 1, float)([1,0],['0','2'])
     0.75
     """
     
@@ -114,7 +114,7 @@ class Value(object):
             self.encode2(getvalue(record2, self.field2)))
 
     
-class AverageValue(Value):
+class ValueSimAvg(ValueSim):
     """Return average similarity of multi-valued fields.
     
     The average is obtained by looping over the shorter field, and totalling
@@ -133,17 +133,17 @@ class AverageValue(Value):
     :type encode2: function(T2) V
     :param encode2: Encoder of field2 value (default=`encode1`).
     :rtype: callable(a,b) float
-    :return: Computes average similarity of records `a` and `b` over valuef of the field.
+    :return: Computer of average similarity of records `a` and `b` for values of the field.
     
     >>> # define an exponential 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
     >>> field = lambda r: set([r[0],r[2]])
-    >>> AverageValue(similarity, field, float)([1,'A','1'],[-2,'B',2])
+    >>> ValueSimAvg(similarity, field, float)([1,'A','1'],[-2,'B',2])
     0.5
     >>> field = lambda r: set(r[1].split(';'))
-    >>> AverageValue(similarity, field, float)(['A','0;1'],['B','1;2'])
+    >>> ValueSimAvg(similarity, field, float)(['A','0;1'],['B','1;2'])
     0.75
-    >>> AverageValue(similarity, field, float)(['A','0;1;2'],['B','0;1;2;3;4'])
+    >>> ValueSimAvg(similarity, field, float)(['A','0;1;2'],['B','0;1;2;3;4'])
     1.0
     """
     
@@ -165,7 +165,7 @@ class AverageValue(Value):
         return total / len(f1)
 
 
-class MaxValue(Value):
+class ValueSimMax(ValueSim):
     """Compare the similarity of two sets of values. Set of values obtained 
     either from splitting a single column, or combining multiple columns.
     
@@ -189,10 +189,10 @@ class MaxValue(Value):
     >>> # define an exponential 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
     >>> field = lambda r: set([r[0],r[2]])
-    >>> MaxValue(similarity, field, float)([0,'A','1'],[2,'B',2])
+    >>> ValueSimMax(similarity, field, float)([0,'A','1'],[2,'B',2])
     0.5
     >>> field = lambda r: set(r[1].split(';'))
-    >>> MaxValue(similarity, field, float)(['A','0;1;2'],['B','3;4;5'])
+    >>> ValueSimMax(similarity, field, float)(['A','0;1;2'],['B','3;4;5'])
     0.5
     """
     

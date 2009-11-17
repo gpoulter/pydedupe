@@ -1,8 +1,8 @@
 """
-:mod:`comparison.geo` -- Geographic comparisons
+:mod:`sim.geo` -- Geographic comparisons
 ===============================================
 
-.. module:: comparison.geo
+.. module:: sim.geo
    :synopsis: Calculate distance and similarity between geographic coordinates.
 .. moduleauthor:: Graham Poulter
 """

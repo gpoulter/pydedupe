@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 """
-:mod:`comparison.levenshtein` -- Levenshtein string distance
+:mod:`sim.levenshtein` -- Levenshtein string distance
 ============================================================
 
-.. module:: comparison.levenshtein
+.. module:: sim.levenshtein
    :synopsis: Calculate Levenshtein distance between two strings.
 
 .. note:: Implementation is from the `Tyriel search engine

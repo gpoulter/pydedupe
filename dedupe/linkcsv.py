@@ -36,7 +36,7 @@ def link_single(records, indices, comparator):
     :param records: records to be linked
     :type indices: :class:`Indices`
     :param indices: index layout for the records
-    :type comparator: :class:`RecordComparator`
+    :type comparator: :class:`RecordSim`
     :param comparator: how to compare records for similarity
     :rtype: {(R,R):[float,...]}, :class:`Indices`
     :return: Similarity vectors for pairwise comparisons, and the\
@@ -56,7 +56,7 @@ def link_pair(records1, records2, indices, comparator):
     :param records2: right-hand being linked to
     :type indices: :class:`Indices`
     :param indices: prototypical index layout for the records
-    :type comparator: :class:`RecordComparator`
+    :type comparator: :class:`RecordSim`
     :param comparator: how to compare records for similarity
     :rtype: {(R,R):[float,...]}, :class:`Indices`, :class:`Indices`
     :return: Similarity vectors for pairwise comparisons, and the\
@@ -120,13 +120,72 @@ def log_indexing_pair(indices1, indices2, log=None):
         index_stats(i1, "Input " + n1, log)
         index_stats(i2, "Master " + n2, log)
 
+def write_comparisons(comparator, indices1, indices2, comparisons, scores, stream, origstream=None):
+    """Write pairs of compared records, together with index keys and 
+    field comparison weights.  Inspection shows which index keys matched,
+    and the field-by-field similarity.
+    
+    :type comparator: :class:`comp.Record`
+    
+    :type indices1: :class:`Indices`, {str:{obj:[R,...],...},...}
+    :param indices1: indexed left-hand records
+    :type indices2: :class:`Indices`, {str:{obj:[R,...],...},...}
+    :param indices2: indexed right-hand records\
+       (provide same object as indices1 for self-linkage)
+
+    :type comparisons: {(R,R):[float,...],...}
+    :param comparisons: Similarity vectors from pairs of record comparisons.
+
+    :type scores: {(R,R):float,...} or :keyword:`None`
+    :param scores: Classifier scores for pairs of records. Omitted in\
+    the output if None.
+    
+    :type stream: binary Writer
+    :param stream: Destination of comparison vectors in CSV format.
+    
+    :type origstream: binary Writer
+    :param origstream: Destination of original records pairs in CSV format.
+    """
+    if not comparisons: return
+    from sim import getvalue
+    # File for comparison statistics
+    writer = excel.writer(stream)
+    writer.writerow(["Score"] + indices1.keys() + comparator.keys())
+    # File for original records
+    record_writer = None
+    if origstream is not None:
+        record_writer = excel.writer(origstream)
+        record_writer.writerow(comparisons.iterkeys().next()[0]._fields)
+    # Obtain field-getter for each value comparator
+    field1 = [ vcomp.field1 for vcomp in comparator.itervalues() ]
+    field2 = [ vcomp.field2 for vcomp in comparator.itervalues() ]
+    # Use dummy classifier scores if None were provided
+    if scores is None:
+        scores = dict((k,0) for k in comparisons.iterkeys())
+    # Write similarity vectors to output
+    for (rec1, rec2), score in scores.iteritems():
+        weights = comparisons[(rec1,rec2)] # look up comparison vector
+        keys1 = [ idx.makekey(rec1) for idx in indices1.itervalues() ]
+        keys2 = [ idx.makekey(rec2) for idx in indices2.itervalues() ]
+        writer.writerow([u""] + [u";".join(x) for x in keys1] + [ unicode(getvalue(rec1,f)) for f in field1 ])
+        writer.writerow([u""] + [u";".join(x) for x in keys2] + [ unicode(getvalue(rec2,f)) for f in field2 ])
+        # Tuple of booleans indicating whether index keys are equal
+        idxmatch = [ bool(set(k1).intersection(set(k2))) if 
+                     (k1 is not None and k2 is not None) else ""
+                     for k1,k2 in zip(keys1,keys2) ]
+        weightrow = [score] + idxmatch + list(weights)
+        writer.writerow(str(x) for x in weightrow)
+        if record_writer:
+            record_writer.writerow(rec1)
+            record_writer.writerow(rec2)   
+
 def csvdedupe(indices, comparator, classifier, inputfile, outputdir, masterfile=None):
     """Run a dedupe task using the specified indices, comparator and classifier.
     
     :type indices: :class:`Indices`
     :param indices: Index layout for the records.
 
-    :type comparator: :class:`RecordComparator`, function(R,R) [float,...]
+    :type comparator: :class:`RecordSim`, function(R,R) [float,...]
     :param comparator: Obtain similarity vectors for record pairs.
     
     :type classifier: function({(R,R):[float,...],...}) -> [(R,R),...], [(R,R),...]
@@ -172,10 +231,10 @@ def csvdedupe(indices, comparator, classifier, inputfile, outputdir, masterfile=
     matches, nonmatches = classifier(comparisons)
 
     # Write the match and nonmatch pairs with scores
-    comparator.write_comparisons(
+    write_comparisons(comparator,
         indices, master_indices, comparisons, matches, 
         outfile("2-matches.csv"), outfile("3-matches-orig.csv"))
-    comparator.write_comparisons(
+    write_comparisons(comparator,
         indices, master_indices, comparisons, nonmatches, 
         outfile("2-nonmatches.csv"), outfile("3-nonmatches-orig.csv"))
 

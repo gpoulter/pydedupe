@@ -139,10 +139,10 @@ class Indices(OrderedDict):
                 index.insert(record)
                 
 
-class RecordComparator(OrderedDict):
+class RecordSim(OrderedDict):
     """Returns a vector of field value similarities between two records.
 
-    :type comparators: [(string,:class:`comparison.Value`),...]
+    :type comparators: [(string,:class:`sim.ValueSim`),...]
     :param comparators: Named, ordered field comparisons.
     
     :type Weights: :class:`namedtuple` (float,...)
@@ -155,14 +155,14 @@ class RecordComparator(OrderedDict):
     """
     
     def __init__(self, *comparators):
-        super(RecordComparator, self).__init__(comparators)
+        super(RecordSim, self).__init__(comparators)
         self.Weights = namedtuple("Weights", self.keys())
 
     def __call__(self, A, B):
         return self.Weights._make(
             comparator(A, B) for comparator in self.itervalues())
     
-    def allpairs(self, records):
+    def link_single_allpair(self, records):
         """Return comparisons for all distinct pairs of records.
         
         :type records: [R,...]
@@ -174,8 +174,24 @@ class RecordComparator(OrderedDict):
         for i in range(len(records)):
             for j in range(i):
                 rec1, rec2 = records[i], records[j]
-                assert rec1[0] != rec2[0]
-                pair = tuple(sorted([rec1,rec2], key=lambda x:x[0]))
+                pair = tuple(sorted([rec1,rec2]))
+                if pair not in comparisons:
+                    comparisons[pair] = self(rec1, rec2)
+        return comparisons
+
+    def link_pair_allpair(self, records1, records2):
+        """Return comparisons for all distinct pairs of records.
+        
+        :type records1, records2: [R,...]
+        :param records1, records2: records to compare
+        :rtype: {(R1,R2):[float,...],...}
+        :return: Similarity vectors for corresponding pairs of compared records.
+        """
+        comparisons = {}
+        for i in range(len(records1)):
+            for j in range(len(records2)):
+                rec1, rec2 = records1[i], records2[j]
+                pair = (rec1, rec2)
                 if pair not in comparisons:
                     comparisons[pair] = self(rec1, rec2)
         return comparisons
@@ -186,7 +202,7 @@ class RecordComparator(OrderedDict):
         :type indices: :class:`Indices`, {str:{obj:[R,...],...},...}
         :param indices: indexed left-hand records
         :rtype: {(R,R):[float,...],...}
-        :return: Similarity vectors for ordered pairs of compared records.
+        :return: Comparison similarity vectors for ordered pairs of compared records.
         """
         comparisons = {} # Map from (record1,record2) to L{Weights}
         for index in indices.itervalues():
@@ -202,7 +218,7 @@ class RecordComparator(OrderedDict):
         :type indices2: :class:`Indices`, {str:{obj:[R,...],...},...}
         :param indices2: indexed right-hand records
         :rtype: {(R,R):[float,...],...}
-        :return: Similarity vectors for ordered pairs of compared records.
+        :return: Similarity vectors for pairs of compared records.
         """
         assert indices1 is not indices2 # Must be different!
         comparisons = {}
@@ -210,60 +226,3 @@ class RecordComparator(OrderedDict):
             index1.link_other(index2, self, comparisons)
         return comparisons
 
-
-    def write_comparisons(self, indices1, indices2, comparisons, scores, stream, origstream=None):
-        """Write pairs of compared records, together with index keys and 
-        field comparison weights.  Inspection shows which index keys matched,
-        and the field-by-field similarity.
-        
-        :type indices1: :class:`Indices`, {str:{obj:[R,...],...},...}
-        :param indices1: indexed left-hand records
-        :type indices2: :class:`Indices`, {str:{obj:[R,...],...},...}
-        :param indices2: indexed right-hand records\
-           (provide same object as indices1 for self-linkage)
-
-        :type comparisons: {(R,R):[float,...],...}
-        :param comparisons: Similarity vectors from pairs of record comparisons.
-
-        :type scores: {(R,R):float,...} or :keyword:`None`
-        :param scores: Classifier scores for pairs of records. Omitted in\
-        the output if None.
-        
-        :type stream: binary Writer
-        :param stream: Destination of comparison vectors in CSV format.
-        
-        :type origstream: binary Writer
-        :param origstream: Destination of original records pairs in CSV format.
-        """
-        if not comparisons: return
-        from comparison import getvalue
-        # File for comparison statistics
-        writer = excel.writer(stream)
-        writer.writerow(["Score"] + indices1.keys() + self.keys())
-        # File for original records
-        record_writer = None
-        if origstream is not None:
-            record_writer = excel.writer(origstream)
-            record_writer.writerow(comparisons.iterkeys().next()[0]._fields)
-        # Obtain field-getter for each value comparator
-        field1 = [ comparator.field1 for comparator in self.itervalues() ]
-        field2 = [ comparator.field2 for comparator in self.itervalues() ]
-        # Use dummy classifier scores if None were provided
-        if scores is None:
-            scores = dict((k,0) for k in comparisons.iterkeys())
-        # Write similarity vectors to output
-        for (rec1, rec2), score in scores.iteritems():
-            weights = comparisons[(rec1,rec2)] # look up comparison vector
-            keys1 = [ idx.makekey(rec1) for idx in indices1.itervalues() ]
-            keys2 = [ idx.makekey(rec2) for idx in indices2.itervalues() ]
-            writer.writerow([u""] + [u";".join(x) for x in keys1] + [ unicode(getvalue(rec1,f)) for f in field1 ])
-            writer.writerow([u""] + [u";".join(x) for x in keys2] + [ unicode(getvalue(rec2,f)) for f in field2 ])
-            # Tuple of booleans indicating whether index keys are equal
-            idxmatch = [ bool(set(k1).intersection(set(k2))) if 
-                         (k1 is not None and k2 is not None) else ""
-                         for k1,k2 in zip(keys1,keys2) ]
-            weightrow = [score] + idxmatch + list(weights)
-            writer.writerow(str(x) for x in weightrow)
-            if record_writer:
-                record_writer.writerow(rec1)
-                record_writer.writerow(rec2)

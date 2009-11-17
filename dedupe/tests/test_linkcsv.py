@@ -6,11 +6,11 @@ from functools import partial
 from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
-from dedupe.comparison.dale import compare as dale
+from dedupe.sim.dale import compare as dale
 from dedupe.encoding import lowstrip
 from dedupe.encoding.dmetaphone import encode as dmetaphone
-from dedupe.comparison import Value
-from dedupe.indexer import Index, Indices, RecordComparator
+from dedupe.sim import ValueSim
+from dedupe.indexer import Index, Indices, RecordSim
 from dedupe.linkcsv import csvdedupe
 from dedupe import excel
 
@@ -43,8 +43,8 @@ class TestCSVDedupe(unittest.TestCase):
             ("NameIdx", Index(lambda r: dmetaphone(lowstrip(r[0])))),
         )
         
-        self.comparator = RecordComparator(
-            ("NameCompare", Value(partial(dale, 1.0), 0, lowstrip)),
+        self.comparator = RecordSim(
+            ("NameCompare", ValueSim(partial(dale, 1.0), 0, lowstrip)),
         )
         
         # Write a temporary file with the 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-:mod:`comparison.dale` -- Damerau-Levenshtein string distance
+:mod:`sim.dale` -- Damerau-Levenshtein string distance
 =============================================================
 
 Implementation of Damerau-Levenshtein distance by `mwh.geek.nz`_::

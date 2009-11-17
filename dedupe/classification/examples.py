@@ -13,7 +13,7 @@ as training data for classifiers.
 """
 
 from __future__ import division
-from ..indexer import Index, Indices, RecordComparator
+from ..indexer import Index, Indices, RecordSim
 from .. import excel
 
 def load_csv(comparator, inpath, outdir):
@@ -22,10 +22,10 @@ def load_csv(comparator, inpath, outdir):
     The example CSV file must have column headings for namedtuple loading.
     Rows are only read which have TRUE or FALSE in the first column, and must
     have an index block identifier in the second column. The remaining columns
-    must include the headings used by the RecordComparator. with all the
-    column names needed by the RecordComparator.
+    must include the headings used by the RecordSim. with all the
+    column names needed by the RecordSim.
 
-    :type comparator: :class:`dedupe.indexer.RecordComparator`, callable (T,T)
+    :type comparator: :class:`dedupe.indexer.RecordSim`, callable (T,T)
     :param comparator: to obtain similarity vectors from pairs of records.
     :type inpath: path to readable file
     :param inpath: Example CSV file.

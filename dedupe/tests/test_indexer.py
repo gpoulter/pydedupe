@@ -6,8 +6,8 @@ sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
 from dedupe.encoding import digits, lowstrip
 from dedupe.compat import namedtuple
-from dedupe.comparison import Value, AverageValue, MaxValue
-from dedupe.indexer import Index, Indices, RecordComparator
+from dedupe.sim import ValueSim, ValueSimAvg, ValueSimMax
+from dedupe.indexer import Index, Indices, RecordSim
         
 class TestIndex(unittest.TestCase):
     """L{indexer} module classes."""
@@ -20,7 +20,7 @@ class TestIndex(unittest.TestCase):
     
         self.Record = namedtuple('Record', 'Name Phone')
 
-        # Work with first record only, except for RecordComparator tests
+        # Work with first record only, except for RecordSim tests
         self.recs = [ 
             self.Record('ABCD EFG', '123;456'), #0
             self.Record('ABCD HIJ', '456;234'), #1
@@ -33,24 +33,24 @@ class TestIndex(unittest.TestCase):
         self.indices_out['PhoneIdx']['AB^12'] = [self.recs[0]]
         self.indices_out['RevNameIdx']['GFE DCBA'] = [self.recs[0]]
 
-        self.namecompare = Value(
+        self.namecompare = ValueSim(
             comparevalues = lambda a,b:0.5, 
             field1 = "Name", 
             encode1 = lowstrip, 
             field2 = lambda r:r.Name)
         
-        self.phonecompare = AverageValue(
+        self.phonecompare = ValueSimAvg(
             comparevalues = lambda a,b:0.5, 
             field1 = lambda r: set(r.Phone.split(";")),
             encode1 = digits)
         
-        self.phonecomparemax = MaxValue(
+        self.phonecomparemax = ValueSimMax(
             comparevalues = lambda a,b:0.5, 
             field1 = lambda r: set(r.Phone.split(";")),
             encode1 = digits)
 
         # Record comparison definition
-        self.comparator = RecordComparator(
+        self.comparator = RecordSim(
             ("NameComp", self.namecompare),
             ("PhoneComp", self.phonecompare),
         )
@@ -65,18 +65,14 @@ class TestIndex(unittest.TestCase):
         # Index the first record
         indices.insert(self.recs[:1]) 
         self.assertEqual(indices, self.indices_out) 
-
-        # Don't crash given empty list of comparisons
-        self.failureException(self.comparator.write_comparisons(
-            indices, indices, {}, {}, sys.stdout))
         
     def test_RecordComparator_compare_all_pairs(self):
         self.assertEqual(self.comparator(self.recs[0], self.recs[1]),
             self.comparator.Weights(0.5,0.5))
-        self.comparator.allpairs(self.recs)
+        self.comparator.link_single_allpair(self.recs)
         
     def test_RecordComparator_compare_indexed(self):
-        """L{Indices}, L{RecordComparator}"""
+        """L{Indices}, L{RecordSim}"""
         indices1 = copy.deepcopy(self.indices)
         indices2 = copy.deepcopy(self.indices)
         indices1.insert(self.recs)
