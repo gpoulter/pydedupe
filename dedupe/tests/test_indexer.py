@@ -7,13 +7,13 @@ sys.path.insert(0, dirname(dirname(dirname(__file__))))
 from dedupe.encoding import digits, lowstrip
 from dedupe.compat import namedtuple
 from dedupe.comparison import Value, AverageValue, MaxValue
-from dedupe.indexer import Index, Indeces, RecordComparator
+from dedupe.indexer import Index, Indices, RecordComparator
         
 class TestIndex(unittest.TestCase):
     """L{indexer} module classes."""
     
     def setUp(self):
-        self.indeces = Indeces(
+        self.indices = Indices(
             ('PhoneIdx', Index(lambda x: [x.Name[:2] + "^" + x.Phone[:2]])),
             ('RevNameIdx', Index(lambda x: [x.Name[::-1]])),
         )
@@ -29,9 +29,9 @@ class TestIndex(unittest.TestCase):
         ]
 
         # Indexing Result
-        self.indeces_out = copy.deepcopy(self.indeces)
-        self.indeces_out['PhoneIdx']['AB^12'] = [self.recs[0]]
-        self.indeces_out['RevNameIdx']['GFE DCBA'] = [self.recs[0]]
+        self.indices_out = copy.deepcopy(self.indices)
+        self.indices_out['PhoneIdx']['AB^12'] = [self.recs[0]]
+        self.indices_out['RevNameIdx']['GFE DCBA'] = [self.recs[0]]
 
         self.namecompare = Value(
             comparevalues = lambda a,b:0.5, 
@@ -56,21 +56,19 @@ class TestIndex(unittest.TestCase):
         )
 
     def test_Index(self):
-        indeces = copy.deepcopy(self.indeces)
-        isinstance(indeces, Indeces)
+        indices = copy.deepcopy(self.indices)
+        isinstance(indices, Indices)
         
-        self.assertEqual(indeces['PhoneIdx'].makekey(self.recs[0]), ['AB^12'])
-        self.assertEqual(indeces['RevNameIdx'].makekey(self.recs[0]), ['GFE DCBA'])
+        self.assertEqual(indices['PhoneIdx'].makekey(self.recs[0]), ['AB^12'])
+        self.assertEqual(indices['RevNameIdx'].makekey(self.recs[0]), ['GFE DCBA'])
 
         # Index the first record
-        indeces.insert(self.recs[:1]) 
-        self.assertEqual(indeces, self.indeces_out) 
-        indeces.log_index_stats()
-        indeces.log_index_stats(indeces)
+        indices.insert(self.recs[:1]) 
+        self.assertEqual(indices, self.indices_out) 
 
         # Don't crash given empty list of comparisons
         self.failureException(self.comparator.write_comparisons(
-            indeces, indeces, {}, {}, sys.stdout))
+            indices, indices, {}, {}, sys.stdout))
         
     def test_RecordComparator_compare_all_pairs(self):
         self.assertEqual(self.comparator(self.recs[0], self.recs[1]),
@@ -78,13 +76,13 @@ class TestIndex(unittest.TestCase):
         self.comparator.allpairs(self.recs)
         
     def test_RecordComparator_compare_indexed(self):
-        """L{Indeces}, L{RecordComparator}"""
-        indeces1 = copy.deepcopy(self.indeces)
-        indeces2 = copy.deepcopy(self.indeces)
-        indeces1.insert(self.recs)
-        indeces2.insert(self.recs)
-        self.comparator.dedupe(indeces1)
-        self.comparator.link(indeces1, indeces2)
+        """L{Indices}, L{RecordComparator}"""
+        indices1 = copy.deepcopy(self.indices)
+        indices2 = copy.deepcopy(self.indices)
+        indices1.insert(self.recs)
+        indices2.insert(self.recs)
+        self.comparator.dedupe(indices1)
+        self.comparator.link(indices1, indices2)
         
 if __name__ == "__main__":
     logging.basicConfig(level = logging.DEBUG)

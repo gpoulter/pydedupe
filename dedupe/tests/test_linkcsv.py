@@ -10,7 +10,7 @@ from dedupe.comparison.dale import compare as dale
 from dedupe.encoding import lowstrip
 from dedupe.encoding.dmetaphone import encode as dmetaphone
 from dedupe.comparison import Value
-from dedupe.indexer import Index, Indeces, RecordComparator
+from dedupe.indexer import Index, Indices, RecordComparator
 from dedupe.linkcsv import csvdedupe
 from dedupe import excel
 
@@ -39,7 +39,7 @@ class TestCSVDedupe(unittest.TestCase):
             ("Jimmy Choo",),
         ]
         
-        self.indeces = Indeces(
+        self.indices = Indices(
             ("NameIdx", Index(lambda r: dmetaphone(lowstrip(r[0])))),
         )
         
@@ -62,7 +62,7 @@ class TestCSVDedupe(unittest.TestCase):
         
                 
     def test(self):
-        csvdedupe(self.indeces, self.comparator, classify, 
+        csvdedupe(self.indices, self.comparator, classify, 
                   self.inpath, self.outdir)
         
 if __name__ == "__main__":

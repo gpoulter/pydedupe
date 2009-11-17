@@ -13,7 +13,7 @@ as training data for classifiers.
 """
 
 from __future__ import division
-from ..indexer import Index, Indeces, RecordComparator
+from ..indexer import Index, Indices, RecordComparator
 from .. import excel
 
 def load_csv(comparator, inpath, outdir):
@@ -78,15 +78,15 @@ def load_iter(comparator, read_data, write_true, write_false):
     t_rows = [r for r in rows if r[MATCH] == "TRUE"]
     f_rows = [r for r in rows if r[MATCH] == "FALSE"]
     # Index on the contents of the first column
-    t_indeces = Indeces(("Block",Index(lambda r: [r[BLOCK].strip()]) ))
-    t_indeces.insert(t_rows)
-    f_indeces = Indeces(("Block",Index(lambda r: [r[BLOCK].strip()]) ))
-    f_indeces.insert(f_rows)
+    t_indices = Indices(("Block",Index(lambda r: [r[BLOCK].strip()]) ))
+    t_indices.insert(t_rows)
+    f_indices = Indices(("Block",Index(lambda r: [r[BLOCK].strip()]) ))
+    f_indices.insert(f_rows)
     # Compare records within index blocks
-    t_comparisons = t_indeces["Block"].dedupe(comparator)
-    f_comparisons = f_indeces["Block"].dedupe(comparator)
+    t_comparisons = t_indices["Block"].dedupe(comparator)
+    f_comparisons = f_indices["Block"].dedupe(comparator)
     if hasattr(comparator, "write_comparisons"):
-        comparator.write_comparisons(t_indeces, t_indeces, t_comparisons, None, write_true)
-        comparator.write_comparisons(f_indeces, f_indeces, f_comparisons, None, write_false)
+        comparator.write_comparisons(t_indices, t_indices, t_comparisons, None, write_true)
+        comparator.write_comparisons(f_indices, f_indices, f_comparisons, None, write_false)
     return t_comparisons.values(), f_comparisons.values()
  

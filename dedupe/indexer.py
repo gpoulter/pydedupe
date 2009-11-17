@@ -70,22 +70,6 @@ class Index(dict):
                     comparisons += len(self[key]) * len(other[key])
         return comparisons
     
-    def log_block_statistics(self, prefix="", log=None):
-        """Statistics about the average and largest block sizes
-        
-        :param prefix: Print before the log message.
-        :param log: Logging object to use.
-        """
-        if log is None: log = logging.getLogger()
-        if not self:
-            log.info("The index is empty.")
-        else:
-            nrecords = sum(len(recs) for recs in self.itervalues())
-            biggroup = max(len(recs) for recs in self.itervalues())
-            nkeys = len(self)
-            log.info(prefix + "%d records in %d blocks. Largest block: %d, Average block: %.2f",
-                     nrecords, nkeys, biggroup, float(nrecords)/nkeys)
-        
     def dedupe(self, compare, comparisons=None):
         """Perform dedupe comparisons on the index.  Note that this sorts
         the lists of records in each index key to ensure that rec1<rec2 
@@ -134,28 +118,18 @@ class Index(dict):
                         if pair not in comparisons:
                             comparisons[pair] = compare(*pair)
         return comparisons
-                            
-    def write_csv(self, stream):
-        """Write index in CSV format.
-        :type stream: binary stream writer
-        :param stream: Destination for CSV text.
-        """
-        writer = excel.writer(stream)
-        for indexkey, rows in self.iteritems():
-            for row in rows:
-                writer.writerow((indexkey,) + row)
 
 
-class Indeces(OrderedDict):
+class Indices(OrderedDict):
     """Represents a sever Index instances as an ordered dictionary.
 
-    :type indeces: (string, :class:`Index`)
-    :param indeces: Use these named indeces.
+    :type indices: (string, :class:`Index`)
+    :param indices: Use these named indices.
     """
 
-    def __init__(self, *indeces):
+    def __init__(self, *indices):
         OrderedDict.__init__(self)
-        for key, value in indeces:
+        for key, value in indices:
             self[key] = value
     
     def insert(self, records):
@@ -164,29 +138,6 @@ class Indeces(OrderedDict):
             for index in self.itervalues():
                 index.insert(record)
                 
-    def log_index_stats(self, other=None, log=None):
-        """Log statistics and expected number of comparisons about the indeces.
-        
-        :param other: Index being compared against, set :keyword:`None` for self-compare.
-        :type other: Instance of :class:`Indeces` (ordered dict of Index)
-        """
-        if log is None: log = logging.getLogger()
-        # Loop over pairs of corresponding indeces
-        for (i1name, index1), (i2name, index2) in \
-            zip(self.items(), other.items() if other else self.items()): 
-            num_comparisons = index1.count_comparisons(index2)
-            log.info("Comparing %s to %s needs %d comparisons.", i1name, i2name, num_comparisons)
-            index1.log_block_statistics(" Input %s: " % i1name, log)
-            if other:
-                index2.log_block_statistics(" Master %s: " % i2name, log)
-            
-    def write_csv(self, basepath):
-        """Write the indeces in CSV format to these paths."""
-        for indexname, index in self.iteritems():
-            with open(basepath + indexname + ".csv", "w") as stream:
-                index.write_csv(stream)
-
-
 
 class RecordComparator(OrderedDict):
     """Returns a vector of field value similarities between two records.
@@ -229,47 +180,47 @@ class RecordComparator(OrderedDict):
                     comparisons[pair] = self(rec1, rec2)
         return comparisons
 
-    def dedupe(self, indeces):
+    def dedupe(self, indices):
         """Return comparisons against self for indexed records.
         
-        :type indeces: :class:`Indeces`, {str:{obj:[R,...],...},...}
-        :param indeces: indexed left-hand records
+        :type indices: :class:`Indices`, {str:{obj:[R,...],...},...}
+        :param indices: indexed left-hand records
         :rtype: {(R,R):[float,...],...}
         :return: Similarity vectors for ordered pairs of compared records.
         """
         comparisons = {} # Map from (record1,record2) to L{Weights}
-        for index in indeces.itervalues():
+        for index in indices.itervalues():
             index.dedupe(self, comparisons)
         return comparisons
     
 
-    def link(self, indeces1, indeces2):
+    def link(self, indices1, indices2):
         """Return comparisons between two sets of indexed records.
 
-        :type indeces1: :class:`Indeces`, {str:{obj:[R,...],...},...}
-        :param indeces1: indexed left-hand records
-        :type indeces2: :class:`Indeces`, {str:{obj:[R,...],...},...}
-        :param indeces2: indexed right-hand records
+        :type indices1: :class:`Indices`, {str:{obj:[R,...],...},...}
+        :param indices1: indexed left-hand records
+        :type indices2: :class:`Indices`, {str:{obj:[R,...],...},...}
+        :param indices2: indexed right-hand records
         :rtype: {(R,R):[float,...],...}
         :return: Similarity vectors for ordered pairs of compared records.
         """
-        assert indeces1 is not indeces2 # Must be different!
+        assert indices1 is not indices2 # Must be different!
         comparisons = {}
-        for index1, index2 in zip(indeces1.itervalues(), indeces2.itervalues()):
+        for index1, index2 in zip(indices1.itervalues(), indices2.itervalues()):
             index1.link(index2, self, comparisons)
         return comparisons
 
 
-    def write_comparisons(self, indeces1, indeces2, comparisons, scores, stream, origstream=None):
+    def write_comparisons(self, indices1, indices2, comparisons, scores, stream, origstream=None):
         """Write pairs of compared records, together with index keys and 
         field comparison weights.  Inspection shows which index keys matched,
         and the field-by-field similarity.
         
-        :type indeces1: :class:`Indeces`, {str:{obj:[R,...],...},...}
-        :param indeces1: indexed left-hand records
-        :type indeces2: :class:`Indeces`, {str:{obj:[R,...],...},...}
-        :param indeces2: indexed right-hand records\
-           (provide same object as indeces1 for self-linkage)
+        :type indices1: :class:`Indices`, {str:{obj:[R,...],...},...}
+        :param indices1: indexed left-hand records
+        :type indices2: :class:`Indices`, {str:{obj:[R,...],...},...}
+        :param indices2: indexed right-hand records\
+           (provide same object as indices1 for self-linkage)
 
         :type comparisons: {(R,R):[float,...],...}
         :param comparisons: Similarity vectors from pairs of record comparisons.
@@ -288,7 +239,7 @@ class RecordComparator(OrderedDict):
         from comparison import getvalue
         # File for comparison statistics
         writer = excel.writer(stream)
-        writer.writerow(["Score"] + indeces1.keys() + self.keys())
+        writer.writerow(["Score"] + indices1.keys() + self.keys())
         # File for original records
         record_writer = None
         if origstream is not None:
@@ -303,8 +254,8 @@ class RecordComparator(OrderedDict):
         # Write similarity vectors to output
         for (rec1, rec2), score in scores.iteritems():
             weights = comparisons[(rec1,rec2)] # look up comparison vector
-            keys1 = [ idx.makekey(rec1) for idx in indeces1.itervalues() ]
-            keys2 = [ idx.makekey(rec2) for idx in indeces2.itervalues() ]
+            keys1 = [ idx.makekey(rec1) for idx in indices1.itervalues() ]
+            keys2 = [ idx.makekey(rec2) for idx in indices2.itervalues() ]
             writer.writerow([u""] + [u";".join(x) for x in keys1] + [ unicode(getvalue(rec1,f)) for f in field1 ])
             writer.writerow([u""] + [u";".join(x) for x in keys2] + [ unicode(getvalue(rec2,f)) for f in field2 ])
             # Tuple of booleans indicating whether index keys are equal
