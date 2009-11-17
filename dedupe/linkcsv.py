@@ -25,13 +25,12 @@ def write_indices(indices, outdir, prefix, open=open):
     
     >>> makekey = lambda r: [int(r[1])]
     >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
-    >>> idx = Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
-    >>> indices = Indices(("Number",idx))
-    >>> data = StringIO()
+    >>> indices = Indices(("Idx",Index(makekey, [('A',5.5),('C',5.25)])))
+    >>> data = StringIO() # mock file
     >>> data.close = lambda: None
     >>> write_indices(indices, outdir="/tmp", prefix="", open=lambda f,m:data)
     >>> data.getvalue()
-    '4,B,4.5\\r\\n5,A,5.5\\r\\n5,C,5.25\\r\\n'
+    '5,A,5.5\\r\\n5,C,5.25\\r\\n'
     """
     def write_index(index, stream):
         """Write a single index in CSV format to a stream"""
@@ -132,8 +131,12 @@ def write_comparisons(comparator, indices1, indices2, comparisons, scores,
         weights = comparisons[(rec1,rec2)] # look up comparison vector
         keys1 = [ idx.makekey(rec1) for idx in indices1.itervalues() ]
         keys2 = [ idx.makekey(rec2) for idx in indices2.itervalues() ]
-        writer.writerow([u""] + [u";".join(unicode(x)) for x in keys1] + [ unicode(getvalue(rec1,f)) for f in field1 ])
-        writer.writerow([u""] + [u";".join(unicode(x)) for x in keys2] + [ unicode(getvalue(rec2,f)) for f in field2 ])
+        writer.writerow([u""] + 
+            [u";".join(unicode(k) for k in kl) for kl in keys1] + 
+            [ unicode(getvalue(rec1,f)) for f in field1 ])
+        writer.writerow([u""] + 
+            [u";".join(unicode(k) for k in kl) for kl in keys2] + 
+            [ unicode(getvalue(rec2,f)) for f in field2 ])
         # Tuple of booleans indicating whether index keys are equal
         idxmatch = [ bool(set(k1).intersection(set(k2))) if 
                      (k1 is not None and k2 is not None) else ""
@@ -152,6 +155,7 @@ def filelog(path):
             '%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S'))
     logging.getLogger().addHandler(filehandler)
     return logging.getLogger()
+
 
 def linkcsv(comparator, indices, classifier, instream, odir, 
             masterstream=None, open=open, logger=None):

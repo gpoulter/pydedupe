@@ -35,10 +35,10 @@ class TestLinkCSV(unittest.TestCase):
         makekey = lambda r: [int(float(r[1]))]
         vcompare = lambda x,y: float(int(x) == int(y))
         indices = Indices(
-            ("NumIdx", Index(makekey)),
+            ("Idx", Index(makekey)),
         )
         comparator = RecordSim(
-            ("NumCompare", ValueSim(vcompare, 1, float)),
+            ("Compare", ValueSim(vcompare, 1, float)),
         )
         iostreams = {}
         def fakeopen(f,m):
@@ -48,13 +48,12 @@ class TestLinkCSV(unittest.TestCase):
             return stream
         instream = StringIO()
         writer = excel.writer(instream, lineterminator='\n')
-        writer.writerow(("Name","Age"))
-        writer.writerows(records)
+        writer.writerows([("Name","Age")] + records)
         instream.seek(0) # start of file
         linkcsv(comparator, indices, classify, instream, 
                 odir="", masterstream=None, open=fakeopen,
                 logger=logging.getLogger())
-        for name,s in iostreams.iteritems():
+        for name,s in sorted(iostreams.iteritems()):
             print name, '\n', s.getvalue()
         
 if __name__ == "__main__":
