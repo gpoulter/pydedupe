@@ -13,12 +13,13 @@ from dedupe import linkcsv
 from dedupe import excel
 
 def classify(comparisons):
-    """Takes a map of (rec1,rec2):similarity, and returns a set of (r1,r2)
-    for matched pairs, and for non-matched pairs.  Match is judged by
-    whether the first value in the similarity vector is greater than 0.5.
+    """Returns match pairs and non-match pairs.
+    
+    :type comparisons: {(R,R):[float,...]}
+    :param comparisons: similarity vectors for pairs of records
 
-    >>> classify({ (1,2):[0.8], (2,3):[0.2] })
-    {(1,2)}, {(2,3)}
+    >>> classify({(1,2):[0.8], (2,3):[0.2]})
+    ({(1, 2): 1.0}, {(2, 3): 0.0})
     """
     matches, nomatches = {}, {}
     for pair, sim in comparisons.iteritems():
@@ -39,6 +40,7 @@ class TestLinkCSV(unittest.TestCase):
             iostreams[f] = stream
             return closing(stream)
         linkcsv.open = fakeopen
+        
         # set up parameters
         records = [("A","5.5"), ("B","3.5"),("C","5.25")]
         makekey = lambda r: [int(float(r[1]))]
@@ -49,7 +51,8 @@ class TestLinkCSV(unittest.TestCase):
         comparator = RecordSim(
             ("Compare", ValueSim(vcompare, 1, float)),
         )
-        # write the input file        
+
+        # set up the input file        
         instream = StringIO()
         writer = excel.writer(instream, lineterminator='\n')
         writer.writerows([("Name","Age")] + records)
@@ -58,8 +61,21 @@ class TestLinkCSV(unittest.TestCase):
         linkcsv.linkcsv(comparator, indices, classify, instream, 
                 odir="", masterstream=None, logger=logging.getLogger())
         for name,s in sorted(iostreams.iteritems()):
-            print name, '\n', s.getvalue()
+            print name, '\n', s.getvalue()            
         
+        # set up the master file
+        iostream = {}
+        mstream = StringIO()
+        writer = excel.writer(mstream, lineterminator='\n')
+        writer.writerows([("Name","Age")] + records)
+        instream.seek(0)
+        mstream.seek(0) 
+        # do the linking and print output
+        linkcsv.linkcsv(comparator, indices, classify, instream, 
+                odir="", masterstream=mstream, logger=logging.getLogger())
+        for name,s in sorted(iostreams.iteritems()):
+            print name, '\n', s.getvalue()            
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     unittest.main()

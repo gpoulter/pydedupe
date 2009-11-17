@@ -69,7 +69,7 @@ def index_stats(index, name, log=None):
             name, records, blocks, largest, float(records)/blocks)
 
 def stat_indexing_within(indices, log=None):
-    """Log about expected within-index comparisons"""
+    """Log about expected within-index comparisons."""
     log = log if log else logging.getLogger().info
     for name, index in indices.iteritems():
         log("Index %s may require up to %d comparisons.", name, 
@@ -77,9 +77,9 @@ def stat_indexing_within(indices, log=None):
         index_stats(index, name, log)
 
 def stat_indexing_between(indices1, indices2, log=None):
-    """Log about expected between-index comparisons"""
+    """Log about expected between-index comparisons."""
     log = log if log else logging.getLogger().info
-    for (n1, i1), (n2, i2) in zip(self.items(), other.items()): 
+    for (n1, i1), (n2, i2) in zip(indices1.items(), indices2.items()): 
         log("Index %s to %s may require up to %d comparisons.",
             n1, n2, i1.count_comparisons(i2))
         index_stats(i1, "Input " + n1, log)
@@ -201,7 +201,7 @@ def linkcsv(comparator, indices, classifier, instream, odir,
     :type odir: :class:`string`
     :param odir: Directory in which to open output files.
     :type masterstream: binary reader
-    :param masterfile: where to read CSV of optional master records,\
+    :param masterstream: where to read CSV of optional master records,\
        to which the `instream` records should be linked.
     :type logger: :class:`Logger` or :keyword:`None`
     :param logger: Log to write to, else set up :file:`{odir}/dedupe.log`
@@ -211,6 +211,7 @@ def linkcsv(comparator, indices, classifier, instream, odir,
 
     # Index records, compare pairs, identify match/nonmatch pairs
     records = list(excel.reader(instream))
+    fields = records[0]._fields
     master_records = []
 
     if masterstream:
@@ -218,7 +219,7 @@ def linkcsv(comparator, indices, classifier, instream, odir,
         master_records = list(excel.reader(masterstream))
         comparisons, indices, master_indices = link.between(
             comparator, indices, records, master_records)
-        stat_indexing_between(indices1, indices2)
+        stat_indexing_between(indices, master_indices)
         write_indices(indices, odir, "1A-")
         write_indices(master_indices, odir, "1B-")
     else:
@@ -230,18 +231,22 @@ def linkcsv(comparator, indices, classifier, instream, odir,
 
     matches, nonmatches = classifier(comparisons)
     
+    if masterstream:
+        matchrows, singlerows = split_records(matches, records)
+        writecsv(opath('5-input-matchrows.csv'), fields, matchrows)
+        writecsv(opath('5-input-singlerows.csv'), fields, singlerows)
+    
     # Write the match and nonmatch pairs with scores
-    with nested(open(opath("2-matches.csv"),'wb'),
-                open(opath("3-matches-original.csv"),'wb')) as (scomp,sorig):
+    with nested(open(opath("2-match-stat.csv"),'wb'),
+                open(opath("2-match-orig.csv"),'wb')) as (scomp,sorig):
         write_comparisons(comparator, indices, master_indices, 
                           comparisons, matches, scomp, sorig)
-    with nested(open(opath("2-nonmatches.csv"),'wb'),
-                open(opath("3-nonmatches-original.csv"),'wb')) as (scomp,sorig):
+    with nested(open(opath("3-nonmatch-stat.csv"),'wb'),
+                open(opath("3-nonmatch-orig.csv"),'wb')) as (scomp,sorig):
         write_comparisons(comparator, indices, master_indices, 
                           comparisons, nonmatches, scomp, sorig)
 
     # Write groups of linked records
     with open(opath('4-groups.csv'),'wb') as ofile:
-        recordgroups.write_csv(matches, records + master_records, 
-                               records[0]._fields, ofile)
+        recordgroups.write_csv(matches, records + master_records, fields, ofile)
 
