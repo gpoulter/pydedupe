@@ -78,9 +78,9 @@ def load_iter(comparator, read_data, write_true, write_false):
     f_rows = [r for r in rows if r[MATCH] == "FALSE"]
     # Index on the contents of the first column
     t_indices = Indices(("Block",Index(lambda r: [r[BLOCK].strip()]) ))
-    t_indices.insert(t_rows)
+    t_indices.insertmany(t_rows)
     f_indices = Indices(("Block",Index(lambda r: [r[BLOCK].strip()]) ))
-    f_indices.insert(f_rows)
+    f_indices.insertmany(f_rows)
     # Compare records within index blocks
     t_comparisons = t_indices["Block"].link_within(comparator)
     f_comparisons = f_indices["Block"].link_within(comparator)

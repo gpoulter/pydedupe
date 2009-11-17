@@ -1,58 +1,7 @@
-======================
- Module Documentation
-======================
+==============
+ Main Modules
+==============
 
-API documentation for PyDedupe modules.
-
-====================================================
- :mod:`classification` -- Classification of vectors
-====================================================
-
-.. automodule:: dedupe.classification.distance
-   :members:
-
-.. automodule:: dedupe.classification.examples
-   :members:
-
-.. automodule:: dedupe.classification.kmeans
-   :members:
-
-.. automodule:: dedupe.classification.nearest
-   :members:
-
-.. automodule:: dedupe.classification.rulebased
-   :members:
-
-==================================================
- :mod:`comparison` -- Similarities between values
-==================================================
-
-.. automodule:: dedupe.sim
-   :members:
-
-.. automodule:: dedupe.sim.dale
-   :members:
-
-.. automodule:: dedupe.sim.geo
-   :members:
-
-.. automodule:: dedupe.sim.levenshtein
-   :members:
-
-=======================================
- :mod:`encoding` -- Encoding of values
-=======================================
-
-.. automodule:: dedupe.encoding
-   :members:
-
-.. automodule:: dedupe.encoding.dmetaphone
-   :members:
-   
-===============
- Other Modules
-===============
-   
 .. automodule:: dedupe.excel
    :members:
    
@@ -67,5 +16,3 @@ API documentation for PyDedupe modules.
 
 .. automodule:: dedupe.recordgroups
    :members:
-
-

@@ -77,7 +77,7 @@ def between_indexed(compare, indices1, indices2):
         raise ValueError("indices1 and indeces2 are the same object.")
     comparisons = {}
     for index1, index2 in zip(indices1.itervalues(), indices2.itervalues()):
-        index1.link_between(index2, compare, comparisons)
+        index1.link_between(compare, index2, comparisons)
     return comparisons
 
 def within(compare, indices, records):
@@ -94,7 +94,7 @@ def within(compare, indices, records):
     records, and a filled :class:`Indices` instance.
     """
     indices = indices.clone()
-    indices.insert(records)
+    indices.insertmany(records)
     comparisons = within_indexed(compare, indices)
     return comparisons, indices
 
@@ -114,7 +114,7 @@ def between(compare, indices, records1, records2):
     filled :class:`Indices` instances for `records1` and `records2`.
     """
     indices1, indices2 = indices.clone(), indices.clone()
-    indices1.insert(records1)
-    indices2.insert(records2)
+    indices1.insertmany(records1)
+    indices2.insertmany(records2)
     comparisons = between_indexed(compare, indices1, indices2)
     return comparisons, indices1, indices2

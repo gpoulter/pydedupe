@@ -22,7 +22,24 @@ class Index(dict):
     """Mapping from index key to records.
     
     :type makekey: function(record) [key,...]
-    :param makekey: Generates the index keys for the record.    
+    :param makekey: Generates the index keys for the record.
+    
+    >>> makekey = lambda r: [int(r[1])]
+    >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
+    >>> makekey(('A',3.5))
+    [3]
+    >>> a = Index(makekey)
+    >>> a.insertmany([('A',5.5),('B',4.5),('C',5.25)])
+    >>> a.count_comparisons()
+    1
+    >>> a.link_within(compare)
+    {(('A', 5.5), ('C', 5.25)): 1.0}
+    >>> b = Index(makekey)
+    >>> b.insertmany([('D',5.5),('E',4.5)])
+    >>> a.count_comparisons(b)
+    3
+    >>> a.link_between(compare, b)
+    {(('C', 5.25), ('D', 5.5)): 1.0, (('A', 5.5), ('D', 5.5)): 1.0, (('B', 4.5), ('E', 4.5)): 1.0}
     """
     
     def __init__(self, makekey):
@@ -32,19 +49,23 @@ class Index(dict):
     def insert(self, record):
         """Insert a record into the index.
 
-        :type record: :class:`namedtuple`
+        :type record: :class:`namedtuple` or other record.
         :param record: The record object to index.
         :rtype: [key,...]
         :return: Keys under which the record was inserted.
         """
         keys = self.makekey(record)
-        assert isinstance(keys, tuple) or isinstance(keys, list) or isinstance(keys, set)
         for key in keys:
             if key is None or key == "":
                 raise ValueError("Empty index key in %s" % repr(keys))
             recordsforkey = self.setdefault(key, list())
             recordsforkey.append(record)
         return keys
+    
+    def insertmany(self, records):
+        """Insert records into the index."""
+        for record in records:
+            self.insert(record)
     
     def count_comparisons(self, other=None):
         """Upper bound on the number of comparisons required by this index.
@@ -96,7 +117,7 @@ class Index(dict):
                         comparisons[(a,b)] = compare(a,b)
         return comparisons
                         
-    def link_between(self, other, compare, comparisons=None):
+    def link_between(self, compare, other, comparisons=None):
         """Perform linkage comparisons for this index against the other index.
         
         :param other: Index object against which to perform linkage comparison.
@@ -124,7 +145,19 @@ class Indices(OrderedDict):
     """Represents a sever Index instances as an ordered dictionary.
 
     :type indices: (string, :class:`Index`)
-    :param indices: Use these named indices.
+    :param indices: Named indices in which to insert records.
+    
+    >>> makekey = lambda r: [int(r[1])]
+    >>> makekey(('A',3.5))
+    [3]
+    >>> a = Indices(("IntValue",Index(makekey)))
+    >>> a.insertmany([('A',5.5),('B',4.5),('C',5.25)])
+    >>> a
+    OrderedDict([('IntValue', {4: [('B', 4.5)], 5: [('A', 5.5), ('C', 5.25)]})])
+    >>> b = a.clone()
+    >>> b.insertmany([('D',5.5),('E',4.5),('F',5.25)])
+    >>> b
+    OrderedDict([('IntValue', {4: [('E', 4.5)], 5: [('D', 5.5), ('F', 5.25)]})])
     """
 
     def __init__(self, *indices):
@@ -136,8 +169,12 @@ class Indices(OrderedDict):
         """Return a new :class:`Indeces` with same layout as this one."""
         return Indices(*[(n,Index(idx.makekey)) for n,idx in self.iteritems()])
     
-    def insert(self, records):
+    def insert(self, record):
+        """Insert a record into each :class:`Index`."""
+        for index in self.itervalues():
+            index.insert(record)
+            
+    def insertmany(self, records):
         """Insert records into each :class:`Index`."""
         for record in records:
-            for index in self.itervalues():
-                index.insert(record)
+            self.insert(record)

@@ -12,7 +12,9 @@ Contents:
    :maxdepth: 2
 
    modules
-   why
+   classification
+   enc
+   sim
 
 To-Do List
 ==========
@@ -28,7 +30,7 @@ For installation from PyPi_, run `easy_install pydedupe` or using PIP
 run `pip install pydedupe`.
 
 From the extracted source run `python setup.py install`, which will
-also install setuptools if necessary.
+also install setuptools_ if necessary.
 
 To install locally on linux, run::
 
@@ -38,7 +40,8 @@ To check the test suite after installation, run::
 
  python -m dedupe.tests.__init__
 
-.. _PyPi: http://pypi.python.org/pypi/setuptools
+.. _PyPi: http://pypi.python.org/pypi
+.. _setuptools: http://pypi.python.org/pypi/setuptools
 .. _Python: http://python.org/download/
 
 How it Works

@@ -62,7 +62,7 @@ def stat_indexing_within(indices, log=None):
     """Log expected within-index comparisons"""
     log = log if log else logging.getLogger()
     for name, index in indices.iteritems():
-        log.info("Index %s needs up to %d comparisons.", name, 
+        log.info("Index %s may require up to %d comparisons.", name, 
                  index.count_comparisons())
         index_stats(index, name, log)
 
@@ -70,7 +70,7 @@ def stat_indexing_between(indices1, indices2, log=None):
     """Log expected between-index comparisons"""
     log = log if log else logging.getLogger()
     for (n1, i1), (n2, i2) in zip(self.items(), other.items()): 
-        log.info("Index %s to %s needs %d comparisons.",
+        log.info("Index %s to %s may require up to %d comparisons.",
                  n1, n2, i1.count_comparisons(i2))
         index_stats(i1, "Input " + n1, log)
         index_stats(i2, "Master " + n2, log)
