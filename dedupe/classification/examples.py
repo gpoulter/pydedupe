@@ -1,19 +1,20 @@
 """
-:mod:`classification.examples` - Training similarity vectors
-===================================================================
+:mod:`examples` - Training similarity vectors
+=============================================
 
 Reads specially formatted CSV file of example pairs tagged as matching
 and non-matching pairs.  Performs the comparisons and returns 
 two sets fo similarity vectors (match, non-match) 
 as training data for classifiers.
 
-.. module:: classification.examples
+.. module:: examples
    :synopsis: Obtain true/false similarity vectors from from CSV example files.
 .. moduleauthor:: Graham Poulter
 """
 
 from __future__ import division
-from ..indexer import Index, Indices, RecordSim
+from ..indexer import Index, Indices
+from ..sim import RecordSim
 from .. import excel
 
 def load_csv(comparator, inpath, outdir):
@@ -45,8 +46,6 @@ def load_csv(comparator, inpath, outdir):
         (reader, write_true, write_false):
         load_csv_stream(comparator, reader, write_true, write_false)
 
-   
-        
 def load_iter(comparator, read_data, write_true, write_false):
     """Load example comparisons from CSV streams.
     
@@ -83,8 +82,8 @@ def load_iter(comparator, read_data, write_true, write_false):
     f_indices = Indices(("Block",Index(lambda r: [r[BLOCK].strip()]) ))
     f_indices.insert(f_rows)
     # Compare records within index blocks
-    t_comparisons = t_indices["Block"].link_self(comparator)
-    f_comparisons = f_indices["Block"].link_self(comparator)
+    t_comparisons = t_indices["Block"].link_within(comparator)
+    f_comparisons = f_indices["Block"].link_within(comparator)
     if hasattr(comparator, "write_comparisons"):
         comparator.write_comparisons(t_indices, t_indices, t_comparisons, None, write_true)
         comparator.write_comparisons(f_indices, f_indices, f_comparisons, None, write_false)

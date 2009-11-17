@@ -1,6 +1,6 @@
 """
-:mod:`classification.kmeans` -- K-Means clustering of vectors.
-==============================================================
+:mod:`kmeans` -- K-Means vector clustering
+==========================================
 
 K-means clustering of similarity vectors into two groups (matches and
 non-matches), that is K=2.
@@ -21,9 +21,9 @@ denominator of the averaging step for that component.
 
 .. todo:: Revise kmeans docs
 
+.. module:: kmeans
+   :synopsis: Cluster match and non-match vectors using K=2 K-means.
 .. moduleauthor:: Graham Poulter
-
-
 """
 
 from __future__ import division

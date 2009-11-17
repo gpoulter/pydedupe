@@ -6,8 +6,9 @@ sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
 from dedupe.encoding import digits, lowstrip
 from dedupe.compat import namedtuple
-from dedupe.sim import ValueSim, ValueSimAvg, ValueSimMax
-from dedupe.indexer import Index, Indices, RecordSim
+from dedupe.sim import RecordSim, ValueSim, ValueSimAvg, ValueSimMax
+from dedupe import link
+from dedupe.indexer import Index, Indices
         
 class TestIndex(unittest.TestCase):
     """L{indexer} module classes."""
@@ -66,19 +67,19 @@ class TestIndex(unittest.TestCase):
         indices.insert(self.recs[:1]) 
         self.assertEqual(indices, self.indices_out) 
         
-    def test_RecordComparator_compare_all_pairs(self):
+    def test_link_allpairs(self):
         self.assertEqual(self.comparator(self.recs[0], self.recs[1]),
             self.comparator.Weights(0.5,0.5))
-        self.comparator.link_single_allpair(self.recs)
+        link.within_allpair(self.comparator, self.recs)
         
-    def test_RecordComparator_compare_indexed(self):
+    def test_link_indexed(self):
         """L{Indices}, L{RecordSim}"""
         indices1 = copy.deepcopy(self.indices)
         indices2 = copy.deepcopy(self.indices)
         indices1.insert(self.recs)
         indices2.insert(self.recs)
-        self.comparator.link_single(indices1)
-        self.comparator.link_pair(indices1, indices2)
+        link.within_indexed(self.comparator, indices1)
+        link.between_indexed(self.comparator, indices1, indices2)
         
 if __name__ == "__main__":
     logging.basicConfig(level = logging.DEBUG)

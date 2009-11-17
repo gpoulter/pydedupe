@@ -7,6 +7,8 @@
 
 """
 
+from dedupe.compat import namedtuple, OrderedDict
+
 def getvalue(record, field):
     """Retrieve value of a field from a record by any means.
     
@@ -91,13 +93,13 @@ class ValueSim(object):
     :return: Computes similarity of records `a` and `b` on the defined field.
 
     >>> # define some 'similarity of numbers' measure
-    >>> similarity = lambda x,y: abs(x+y)/(abs(x+y)+abs(x-y))
-    >>> ValueSim(similarity, 0, float)([1,2],[1,5])
+    >>> similarity = lambda x,y: 2.0**(-abs(x-y))
+    >>> ValueSim(similarity, 1, float)(('A',1),('B',1))
     1.0
-    >>> ValueSim(similarity, 0, float)([1,2],[2,5])
-    0.75
-    >>> ValueSim(similarity, 0, None, 1, float)([1,0],['0','2'])
-    0.75
+    >>> ValueSim(similarity, 1, float)(('A','1'),('B','2'))
+    0.5
+    >>> ValueSim(similarity, 0, None, 1, float)((1,'A'),('B','2'))
+    0.5
     """
     
     def __init__(self, comparevalues, field1, encode1=None, field2=None, encode2=None):
@@ -138,12 +140,12 @@ class ValueSimAvg(ValueSim):
     >>> # define an exponential 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
     >>> field = lambda r: set([r[0],r[2]])
-    >>> ValueSimAvg(similarity, field, float)([1,'A','1'],[-2,'B',2])
+    >>> ValueSimAvg(similarity, field, float)((1,'A','1'),(-2,'B',2))
     0.5
     >>> field = lambda r: set(r[1].split(';'))
-    >>> ValueSimAvg(similarity, field, float)(['A','0;1'],['B','1;2'])
+    >>> ValueSimAvg(similarity, field, float)(('A','0;1'),('B','1;2'))
     0.75
-    >>> ValueSimAvg(similarity, field, float)(['A','0;1;2'],['B','0;1;2;3;4'])
+    >>> ValueSimAvg(similarity, field, float)(('A','0;1;2'),('B','0;1;2;3;4'))
     1.0
     """
     
@@ -189,10 +191,10 @@ class ValueSimMax(ValueSim):
     >>> # define an exponential 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
     >>> field = lambda r: set([r[0],r[2]])
-    >>> ValueSimMax(similarity, field, float)([0,'A','1'],[2,'B',2])
+    >>> ValueSimMax(similarity, field, float)((0,'A','1'),(2,'B',2))
     0.5
     >>> field = lambda r: set(r[1].split(';'))
-    >>> ValueSimMax(similarity, field, float)(['A','0;1;2'],['B','3;4;5'])
+    >>> ValueSimMax(similarity, field, float)(('A','0;1;2'),('B','3;4;5'))
     0.5
     """
     
@@ -209,3 +211,34 @@ class ValueSimMax(ValueSim):
                 comp = self.comparevalues(v1,v2)
                 best = max(best, comp)
         return best
+    
+class RecordSim(OrderedDict):
+    """Returns a vector of field value similarities between two records.
+
+    :type comparators: [(string,:class:`ValueSim`),...]
+    :param comparators: Named and ordered field similarity functions.
+    
+    :type Weights: :class:`namedtuple` (float,...)
+    :ivar Weights: type of similarity vector between records\
+      with field names corresponding to the names in `comparators`.
+    
+    :rtype: callable(R,R) :class:`Weights`
+    :return: Compare two records using each value comparator in turn, giving\
+      a vector of corresponding named similarity values.    
+
+    >>> # define a 'similarity of numbers' measure
+    >>> similarity = lambda x,y: 2.0**(-abs(x-y))
+    >>> vcomp1 = ValueSim(similarity, 1, float) # compare second field
+    >>> vcomp2 = ValueSim(similarity, 2, float) # compare second field
+    >>> rcomp = RecordSim(("V1",vcomp1),("V2",vcomp2))
+    >>> rcomp(('A',1,1), ('B',2,4))
+    Weights(V1=0.5, V2=0.125)
+    """
+    
+    def __init__(self, *comparators):
+        super(RecordSim, self).__init__(comparators)
+        self.Weights = namedtuple("Weights", self.keys())
+
+    def __call__(self, A, B):
+        return self.Weights._make(
+            comparator(A, B) for comparator in self.itervalues())

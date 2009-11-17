@@ -27,16 +27,16 @@ API documentation for PyDedupe modules.
  :mod:`comparison` -- Similarities between values
 ==================================================
 
-.. automodule:: dedupe.comparison
+.. automodule:: dedupe.sim
    :members:
 
-.. automodule:: dedupe.comparison.dale
+.. automodule:: dedupe.sim.dale
    :members:
 
-.. automodule:: dedupe.comparison.geo
+.. automodule:: dedupe.sim.geo
    :members:
 
-.. automodule:: dedupe.comparison.levenshtein
+.. automodule:: dedupe.sim.levenshtein
    :members:
 
 =======================================
@@ -57,6 +57,9 @@ API documentation for PyDedupe modules.
    :members:
    
 .. automodule:: dedupe.indexer
+   :members:
+
+.. automodule:: dedupe.link
    :members:
 
 .. automodule:: dedupe.linkcsv

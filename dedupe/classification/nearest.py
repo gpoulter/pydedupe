@@ -1,11 +1,12 @@
 """
-:mod:`nearest` -- Nearest neighbour classification of vectors.
-==============================================================
+:mod:`nearest` -- Nearest neighbour classification of vectors
+=============================================================
 
 Nearest Neighbour classification of similarity vectors into matches and
 non-matches.
 
 .. module:: nearest
+   :synopsis: 
 .. moduleauthor:: Graham Poulter
 """
 

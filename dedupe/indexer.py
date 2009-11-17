@@ -14,8 +14,8 @@ can be vastly reduced over the case of comparing all pairs of records.
 
 from __future__ import with_statement
 
+from compat import OrderedDict
 import logging
-from compat import namedtuple, OrderedDict
 import excel
 
 class Index(dict):
@@ -70,13 +70,13 @@ class Index(dict):
                     comparisons += len(self[key]) * len(other[key])
         return comparisons
     
-    def link_self(self, compare, comparisons=None):
+    def link_within(self, compare, comparisons=None):
         """Perform dedupe comparisons on the index.  Note that this sorts
         the lists of records in each index key to ensure that rec1<rec2 
         in each resulting comparison tuple.
         
-        :param compare: Comparison function
-        :type compare: Function of record pair, returning vector of similarities.
+        :type compare: function(R,R) [float,...]
+        :param compare: How to compare the records.
         
         :param comparisons: Cache of comparisons, mapping (rec1,rec2)\
         to similarity vector, where rec1 < rec2.
@@ -96,7 +96,7 @@ class Index(dict):
                         comparisons[(a,b)] = compare(a,b)
         return comparisons
                         
-    def link_other(self, other, compare, comparisons=None):
+    def link_between(self, other, compare, comparisons=None):
         """Perform linkage comparisons for this index against the other index.
         
         :param other: Index object against which to perform linkage comparison.
@@ -131,98 +131,13 @@ class Indices(OrderedDict):
         OrderedDict.__init__(self)
         for key, value in indices:
             self[key] = value
+            
+    def clone(self):
+        """Return a new :class:`Indeces` with same layout as this one."""
+        return Indices(*[(n,Index(idx.makekey)) for n,idx in self.iteritems()])
     
     def insert(self, records):
         """Insert records into each :class:`Index`."""
         for record in records:
             for index in self.itervalues():
                 index.insert(record)
-                
-
-class RecordSim(OrderedDict):
-    """Returns a vector of field value similarities between two records.
-
-    :type comparators: [(string,:class:`sim.ValueSim`),...]
-    :param comparators: Named, ordered field comparisons.
-    
-    :type Weights: :class:`namedtuple` (float,...)
-    :ivar Weights: type of similarity vector between records\
-      with field names corresponding to the names in `comparators`.
-    
-    :rtype: callable(R,R) :class:`Weights`
-    :return: Compare two records using each value comparator in turn, giving\
-      a vector of corresponding named similarity values.    
-    """
-    
-    def __init__(self, *comparators):
-        super(RecordSim, self).__init__(comparators)
-        self.Weights = namedtuple("Weights", self.keys())
-
-    def __call__(self, A, B):
-        return self.Weights._make(
-            comparator(A, B) for comparator in self.itervalues())
-    
-    def link_single_allpair(self, records):
-        """Return comparisons for all distinct pairs of records.
-        
-        :type records: [R,...]
-        :param records: records to compare
-        :rtype: {(R,R):[float,...],...}
-        :return: Similarity vectors for ordered pairs of compared records.
-        """
-        comparisons = {}
-        for i in range(len(records)):
-            for j in range(i):
-                rec1, rec2 = records[i], records[j]
-                pair = tuple(sorted([rec1,rec2]))
-                if pair not in comparisons:
-                    comparisons[pair] = self(rec1, rec2)
-        return comparisons
-
-    def link_pair_allpair(self, records1, records2):
-        """Return comparisons for all distinct pairs of records.
-        
-        :type records1, records2: [R,...]
-        :param records1, records2: records to compare
-        :rtype: {(R1,R2):[float,...],...}
-        :return: Similarity vectors for corresponding pairs of compared records.
-        """
-        comparisons = {}
-        for i in range(len(records1)):
-            for j in range(len(records2)):
-                rec1, rec2 = records1[i], records2[j]
-                pair = (rec1, rec2)
-                if pair not in comparisons:
-                    comparisons[pair] = self(rec1, rec2)
-        return comparisons
-
-    def link_single(self, indices):
-        """Return comparisons against self for indexed records.
-        
-        :type indices: :class:`Indices`, {str:{obj:[R,...],...},...}
-        :param indices: indexed left-hand records
-        :rtype: {(R,R):[float,...],...}
-        :return: Comparison similarity vectors for ordered pairs of compared records.
-        """
-        comparisons = {} # Map from (record1,record2) to L{Weights}
-        for index in indices.itervalues():
-            index.link_self(self, comparisons)
-        return comparisons
-    
-
-    def link_pair(self, indices1, indices2):
-        """Return comparisons between two sets of indexed records.
-
-        :type indices1: :class:`Indices`, {str:{obj:[R,...],...},...}
-        :param indices1: indexed left-hand records
-        :type indices2: :class:`Indices`, {str:{obj:[R,...],...},...}
-        :param indices2: indexed right-hand records
-        :rtype: {(R,R):[float,...],...}
-        :return: Similarity vectors for pairs of compared records.
-        """
-        assert indices1 is not indices2 # Must be different!
-        comparisons = {}
-        for index1, index2 in zip(indices1.itervalues(), indices2.itervalues()):
-            index1.link_other(index2, self, comparisons)
-        return comparisons
-

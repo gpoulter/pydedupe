@@ -4,12 +4,11 @@
 
 .. module:: linkcsv
    :synopsis: Link records together from CSV file input.
-
 .. moduleauthor:: Graham Poulter
 """
 
 import logging, os
-import excel
+import excel, link
 from recordgroups import write_csv
 
 def makeoutputdir(dirname, open=open):
@@ -28,49 +27,6 @@ def makeoutputdir(dirname, open=open):
     def outfile(filename):
         return open(outpath(filename), 'w')
     return outpath, outfile
-
-def link_single(records, indices, comparator):
-    """Find similar pairs within a set of records.
-    
-    :type records: [:class:`namedtuple`,...]
-    :param records: records to be linked
-    :type indices: :class:`Indices`
-    :param indices: index layout for the records
-    :type comparator: :class:`RecordSim`
-    :param comparator: how to compare records for similarity
-    :rtype: {(R,R):[float,...]}, :class:`Indices`
-    :return: Similarity vectors for pairwise comparisons, and the\
-    indices used for comparison.
-    """
-    indices.insert(records)
-    log_indexing_single(indices)
-    comparisons = comparator.link_single(indices)
-    return comparisons, indices
-
-def link_pair(records1, records2, indices, comparator):
-    """Find similar pairs between two sets of records.
-    
-    :type records1: [:class:`namedtuple`,...]
-    :param records1: left-hand records to link to right-hand
-    :type records2: [:class:`namedtuple`,...]
-    :param records2: right-hand being linked to
-    :type indices: :class:`Indices`
-    :param indices: prototypical index layout for the records
-    :type comparator: :class:`RecordSim`
-    :param comparator: how to compare records for similarity
-    :rtype: {(R,R):[float,...]}, :class:`Indices`, :class:`Indices`
-    :return: Similarity vectors for pairwise comparisons, and the\
-    corresponding indices for `records1` and `records2`.
-    """
-    import copy
-    def new_index(records):
-        r = copy.deepcopy(indices)
-        r.insert(records)
-        return r
-    indices1, indices2 = new_index(records1), new_index(records2)
-    log_indexing_pair(indices1, indices2)
-    comparisons = comparator.link_pair(indices1, indices2)
-    return comparisons, indices1, indices2
 
 def write_indices(indices, outdir, prefix):
     """Write indices in CSV format.
@@ -103,7 +59,7 @@ def index_stats(index, name, log=None):
         log.info("%s: %d records, %d blocks. %d in largest block, %.2f per block.",
                  name, records, blocks, largest, float(records)/blocks)
 
-def log_indexing_single(indices, log=None):
+def stat_indexing_within(indices, log=None):
     """Log expected within-index comparisons"""
     log = log if log else logging.getLogger()
     for name, index in indices.iteritems():
@@ -111,7 +67,7 @@ def log_indexing_single(indices, log=None):
                  index.count_comparisons())
         index_stats(index, name, log)
 
-def log_indexing_pair(indices1, indices2, log=None):
+def stat_indexing_between(indices1, indices2, log=None):
     """Log expected between-index comparisons"""
     log = log if log else logging.getLogger()
     for (n1, i1), (n2, i2) in zip(self.items(), other.items()): 
@@ -126,6 +82,8 @@ def write_comparisons(comparator, indices1, indices2, comparisons, scores, strea
     and the field-by-field similarity.
     
     :type comparator: :class:`comp.Record`
+    :param comparator: The record comparison instance, including the\
+    named field comparison functions.
     
     :type indices1: :class:`Indices`, {str:{obj:[R,...],...},...}
     :param indices1: indexed left-hand records
@@ -179,7 +137,7 @@ def write_comparisons(comparator, indices1, indices2, comparisons, scores, strea
             record_writer.writerow(rec1)
             record_writer.writerow(rec2)   
 
-def csvdedupe(indices, comparator, classifier, inputfile, outputdir, masterfile=None):
+def linkcsv(indices, comparator, classifier, inputfile, outputdir, masterfile=None):
     """Run a dedupe task using the specified indices, comparator and classifier.
     
     :type indices: :class:`Indices`
@@ -218,13 +176,15 @@ def csvdedupe(indices, comparator, classifier, inputfile, outputdir, masterfile=
     if masterfile:
         # Link input records to master records
         master_records = list(excel.reader(masterfile))
-        comparisons, indices, master_indices = link_pair(
-            records, master_records, indices, comparator)
+        comparisons, indices, master_indices = link.between(
+            comparator, indices, records, master_records)
+        stat_indexing_between(indices1, indices2)
         write_indices(indices, outputdir, "1A-")
         write_indices(master_indices, outputdir, "1B-")
     else:
         # Dedupe input records against themselves
-        comparisons, indices = link_single(records, indices, comparator)
+        comparisons, indices = link.within(comparator, indices, records)
+        stat_indexing_within(indices)
         write_indices(indices, outputdir, "1-")
         master_indices = indices
 
