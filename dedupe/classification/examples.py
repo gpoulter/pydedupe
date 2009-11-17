@@ -85,7 +85,9 @@ def load_iter(comparator, read_data, write_true, write_false):
     t_comparisons = t_indices["Block"].link_within(comparator)
     f_comparisons = f_indices["Block"].link_within(comparator)
     if hasattr(comparator, "write_comparisons"):
-        comparator.write_comparisons(t_indices, t_indices, t_comparisons, None, write_true)
-        comparator.write_comparisons(f_indices, f_indices, f_comparisons, None, write_false)
+        comparator.write_comparisons(
+            t_indices, t_indices, t_comparisons, None, write_true)
+        comparator.write_comparisons(
+            f_indices, f_indices, f_comparisons, None, write_false)
     return t_comparisons.values(), f_comparisons.values()
  

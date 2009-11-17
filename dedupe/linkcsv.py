@@ -196,13 +196,13 @@ def linkcsv(comparator, indices, classifier, instream, odir,
         comparisons, indices, master_indices = link.between(
             comparator, indices, records, master_records)
         stat_indexing_between(indices1, indices2)
-        write_indices(indices, odir, "1A-")
-        write_indices(master_indices, odir, "1B-")
+        write_indices(indices, odir, "1A-", open)
+        write_indices(master_indices, odir, "1B-", open)
     else:
         # Link input records to themselves
         comparisons, indices = link.within(comparator, indices, records)
         stat_indexing_within(indices)
-        write_indices(indices, odir, "1-")
+        write_indices(indices, odir, "1-", open)
         master_indices = indices
 
     matches, nonmatches = classifier(comparisons)
