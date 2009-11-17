@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
 """
-:mod:`sim.levenshtein` -- Levenshtein string distance
+:mod:`levenshtein` -- Levenshtein string distance
 ============================================================
 
-.. module:: sim.levenshtein
-   :synopsis: Calculate Levenshtein distance between two strings.
-
-.. note:: Implementation is from the `Tyriel search engine
+.. note:: Algorithm comes from the `Tyriel search engine
    <http://sourceforge.net/projects/tyriel/>` by caelyx, source code found at:
    http://www.koders.com/python/fid508C865D6E926EC0C45A7C4872E4F57AB33381B0.aspx
- 
+
+.. module:: levenshtein
+   :synopsis: Calculate Levenshtein distance between two strings.
+.. moduleauthor:: Graham Poulter 
 """
 
 def distance(a,b):

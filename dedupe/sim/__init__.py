@@ -1,10 +1,10 @@
 """
-:mod:`sim` -- Similarity of record fields
-================================================
+:mod:`sim` -- Similarity of records
+===================================
 
 .. module:: sim
-   :synopsis: Similarity of corresponding fields between records.
-
+   :synopsis: Calculate named-field similarities, and record similarity vector.
+.. moduleauthor:: Graham Poulter
 """
 
 from dedupe.compat import namedtuple, OrderedDict

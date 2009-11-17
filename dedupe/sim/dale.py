@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-:mod:`sim.dale` -- Damerau-Levenshtein string distance
-=============================================================
+:mod:`dale` -- Damerau-Levenshtein string distance
+==================================================
 
 Implementation of Damerau-Levenshtein distance by `mwh.geek.nz`_::
 
@@ -27,6 +27,10 @@ Implementation of Damerau-Levenshtein distance by `mwh.geek.nz`_::
    comment intact if you're posting a derivative somewhere, and add your own.
 
 .. _`mwh.geek.nz`: http://mwh.geek.nz/2009/04/26/python-damerau-levenshtein-distance/
+
+.. module:: dale
+   :synopsis: Calculate Dameraus-Levenshtein string distance
+.. moduleauthor:: mwh.geek.nz
 """
 
 from __future__ import division
