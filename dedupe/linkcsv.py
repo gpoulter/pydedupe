@@ -23,18 +23,24 @@ def write_indices(indices, outdir, prefix):
     :type prefix: :class:`str`
     :param prefix: prepend this to each output file name
     
-    >>> # fudge the 'open' builtin
-    >>> data = StringIO() # the 'file'
-    >>> data.close = lambda: None # disable closing
-    >>> import linkcsv # patch module
-    >>> linkcsv.open = lambda f,m: closing(data)
-    >>> # now do the test
-    >>> makekey = lambda r: [int(r[1])]
-    >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
-    >>> indices = Indices(("Idx",Index(makekey, [('A',5.5),('C',5.25)])))
-    >>> write_indices(indices, outdir="/tmp", prefix="")
-    >>> data.getvalue()
-    '5,A,5.5\\r\\n5,C,5.25\\r\\n'
+    .. testsetup::
+    
+       >>> io = StringIO() # the 'file'
+       >>> io.close = lambda: None # disable closing
+       >>> import linkcsv # patch module
+       >>> linkcsv.open = lambda f,m: closing(io)
+       >>> def magic(fields):
+       ...    io.seek(0)
+       ...    return list(excel.reader(io, fields=fields))
+       
+    .. doctest::
+    
+       >>> makekey = lambda r: [int(r[1])]
+       >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
+       >>> indices = Indices(("Idx",Index(makekey, [('A',5.5),('C',5.25)])))
+       >>> write_indices(indices, outdir="/tmp", prefix="foo")
+       >>> magic('Idx V1 V2') # magically read fake '/tmp/foo-Idx.csv'
+       [Row(Idx=u'5', V1=u'A', V2=u'5.5'), Row(Idx=u'5', V1=u'C', V2=u'5.25')]
     """
     def write_index(index, stream):
         """Write a single index in CSV format to a stream"""
@@ -216,13 +222,13 @@ def linkcsv(comparator, indices, classifier, records, odir, master=None, logger=
         comparisons, indices, master_indices = link.between(
             comparator, indices, records, master)
         stat_indexing_between(indices, master_indices)
-        write_indices(indices, odir, "1A-")
-        write_indices(master_indices, odir, "1B-")
+        #write_indices(indices, odir, "1A-")
+        #write_indices(master_indices, odir, "1B-")
     else:
         # Link input records to themselves
         comparisons, indices = link.within(comparator, indices, records)
         stat_indexing_within(indices)
-        write_indices(indices, odir, "1-")
+        #write_indices(indices, odir, "1-")
         master_indices = indices
 
     matches, nonmatches = classifier(comparisons)

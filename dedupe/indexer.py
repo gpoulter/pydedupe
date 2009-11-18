@@ -21,7 +21,7 @@ import excel
 class Index(dict):
     """Mapping from index key to records.
     
-    :type makekey: function(record) [key,...]
+    :type makekey: function(`R`) [`K`,...]
     :param makekey: Generates the index keys for the record.
     
     :type records: [R,...]
@@ -30,19 +30,19 @@ class Index(dict):
     >>> makekey = lambda r: [int(r[1])]
     >>> makekey(('A',3.5))
     [3]
-    >>> compare = lambda x,y: float(int(float(x[1]))==int(float(y[1])))
+    >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
     >>> compare(('A','5.5'),('B','4.5'))
-    0.0
-    >>> a = Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
+    0.5
+    >>> a = Index(makekey, [('A',5.5),('B',4.5),('C',5.0)])
     >>> a.count_comparisons()
     1
     >>> a.link_within(compare)
-    {(('A', 5.5), ('C', 5.25)): 1.0}
+    {(('A', 5.5), ('C', 5.0)): 0.70710678118654757}
     >>> b = Index(makekey, [('D',5.5),('E',4.5)])
     >>> a.count_comparisons(b)
     3
     >>> a.link_between(compare, b)
-    {(('C', 5.25), ('D', 5.5)): 1.0, (('A', 5.5), ('D', 5.5)): 1.0, (('B', 4.5), ('E', 4.5)): 1.0}
+    {(('C', 5.0), ('D', 5.5)): 0.70710678118654757, (('A', 5.5), ('D', 5.5)): 1.0, (('B', 4.5), ('E', 4.5)): 1.0}
     """
     
     def __init__(self, makekey, records=None):
@@ -56,7 +56,7 @@ class Index(dict):
 
         :type record: :class:`namedtuple` or other record.
         :param record: The record object to index.
-        :rtype: [key,...]
+        :rtype: [`K`,...]
         :return: Keys under which the record was inserted.
         """
         keys = self.makekey(record)
@@ -101,11 +101,11 @@ class Index(dict):
         the lists of records in each index key to ensure that rec1<rec2 
         in each resulting comparison tuple.
         
-        :type compare: function(R,R) [float,...]
-        :param compare: How to compare the records.
+        :type compare: function(`R1`, `R2`) [:class:`float`,...]
+        :param compare: how to compare each pair of records.
         
-        :param comparisons: Cache of comparisons, mapping (rec1,rec2)\
-        to similarity vector, where rec1 < rec2.
+        :type comparisons: {(`R1`, `R2`):[:class:`float`,...]} where `R1` < `R2`
+        :param comparisons: Cache of comparisons of ordered-pairs of records.
         """
         if comparisons is None:
             comparisons = {}
@@ -125,14 +125,14 @@ class Index(dict):
     def link_between(self, compare, other, comparisons=None):
         """Perform linkage comparisons for this index against the other index.
         
-        :param other: Index object against which to perform linkage comparison.
+        :type compare: function(`R1`, `R2`) [:class:`float`,...]
+        :param compare: how to compare each pair of records.
         
-        :param compare: Function of two records returning a similarity vector\
-        such as [0.3,0.8,1.0,...].
-        
-        :param comparisons: Cache of comparisons mapping (rec1,rec2) to\
-        similarity vector. Inserted pairs will have rec1 from self and rec2\
-        from other.
+        :type other: :class:`Index`
+        :param other: link records from this index to the `other` index.
+
+        :type comparisons: {(`R1`, `R2`):[:class:`float`,...]} where `R1` < `R2`
+        :param comparisons: Cache of comparisons of ordered-pairs of records.
         """
         if comparisons is None:
             comparisons = {}
