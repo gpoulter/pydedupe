@@ -149,8 +149,8 @@ class Index(dict):
 class Indices(OrderedDict):
     """Represents a sever Index instances as an ordered dictionary.
 
-    :type indices: (string, :class:`Index`)
-    :param indices: Named indices in which to insert records.
+    :type \*indices: (:class:`str`, :class:`Index`), ...
+    :param \*indices: Named indices in which to insert records.
     
     >>> makekey = lambda r: [int(r[1])]
     >>> makekey(('A',3.5))
@@ -168,7 +168,7 @@ class Indices(OrderedDict):
             self[key] = value
             
     def clone(self, records=None):
-        """Return a new :class:`Indeces` with same layout as this one,
+        """Return a new :class:`Indices` with same layout as this one,
         and optionally loaded with provided `records`."""
         indices = Indices(*[(n,Index(idx.makekey)) for n,idx in self.iteritems()])
         if records:

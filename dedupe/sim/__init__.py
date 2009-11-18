@@ -215,21 +215,22 @@ class ValueSimMax(ValueSim):
 class RecordSim(OrderedDict):
     """Returns a vector of field value similarities between two records.
 
-    :type comparators: [(string,:class:`ValueSim`),...]
-    :param comparators: Named and ordered field similarity functions.
+    :type \*comparators: (:class:`str`, :class:`ValueSim`), ...
+    :param \*comparators: Named and ordered field similarity functions.
     
     :type Weights: :class:`namedtuple` (float,...)
     :ivar Weights: type of similarity vector between records\
       with field names corresponding to the names in `comparators`.
     
-    :rtype: callable(R,R) :class:`Weights`
-    :return: Compare two records using each value comparator in turn, giving\
-      a vector of corresponding named similarity values.    
+    :rtype: function(`R`, `R`) :class:`W` 
+    :return: Compares two records with each :class:`ValueSim` in turn,\
+      returning a `W` vector [:class:`float`,...] of corresponding named\
+      similarity values.
 
     >>> # define a 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
-    >>> vcomp1 = ValueSim(similarity, 1, float) # compare second field
-    >>> vcomp2 = ValueSim(similarity, 2, float) # compare second field
+    >>> vcomp1 = ValueSim(similarity, 1, float) # field 1 from record
+    >>> vcomp2 = ValueSim(similarity, 2, float) # field 2 from field
     >>> rcomp = RecordSim(("V1",vcomp1),("V2",vcomp2))
     >>> rcomp(('A',1,1), ('B',2,4))
     W(V1=0.5, V2=0.125)
