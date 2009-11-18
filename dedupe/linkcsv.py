@@ -85,40 +85,35 @@ def stat_indexing_between(indices1, indices2, log=None):
         index_stats(i1, "Input " + n1, log)
         index_stats(i2, "Master " + n2, log)
 
-def write_comparisons(comparator, indices1, indices2, comparisons, scores, 
-                      stream, fields=None, origstream=None):
+def write_comparisons(ostream, comparator, comparisons, scores, indices1, 
+                      indices2=None, fields=None, origstream=None):
     """Write pairs of compared records, together with index keys and 
     field comparison weights.  Inspection shows which index keys matched,
     and the field-by-field similarity.
     
+    :type ostream: binary writer
+    :param ostream: where to write CSV for similarity vectors.
     :type comparator: :class:`comp.Record`
-    :param comparator: The record comparison instance, including the\
-    named field comparison functions.
-    
-    :type indices1: :class:`Indices`, {str:{obj:[R,...],...},...}
-    :param indices1: indexed left-hand records
-    :type indices2: :class:`Indices`, {str:{obj:[R,...],...},...}
-    :param indices2: indexed right-hand records\
-       (provide same object as indices1 for self-linkage)
-
+    :param comparator: collection of named :class:`comp.ValueSim` field comparators
     :type comparisons: {(R,R):[float,...],...}
     :param comparisons: Similarity vectors from pairs of record comparisons.
-
     :type scores: {(R,R):float,...} or :keyword:`None`
-    :param scores: classifier scores for pairs of records. Omitted in\
-    the output if None.
-    
-    :type stream: binary writer
-    :param stream: where to write CSV for similarity vectors.
-    
+    :param scores: classifier scores to show for pairs of records.
+    :type indices1: :class:`Indices`, {str:{obj:[R,...],...},...}
+    :param indices1: index of records being linked
+    :type indices2: :class:`Indices`, {str:{obj:[R,...],...},...}
+    :param indices2: optional index of right-hand records for master-linkage.
+    :type fields: [:class:`str`,...]
+    :param fields: header fields for writing original records to CSV
     :type origstream: binary writer
     :param origstream: where to write CSV for pairs of compared original records.
     """
     if not comparisons: return
     from sim import getvalue
     # File for comparison statistics
-    writer = excel.writer(stream)
+    writer = excel.writer(ostream)
     writer.writerow(["Score"] + indices1.keys() + comparator.keys())
+    indices2 = indices2 if indices2 else indices1
     # File for original records
     record_writer = None
     if origstream is not None:
@@ -149,7 +144,7 @@ def write_comparisons(comparator, indices1, indices2, comparisons, scores,
         writer.writerow(str(x) for x in weightrow)
         if record_writer:
             record_writer.writerow(rec1)
-            record_writer.writerow(rec2) 
+            record_writer.writerow(rec2)
             
 def filelog(path):
     """Set up file logging at `path`."""
@@ -195,7 +190,7 @@ def linkcsv(comparator, indices, classifier, records, odir, master=None, logger=
     """Run a dedupe task using the specified indices, comparator and classifier.
     
     :type indices: :class:`Indices`
-    :param indices: index prototype for the records.
+    :param indices: prototype for how to index records (copied with `.clone()`)
     :type comparator: :class:`RecordSim`, function(R,R) [float,...]
     :param comparator: calculates similarity vectors for record pairs.
     :type classifier: function({(R,R):[float]}) [(R,R)], [(R,R)]
@@ -240,12 +235,12 @@ def linkcsv(comparator, indices, classifier, records, odir, master=None, logger=
     # Write the match and nonmatch pairs with scores
     with nested(open(opath("2-match-stat.csv"),'wb'),
                 open(opath("2-match-orig.csv"),'wb')) as (scomp,sorig):
-        write_comparisons(comparator, indices, master_indices, 
-                          comparisons, matches, scomp, sorig)
+        write_comparisons(scomp, comparator, comparisons, matches, 
+                          indices, master_indices, fields, sorig)
     with nested(open(opath("3-nonmatch-stat.csv"),'wb'),
                 open(opath("3-nonmatch-orig.csv"),'wb')) as (scomp,sorig):
-        write_comparisons(comparator, indices, master_indices, 
-                          comparisons, nonmatches, scomp, sorig)
+        write_comparisons(scomp, comparator, comparisons, nonmatches, 
+                          indices, master_indices, fields, sorig)
 
     # Write groups of linked records
     with open(opath('4-groups.csv'),'wb') as ofile:
