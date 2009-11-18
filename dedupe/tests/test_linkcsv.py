@@ -52,27 +52,15 @@ class TestLinkCSV(unittest.TestCase):
             ("Compare", ValueSim(vcompare, 1, float)),
         )
 
-        # set up the input file        
-        instream = StringIO()
-        writer = excel.writer(instream, lineterminator='\n')
-        writer.writerows([("Name","Age")] + records)
-        instream.seek(0) # back to start
         # do the linking and print the output
-        linkcsv.linkcsv(comparator, indices, classify, instream, 
-                odir="", masterstream=None, logger=logging.getLogger())
+        linkcsv.linkcsv(comparator, indices, classify, records, 
+                odir="", master=None, logger=logging.getLogger())
         for name,s in sorted(iostreams.iteritems()):
             print name, '\n', s.getvalue()            
         
-        # set up the master file
-        iostream = {}
-        mstream = StringIO()
-        writer = excel.writer(mstream, lineterminator='\n')
-        writer.writerows([("Name","Age")] + records)
-        instream.seek(0)
-        mstream.seek(0) 
         # do the linking and print output
-        linkcsv.linkcsv(comparator, indices, classify, instream, 
-                odir="", masterstream=mstream, logger=logging.getLogger())
+        linkcsv.linkcsv(comparator, indices, classify, records, 
+                odir="", master=records, logger=logging.getLogger())
         for name,s in sorted(iostreams.iteritems()):
             print name, '\n', s.getvalue()            
 

@@ -17,6 +17,10 @@ def within_allpair(compare, records):
     :param records: find links within this set of records
     :rtype: {(R,R):[float,...],...}
     :return: similarity vectors for ordered pairs of compared records.
+    
+    >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
+    >>> within_allpair(compare, [('A','1'),('B','2'),('C','3')])
+    {(('A', '1'), ('C', '3')): 0.25, (('B', '2'), ('C', '3')): 0.5, (('A', '1'), ('B', '2')): 0.5}
     """
     comparisons = {}
     for i in range(len(records)):
@@ -36,6 +40,10 @@ def between_allpair(compare, records1, records2):
     :param records1, records2: find links between these sets of records
     :rtype: {(R1,R2):[float,...],...}
     :return: similarity vectors for corresponding pairs of compared records.
+
+    >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
+    >>> between_allpair(compare, [('A','1')], [('B','2'),('C','3')])
+    {(('A', '1'), ('C', '3')): 0.25, (('A', '1'), ('B', '2')): 0.5}
     """
     comparisons = {}
     for i in range(len(records1)):
@@ -91,7 +99,7 @@ def within(compare, indices, records):
     :param records: records to be linked
     :rtype: {(R,R):[float,...]}, :class:`Indices`
     :return: comparison similarity vectors for ordered pairs of compared\
-    records, and a filled :class:`Indices` instance.
+      records, and a filled :class:`Indices` instance.
     """
     indices = indices.clone(records)
     comparisons = within_indexed(compare, indices)
@@ -110,7 +118,7 @@ def between(compare, indices, records1, records2):
     :param records2: right-hand being linked to
     :rtype: {(R,R):[float,...]}, :class:`Indices`, :class:`Indices`
     :return: similarity vectors for pairwise comparisons, and the\
-    filled :class:`Indices` instances for `records1` and `records2`.
+      filled :class:`Indices` instances for `records1` and `records2`.
     """
     indices1 = indices.clone(records1)
     indices2 = indices.clone(records2)

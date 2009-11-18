@@ -86,23 +86,23 @@ def singles_and_groups(matches, allrecords):
     singles = [rec for rec in allrecords if rec not in adjlist]
     return singles, groups
 
-def write_csv(matches, records, fields, ostream):
+def write_csv(matches, records, ostream, fields=None):
     """Write out the records, with grouping 
 
     :type matches: :class:`Sequence` [(T,T),...]
     :param matches: List of pairs of matching records.
     :type records: :class:`Iterable` [T,...]
     :param records: Iteration over records.
-    :type fields: :class:`Sequence` [:class:`str`,...]
-    :param fields: List of CSV headings for the records.
     :type ostream: binary writer
     :param ostream: where to write the CSV for the records
+    :type fields: :class:`Sequence` [:class:`str`,...]
+    :param fields: List of CSV headings for the records.
     :rtype: [T,...], [[T,...],...]
     :return: list of single rows (no matches) and groups (mutually matching)
     """
     singles, groups = singles_and_groups(matches, records)
     w = excel.writer(ostream, dialect='excel') 
-    w.writerow(["GroupID"] + list(fields))
+    w.writerow(["GroupID"] + list(fields) if fields else [])
     # Write groups of similar records
     for groupid, group in enumerate(groups):
         for row in group:

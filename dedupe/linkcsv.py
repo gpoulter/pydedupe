@@ -86,7 +86,7 @@ def stat_indexing_between(indices1, indices2, log=None):
         index_stats(i2, "Master " + n2, log)
 
 def write_comparisons(comparator, indices1, indices2, comparisons, scores, 
-                      stream, origstream=None):
+                      stream, fields=None, origstream=None):
     """Write pairs of compared records, together with index keys and 
     field comparison weights.  Inspection shows which index keys matched,
     and the field-by-field similarity.
@@ -123,7 +123,7 @@ def write_comparisons(comparator, indices1, indices2, comparisons, scores,
     record_writer = None
     if origstream is not None:
         record_writer = excel.writer(origstream)
-        record_writer.writerow(comparisons.iterkeys().next()[0]._fields)
+        if fields: record_writer.writerow(fields)
     # Obtain field-getter for each value comparator
     field1 = [ vcomp.field1 for vcomp in comparator.itervalues() ]
     field2 = [ vcomp.field2 for vcomp in comparator.itervalues() ]
@@ -179,15 +179,19 @@ def split_records(matchpairs, records):
     singlerows = [r for r in records if r not in matchset]
     return matchrows, singlerows
     
-def writecsv(path, header, rows):
-    """Write a `header` and `rows` to a csv file at `path`"""
+def writecsv(path, rows, header=None):
+    """Write the `header` and `rows` to csv file at `path`"""
     with open(path, 'wb') as out:
         writer = excel.writer(out)
-        writer.writerow(header)
+        if header: writer.writerow(header)
         writer.writerows(rows)
+        
+def loadcsv(path):
+    """Load records from csv at `path` as a list of :class:`namedtuple`"""
+    with open(path, 'rb') as istream:
+        return list(excel.reader(istream))
 
-def linkcsv(comparator, indices, classifier, instream, odir, 
-            masterstream=None, logger=None):
+def linkcsv(comparator, indices, classifier, records, odir, master=None, logger=None):
     """Run a dedupe task using the specified indices, comparator and classifier.
     
     :type indices: :class:`Indices`
@@ -196,29 +200,26 @@ def linkcsv(comparator, indices, classifier, instream, odir,
     :param comparator: calculates similarity vectors for record pairs.
     :type classifier: function({(R,R):[float]}) [(R,R)], [(R,R)]
     :param classifier: separate record comparisons into matching and non-matching.
-    :type instream: binary reader
-    :param instream: where to read CSV of input records
+    :type records: [R,...]
+    :param records: input records for linkage analysis
     :type odir: :class:`string`
     :param odir: Directory in which to open output files.
-    :type masterstream: binary reader
-    :param masterstream: where to read CSV of optional master records,\
-       to which the `instream` records should be linked.
+    :type master: [R,...]
+    :param master: master records to which `records` should be linked.
     :type logger: :class:`Logger` or :keyword:`None`
     :param logger: Log to write to, else set up :file:`{odir}/dedupe.log`
+    :rtype: {(R,R):float}, {(R,R):float}
+    :return: classifier scores for match pairs and non-match pairs
     """
-    opath = lambda f: os.path.join(odir, f)
+    opath = lambda name: os.path.join(odir, name)
     logger = logger if logger else filelog(opath('dedupe.log'))
+    fields = records[0]._fields if hasattr(records[0],"_fields") else None
+    master = master if master else []
 
-    # Index records, compare pairs, identify match/nonmatch pairs
-    records = list(excel.reader(instream))
-    fields = records[0]._fields
-    master_records = []
-
-    if masterstream:
+    if master:
         # Link input records to master records
-        master_records = list(excel.reader(masterstream))
         comparisons, indices, master_indices = link.between(
-            comparator, indices, records, master_records)
+            comparator, indices, records, master)
         stat_indexing_between(indices, master_indices)
         write_indices(indices, odir, "1A-")
         write_indices(master_indices, odir, "1B-")
@@ -231,10 +232,10 @@ def linkcsv(comparator, indices, classifier, instream, odir,
 
     matches, nonmatches = classifier(comparisons)
     
-    if masterstream:
+    if master:
         matchrows, singlerows = split_records(matches, records)
-        writecsv(opath('5-input-matchrows.csv'), fields, matchrows)
-        writecsv(opath('5-input-singlerows.csv'), fields, singlerows)
+        writecsv(opath('5-input-matchrows.csv'), matchrows, fields)
+        writecsv(opath('5-input-singlerows.csv'), singlerows, fields)
     
     # Write the match and nonmatch pairs with scores
     with nested(open(opath("2-match-stat.csv"),'wb'),
@@ -248,5 +249,7 @@ def linkcsv(comparator, indices, classifier, instream, odir,
 
     # Write groups of linked records
     with open(opath('4-groups.csv'),'wb') as ofile:
-        recordgroups.write_csv(matches, records + master_records, fields, ofile)
+        recordgroups.write_csv(matches, records+master, ofile, fields)
+        
+    return matches, nonmatches
 
