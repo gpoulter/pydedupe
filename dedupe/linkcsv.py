@@ -7,10 +7,7 @@
 .. moduleauthor:: Graham Poulter
 """
 
-from StringIO import StringIO
-from contextlib import nested, closing
-import logging, os
-import excel, link, recordgroups 
+import excel
 from indexer import Index, Indices
 
 def write_indices(indices, outdir, prefix):
@@ -25,6 +22,8 @@ def write_indices(indices, outdir, prefix):
     
     .. testsetup::
     
+       >>> from StringIO import StringIO
+       >>> from contextlib import closing
        >>> io = StringIO() # the 'file'
        >>> io.close = lambda: None # disable closing
        >>> import linkcsv # patch module
@@ -52,44 +51,6 @@ def write_indices(indices, outdir, prefix):
     for indexname, index in indices.iteritems():
         with open(join(outdir, prefix+indexname+'.csv'), 'wb') as stream:
             write_index(index, stream)
-
-def index_stats(index, name, log=None):
-    """Log stats about the blocks of `index`, to :class:`Logger`, 
-    prefixing lines with `name`.
-    
-    >>> makekey = lambda r: [int(r[1])]
-    >>> idx = Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
-    >>> def log(s,*args):
-    ...     print s % args
-    >>> index_stats(idx, "NumIdx", log)
-    NumIdx: 3 records, 2 blocks. 2 in largest block, 1.50 per block.
-    """
-    log = log if log else logging.getLogger().info
-    if not index:
-        log("%s: index is empty." % name)
-    else:
-        records = sum(len(recs) for recs in index.itervalues())
-        largest = max(len(recs) for recs in index.itervalues())
-        blocks = len(index)
-        log("%s: %d records, %d blocks. %d in largest block, %.2f per block.",
-            name, records, blocks, largest, float(records)/blocks)
-
-def stat_indexing_within(indices, log=None):
-    """Log about expected within-index comparisons."""
-    log = log if log else logging.getLogger().info
-    for name, index in indices.iteritems():
-        log("Index %s may require up to %d comparisons.", name, 
-            index.count_comparisons())
-        index_stats(index, name, log)
-
-def stat_indexing_between(indices1, indices2, log=None):
-    """Log about expected between-index comparisons."""
-    log = log if log else logging.getLogger().info
-    for (n1, i1), (n2, i2) in zip(indices1.items(), indices2.items()): 
-        log("Index %s to %s may require up to %d comparisons.",
-            n1, n2, i1.count_comparisons(i2))
-        index_stats(i1, "Input " + n1, log)
-        index_stats(i2, "Master " + n2, log)
 
 def write_comparisons(ostream, comparator, comparisons, scores, indices1, 
                       indices2=None, fields=None, origstream=None):
@@ -153,13 +114,12 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
             record_writer.writerow(rec2)
             
 def filelog(path):
-    """Set up file logging at `path`."""
+    """Add filehandler to main logger, writing to :file:`{path}`."""
+    import logging
     filehandler = logging.FileHandler(path)
-    filehandler.setFormatter(
-        logging.Formatter(
-            '%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S'))
+    filehandler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S'))
     logging.getLogger().addHandler(filehandler)
-    return logging.getLogger()
 
 def split_records(matchpairs, records):
     """Divide input records into those that matched the master 
@@ -192,7 +152,7 @@ def loadcsv(path):
     with open(path, 'rb') as istream:
         return list(excel.reader(istream))
 
-def linkcsv(comparator, indices, classifier, records, odir, master=None, logger=None):
+def linkcsv(comparator, indices, classifier, records, odir, master=None):
     """Run a dedupe task using the specified indices, comparator and classifier.
     
     :type indices: :class:`Indices`
@@ -207,27 +167,25 @@ def linkcsv(comparator, indices, classifier, records, odir, master=None, logger=
     :param odir: Directory in which to open output files.
     :type master: [R,...]
     :param master: master records to which `records` should be linked.
-    :type logger: :class:`Logger` or :keyword:`None`
-    :param logger: Log to write to, else set up :file:`{odir}/dedupe.log`
     :rtype: {(R,R):float}, {(R,R):float}
     :return: classifier scores for match pairs and non-match pairs
     """
+    import os
     opath = lambda name: os.path.join(odir, name)
-    logger = logger if logger else filelog(opath('dedupe.log'))
     fields = records[0]._fields if hasattr(records[0],"_fields") else None
     master = master if master else []
+    filelog(opath('dedupe.log'))
 
+    import link
     if master:
         # Link input records to master records
         comparisons, indices, master_indices = link.between(
             comparator, indices, records, master)
-        stat_indexing_between(indices, master_indices)
         #write_indices(indices, odir, "1A-")
         #write_indices(master_indices, odir, "1B-")
     else:
         # Link input records to themselves
         comparisons, indices = link.within(comparator, indices, records)
-        stat_indexing_within(indices)
         #write_indices(indices, odir, "1-")
         master_indices = indices
 
@@ -239,6 +197,7 @@ def linkcsv(comparator, indices, classifier, records, odir, master=None, logger=
         writecsv(opath('5-input-singlerows.csv'), singlerows, fields)
     
     # Write the match and nonmatch pairs with scores
+    from contextlib import nested
     with nested(open(opath("2-match-stat.csv"),'wb'),
                 open(opath("2-match-orig.csv"),'wb')) as (scomp,sorig):
         write_comparisons(scomp, comparator, comparisons, matches, 
@@ -250,6 +209,7 @@ def linkcsv(comparator, indices, classifier, records, odir, master=None, logger=
 
     # Write groups of linked records
     with open(opath('4-groups.csv'),'wb') as ofile:
+        import recordgroups 
         recordgroups.write_csv(matches, records+master, ofile, fields)
         
     return matches, nonmatches

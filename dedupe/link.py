@@ -102,6 +102,7 @@ def within(compare, indices, records):
       records, and a filled :class:`Indices` instance.
     """
     indices = indices.clone(records)
+    _stat_indices_within(indices)
     comparisons = within_indexed(compare, indices)
     return comparisons, indices
 
@@ -122,5 +123,46 @@ def between(compare, indices, records1, records2):
     """
     indices1 = indices.clone(records1)
     indices2 = indices.clone(records2)
+    _stat_indices_between(indices1, indices2)
     comparisons = between_indexed(compare, indices1, indices2)
     return comparisons, indices1, indices2
+
+### log indexing estimates for :func:`within` and :func:`between` 
+
+import logging
+
+def _stat_index(index, name):
+    """Log block statistics for `index`, prefixing lines with `name`.
+    
+    >>> from indexer import Index
+    >>> makekey = lambda r: [int(r[1])]
+    >>> idx = Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
+    >>> def log(s,*a):
+    ...     print s % a
+    >>> logging.info = log
+    >>> _stat_index(idx, "NumIdx")
+    NumIdx: 3 records, 2 blocks. 2 in largest block, 1.50 per block.
+    """
+    if not index:
+        logging.warn("%s: index is empty." % name)
+    else:
+        records = sum(len(recs) for recs in index.itervalues())
+        largest = max(len(recs) for recs in index.itervalues())
+        blocks = len(index)
+        logging.info("%s: %d records, %d blocks. %d in largest block, %.2f per block.",
+            name, records, blocks, largest, float(records)/blocks)
+
+def _stat_indices_within(indices):
+    """Log about expected within-index comparisons."""
+    for name, index in indices.iteritems():
+        logging.info("Index %s may require up to %d comparisons.", name, 
+            index.count_comparisons())
+        _stat_index(index, name)
+
+def _stat_indices_between(indices1, indices2):
+    """Log about expected between-index comparisons."""
+    for (n1, i1), (n2, i2) in zip(indices1.items(), indices2.items()): 
+        logging.info("Index %s to %s may require up to %d comparisons.",
+            n1, n2, i1.count_comparisons(i2))
+        _stat_index(i1, "Input " + n1)
+        _stat_index(i2, "Master " + n2)

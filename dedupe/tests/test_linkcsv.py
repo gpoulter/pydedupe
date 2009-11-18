@@ -1,16 +1,8 @@
 #!/usr/bin/env python
 
-import csv, logging, sys, unittest
-from contextlib import closing
-from StringIO import StringIO
-
+import sys, unittest
 from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
-
-from dedupe.sim import ValueSim, RecordSim
-from dedupe.indexer import Index, Indices
-from dedupe import linkcsv
-from dedupe import excel
 
 def classify(comparisons):
     """Returns match pairs and non-match pairs.
@@ -32,16 +24,24 @@ def classify(comparisons):
 class TestLinkCSV(unittest.TestCase):
         
     def test(self):
+        
         # fudge the built-in open function for linkcsv
         iostreams = {}
         def fakeopen(f,m):
+            from contextlib import closing
+            from StringIO import StringIO
             stream = StringIO()
             stream.close = lambda: None
             iostreams[f] = stream
             return closing(stream)
+        from dedupe import linkcsv
         linkcsv.open = fakeopen
-        
+        import logging
+        logging.open = fakeopen
+                
         # set up parameters
+        from dedupe.sim import ValueSim, RecordSim
+        from dedupe.indexer import Index, Indices
         records = [("A","5.5"), ("B","3.5"),("C","5.25")]
         makekey = lambda r: [int(float(r[1]))]
         vcompare = lambda x,y: float(int(x) == int(y))
@@ -53,14 +53,12 @@ class TestLinkCSV(unittest.TestCase):
         )
 
         # do the linking and print the output
-        linkcsv.linkcsv(comparator, indices, classify, records, 
-                odir="", master=None, logger=logging.getLogger())
+        linkcsv.linkcsv(comparator, indices, classify, records, odir="", master=None)
         for name,s in sorted(iostreams.iteritems()):
             print name, '\n', s.getvalue()            
         
         # do the linking and print output
-        linkcsv.linkcsv(comparator, indices, classify, records, 
-                odir="", master=records, logger=logging.getLogger())
+        linkcsv.linkcsv(comparator, indices, classify, records, odir="", master=records)
         for name,s in sorted(iostreams.iteritems()):
             print name, '\n', s.getvalue()            
 
