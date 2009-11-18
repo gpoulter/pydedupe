@@ -108,8 +108,8 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
     :type origstream: binary writer
     :param origstream: where to write CSV for pairs of compared original records.
     """
-    if not comparisons: return
-    from sim import getvalue
+    if not comparisons: return # in case no comparisons were done
+    from sim import getvalue # for getting record fields
     # File for comparison statistics
     writer = excel.writer(ostream)
     writer.writerow(["Score"] + indices1.keys() + comparator.keys())
@@ -125,7 +125,7 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
     # Use dummy classifier scores if None were provided
     if scores is None:
         scores = dict((k,0) for k in comparisons.iterkeys())
-    # Write similarity vectors to output
+    # wrtie the similarity vectors
     for (rec1, rec2), score in scores.iteritems():
         weights = comparisons[(rec1,rec2)] # look up comparison vector
         keys1 = [ idx.makekey(rec1) for idx in indices1.itervalues() ]

@@ -1,99 +1,90 @@
 """
-:mod:`examples` - Training similarity vectors
-=============================================
-
-Reads specially formatted CSV file of example pairs tagged as matching
-and non-matching pairs.  Performs the comparisons and returns 
-two sets fo similarity vectors (match, non-match) 
-as training data for classifiers.
+:mod:`examples` - Similarity vectors for training a classifier
+==============================================================
 
 .. module:: examples
-   :synopsis: Obtain true/false similarity vectors from from CSV example files.
+   :synopsis: Generate match and non-match similarity vectors for training classifiers.
 .. moduleauthor:: Graham Poulter
 """
 
-from ..indexer import Index, Indices
-from ..sim import RecordSim
-from .. import excel
-
-def load_csv(comparator, inpath, outdir, open=open):
-    """Load example comparisons from CSV file.
+def load(comparator, records, outdir=None):
+    """Use example records to create match and non-match similarity vectors 
+    for training a classifier.
     
-    The example CSV file must have column headings for namedtuple loading.
-    Rows are only read which have TRUE or FALSE in the first column, and must
-    have an index block identifier in the second column. The remaining columns
-    must include the headings used by the RecordSim. with all the
-    column names needed by the RecordSim.
+    The first two fields of each item in `records` contain metadata for the
+    examples. The first field must have `TRUE` or `FALSE` to indicate whether
+    its part of a match or non-match comparison, and an index key (typically a
+    string) in the second field to defining which records get compared. An
+    empty string in first column skips the record (usable for spacing or
+    comments when reading records from CSV files). Remaining columns are
+    record data for the `comparator`.
 
-    :type comparator: :class:`dedupe.indexer.RecordSim`, callable (T,T)
-    :param comparator: to obtain similarity vectors from pairs of records.
-    :type inpath: str
-    :param inpath: path to example CSV file
+    :type comparator: function(R,R) [:class:`float`,...]
+    :param comparator: gets similarity vectors for pairs of records.
+    :type records: [('TRUE'|'FALSE',key,value,..),...]
+    :param records: training records with match & key metadata in first two fields.
     :type outdir: str
-    :param outdir: write comparisons to :file:`{outdir}/{foo}_true.csv` and\
-      :file:`{outdir}/{foo}_false.csv`.
-    :type open: function(path,mode) file
-    :param open: how to open the files
-    
+    :param outdir: optional debug para to, write comparisons as CSV to\
+       :file:`{outdir}/{foo}_true.csv` and :file:`{outdir}/{foo}_false.csv`.
     :rtype: set([float,...],...), set([float,...],...)
-    :return: Sets of similarity vectors for true comparisons and false comparisons.
+    :return: similarity vectors of the true comparisons and false comparisons.
 
-    .. todo:: `examples.load_csv` doctest
+    .. testsetup::
     
-    >>> from contextlib import closing
-    >>> fakeopen = lambda f,m: closing(StringIO())
-    """
-    from contextlib import nested, closing
-    from os.path import basename, join, splitext
-    base = splitext(basename(inpath))[0]
-    with nested(open(inpath, 'rb'),
-        open(join(outdir, base+"_true.csv"), 'wb'),
-        open(join(outdir, base+"_false.csv"), 'wb')) as \
-        (reader, write_true, write_false):
-        return load_iter(comparator, reader, write_true, write_false)
-
-def load_iter(comparator, read_data, write_true, write_false):
-    """Load example comparisons from CSV streams.
+       >>> iostreams = {}
+       >>> def fakeopen(f,m):
+       ...   from contextlib import closing
+       ...   from StringIO import StringIO
+       ...   stream = StringIO()
+       ...   stream.close = lambda: None
+       ...   iostreams[f] = stream
+       ...   return closing(stream)
+       >>> import examples
+       >>> examples.open = fakeopen
+       >>> from ..compat import namedtuple
+       >>> from ..sim import ValueSim, RecordSim
+       >>> def printstreams():
+       ...    for k,s in iostreams.items():
+       ...       print k, '\\n', s.getvalue()
+       
+    .. doctest::
     
-    :param comparator: As for :func:`load_csv`
-    :type read_data: readable binary stream
-    :type write_true, write_false: writeable binary streams
-
-    >>> from StringIO import StringIO
-    >>> data = StringIO('''\\
-    ... Match,ID,Name,Age
-    ... TRUE,1,Joe1,8
-    ... TRUE,1,Joe2,7
-    ... TRUE,1,Joe3,3
-    ... TRUE,2,Abe1,3
-    ... TRUE,2,Abe2,5
-    ... FALSE,3,Zip1,9
-    ... FALSE,3,Zip2,1
-    ... FALSE,4,Nobody,1''')
-    >>> compare = lambda a, b: 1.0 - abs(float(a.Age)-float(b.Age))/10.0
-    >>> t, f = load_iter(compare, data, StringIO(), StringIO())
-    >>> sorted(t)
-    [0.5, 0.59999999999999998, 0.80000000000000004, 0.90000000000000002]
-    >>> sorted(f)
-    [0.19999999999999996]
+       >>> R = namedtuple('Record', 'Match ID Name Age')
+       >>> records = [
+       ...  R('TRUE','1','Joe1',8), R('TRUE','1','Joe2',7), R('TRUE','1','Joe3',3),
+       ...  R('TRUE','2','Abe1',3), R('TRUE','2','Abe2',5),
+       ...  R('FALSE','3','Zip1',9), R('FALSE','3','Zip2',1),
+       ...  R('FALSE','4','Nobody',1)]
+       >>> compare = RecordSim(("V",ValueSim(
+       ...  lambda x,y: 2**-abs(x-y), lambda r:r[3], float)))
+       >>> t, f = load(compare, records, '/tmp')
+       >>> sorted(t)
+       [W(V=0.03125), W(V=0.0625), W(V=0.25), W(V=0.5)]
+       >>> sorted(f)
+       [W(V=0.00390625)]
+       >>> #see /tmp/examples_false.csv  and /tmp/examples_true.csv 
     """
-    MATCH, BLOCK = 0, 1	
-    reader = excel.reader(read_data, typename="Record")
-    rows = list(row for row in reader)
-    t_rows = [r for r in rows if r[MATCH] == "TRUE"]
-    f_rows = [r for r in rows if r[MATCH] == "FALSE"]
-    # Index on the contents of the first column
-    t_indices = Indices(("Block",Index(lambda r: [r[BLOCK].strip()]) ))
+    from ..indexer import Index, Indices
+    t_rows = [r for r in records if r[0] in ['TRUE','T','YES','Y','1',1,True] ]
+    f_rows = [r for r in records if r[0] in ['FALSE','F','NO','N','0',0,False] ]
+    # Index on second column and self-compare within blocks
+    t_indices = Indices(("Key",Index(lambda r: [r[1]]) ))
     t_indices.insertmany(t_rows)
-    f_indices = Indices(("Block",Index(lambda r: [r[BLOCK].strip()]) ))
+    f_indices = Indices(("Key",Index(lambda r: [r[1]]) ))
     f_indices.insertmany(f_rows)
-    # Compare records within index blocks
-    t_comparisons = t_indices["Block"].link_within(comparator)
-    f_comparisons = f_indices["Block"].link_within(comparator)
-    if hasattr(comparator, "write_comparisons"):
-        comparator.write_comparisons(
-            t_indices, t_indices, t_comparisons, None, write_true)
-        comparator.write_comparisons(
-            f_indices, f_indices, f_comparisons, None, write_false)
-    return t_comparisons.values(), f_comparisons.values()
+    t_sims = t_indices["Key"].link_within(comparator)
+    f_sims = f_indices["Key"].link_within(comparator) 
+    # a debug dump of comparisons to CSV to output directory
+    if outdir: 
+        from os.path import join
+        from contextlib import nested
+        from ..linkcsv import write_comparisons
+        with nested(open(join(outdir, "examples_true.csv"), 'wb'),
+                    open(join(outdir, "examples_false.csv"), 'wb')) as\
+             (o_true,o_false):
+            t_scores = dict((p,1.0) for p in t_sims.iterkeys())
+            f_scores = dict((p,0.0) for p in f_sims.iterkeys())
+            write_comparisons(o_true, comparator, t_sims, t_scores, t_indices)
+            write_comparisons(o_false, comparator, f_sims, f_scores, f_indices)
+    return t_sims.values(), f_sims.values()
  

@@ -83,10 +83,10 @@ class ValueSim(object):
     :param comparevalues: Compares the encoded values and returns similarity.
     :type field1: string|int|function(record) -> T1
     :param field1: How to :func:`getvalue` from the first record 
-    :type field2: string|int|function(record) -> T2
-    :param field2: How to :func:`getvalue` from the second record (default=`field1`).
     :type encode1: function(T1) V
     :param encode1: Encoder of field1 values.
+    :type field2: string|int|function(record) -> T2
+    :param field2: How to :func:`getvalue` from the second record (default=`field1`).
     :type encode2: function(T2) V
     :param encode2: Encoder of field2 value (default=`encode1`).
     :rtype: callable(a,b) float
@@ -232,12 +232,12 @@ class RecordSim(OrderedDict):
     >>> vcomp2 = ValueSim(similarity, 2, float) # compare second field
     >>> rcomp = RecordSim(("V1",vcomp1),("V2",vcomp2))
     >>> rcomp(('A',1,1), ('B',2,4))
-    Weights(V1=0.5, V2=0.125)
+    W(V1=0.5, V2=0.125)
     """
     
     def __init__(self, *comparators):
         super(RecordSim, self).__init__(comparators)
-        self.Weights = namedtuple("Weights", self.keys())
+        self.Weights = namedtuple("W", self.keys())
 
     def __call__(self, A, B):
         return self.Weights._make(
