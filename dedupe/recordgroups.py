@@ -1,9 +1,10 @@
 """
-:mod:`~dedupe.recordgroups` -- Groups of mutually matching records
+:mod:`recordgroups` -- Find groups of mutually matching records
 ==================================================================
 
-Use breadth-first search to identify components in the match graph,
-representing groups of matching records.
+The match pairs represent edges in a grapth. The components of the match graph
+are written out as sets of mutually matching records, assuming transitive
+property on matching: A matches B and B matches C implies A matches C.
 
 .. moduleauthor::: Graham Poulter
 """
@@ -20,9 +21,9 @@ def adjacency_list(nodepairs):
     absent from the adjacency list.
     
     :type nodepairs: [(T,T), ...]
-    :param nodepairs: Connections between nodes (pairs that match).
+    :param nodepairs: connections between nodes (pairs that match).
     :rtype: {T:[T,...], ...}
-    :return: Nodes adjacent to each node in the graph.
+    :return: nodes adjacent to each node in the graph.
     
     >>> edges = [ (1,2), (2,3), (4,5), (1,5) ]
     >>> dict(adjacency_list(edges))
@@ -38,9 +39,9 @@ def components(adjlist):
     """Construct of groups as graph components using breadth-first search.
     
     :type adjlist: {T:[T,...],...}
-    :param adjlist: Nodes adjacent to each node in the graph.
+    :param adjlist: nodes adjacent to each node in the graph.
     :rtype: [[T,...],...]
-    :return: Connected components as lists of nodes.
+    :return: connected components as lists of nodes.
     
     >>> edges = [ (1,2), (2,3), (4,5), (5,6) ]
     >>> components(adjacency_list(edges))
@@ -70,7 +71,7 @@ def singles_and_groups(matches, allrecords):
     
     :type matches: [(T,T),...]
     :param matches: Matching pairs of records.
-    :type allrecords: :class:`Iterable` [T,...]
+    :type allrecords: :keyword:`iter` [T,...]
     :param allrecords: All records (with and without matches)
     :rtype: [T,...],[[T,...],...]
     :return: single records (match nothing) and groups (of matching records)
@@ -86,13 +87,13 @@ def singles_and_groups(matches, allrecords):
 def write_csv(matches, records, ostream, fields=None):
     """Write out the records, with grouping 
 
-    :type matches: :class:`Sequence` [(T,T),...]
+    :type matches: [(T,T),...]
     :param matches: List of pairs of matching records.
-    :type records: :class:`Iterable` [T,...]
+    :type records: :keyword:`iter` [T,...]
     :param records: Iteration over records.
     :type ostream: binary writer
     :param ostream: where to write the CSV for the records
-    :type fields: :class:`Sequence` [:class:`str`,...]
+    :type fields: [:class:`str`,...]
     :param fields: List of CSV headings for the records.
     :rtype: [T,...], [[T,...],...]
     :return: list of single rows (no matches) and groups (mutually matching)

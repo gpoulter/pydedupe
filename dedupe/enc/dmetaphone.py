@@ -1,11 +1,9 @@
 #!/usr/bin/python
 #coding= latin-1
-
 """
-:mod:`~dedupe.enc.dmetaphone` -- Double metaphone encoding
-==========================================================
+:mod:`enc.dmetaphone` -- Double metaphone encoding
+==================================================
 
-.. moduleauthor:: Andrew Collins 
 
 .. note:: Double Metaphone algorithm (c) 1998, 1999 by Lawrence Philips. it was
    translated to Python from the C source written by Kevin Atkinson
@@ -17,14 +15,16 @@
 
    .. _`blog post`: http://atomboy.isa-geek.com:8080/plone/Members/acoil/programing/double-metaphone
 
+.. moduleauthor:: Andrew Collins 
 """
+
 def encode(st) :
     """Returns the double metaphone codes for given string - always a tuple.
     The input input string must be a single word: no spaces or other characters.
     
+    :type st: :class:`str`
     :param st: Text to encode.
-    :type st: string    
-    :rtype: (string,string) or (string,:keyword:`None`)
+    :rtype: (:class:`str`, :class:`str`) or (:class:`str`, :keyword:`None`)
     
     >>> names = ('maurice aubrey cambrillo heidi catherine katherine ' +
     ... 'richard bob eric geoff dave ray steven bryce randy bryan brian ' +

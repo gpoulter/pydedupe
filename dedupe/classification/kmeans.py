@@ -1,13 +1,11 @@
 """
-:mod:`~dedupe.classification.kmeans` -- K-Means vector clustering
+:mod:`classification.kmeans` -- K-Means vector clustering
 =================================================================
 
 .. moduleauthor:: Graham Poulter
 """
 
 from __future__ import division
-
-import logging, math
 
 def classify(comparisons, distance, maxiter=10):
     """Classify record pair similarity vectors as matches and non-matches
@@ -20,13 +18,13 @@ def classify(comparisons, distance, maxiter=10):
        null'ed component for vector distance calculation and totals for
        averaging.
 
-    :type comparisons: {(R,R):[float,...],...}
+    :type comparisons: {(`R`, `R`):[:class:`float`,...],...}
     :param comparisons: similarity vectors of compared record pairs.
-    :type distance: function([float,...],[float,...]) float
+    :type distance: function([:class:`float`,...],[:class:`float`,...]) :class:`float`
     :param distance: calculates distance between similarity vectors.
-    :type maxiter: int
+    :type maxiter: :class:`int`
     :param maxiter: maximum number of loops to adjust the centroid
-    :rtype: {(R,R):float}, {(R,R):float}
+    :rtype: {(`R`, `R`)::class:`float`}, {(`R`, `R`)::class:`float`}
     :return: classifier scores for match pairs and non-match pairs
     
     >>> ## simple test of clustering 1D vectors
@@ -48,6 +46,7 @@ def classify(comparisons, distance, maxiter=10):
     >>> sorted(nomatches.keys())
     [(4, 5)]
     """
+    import logging
     # Get length of the comparison vector
     if len(comparisons) == 0:
         return set(), set()
@@ -116,6 +115,7 @@ def classify(comparisons, distance, maxiter=10):
     
     # Calculate a smoothed score as the log of the ratio of distances
     # of the similarity vector to each of the centroids.
+    import math
     score = lambda v: math.log10( (distance(v,low_centroid)+0.1) / (distance(v,high_centroid)+0.1) )
     matches = dict( (k, score(v))  for k, (v,match) in assignments.iteritems() if match)
     nomatches = dict( (k, score(v)) for k, (v,match) in assignments.iteritems() if not match)

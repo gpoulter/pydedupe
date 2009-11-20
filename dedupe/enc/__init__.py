@@ -1,6 +1,6 @@
 """
-:mod:`dedupe.enc` -- Encodings and transformations of field values
-==================================================================
+:mod:`enc` -- Encodings and transformations of field values
+=================================================================
 
 .. moduleauthor:: Graham Poulter
 """

@@ -1,5 +1,5 @@
 """
-:mod:`~dedupe.classification.distance` -- Distances between similarity vectors
+:mod:`classification.distance` -- Distances between similarity vectors
 ==============================================================================
 
 .. note:: Vector distance functions should accommodate the presence of
@@ -19,9 +19,9 @@ def L2(vec1, vec2):
     .. note:: components with :keyword:`None` in one or both of the vectors
        are ignored (reduced dimensionality of the comparison).
     
-    :type vec1, vec2: [float|None,...]
+    :type vec1, vec2: [:class:`float` | :keyword:`None`,...]
     :param vec1, vec2: Nullable floating-point vectors of the same length.
-    :rtype: float
+    :rtype: :class:`float`
     :return: Euclidian (pythagorean) distance between `vec1` and `vec2`
     
     >>> L2([2,None],[5,None])
@@ -63,11 +63,11 @@ def normL2(vec1, vec2, stdevs):
     each component should be the absolute difference below which the values
     should be considered "close".
 
-    :type vec1, vec2: [float|None,...]
+    :type vec1, vec2: [:class:`float` | :keyword:`None`,...]
     :param vec1, vec2: Nullable floating-point vectors of the same length.
-    :type stdevs: [float,...]
+    :type stdevs: [:class:`float`,...]
     :param stdevs: standard deviations of vector components. 
-    :rtype: float
+    :rtype: :class:`float`
     :return: Euclidian (pythagorean) distance between `vec1` and `vec2`
     
     >>> normL2([2,None],[5,1],[1,1])

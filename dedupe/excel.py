@@ -1,11 +1,15 @@
 # coding=utf8
 """
-:mod:`~dedupe.excel` -- Excel CSV input and output
-==================================================
+:mod:`excel` -- Read and write Excel CSV files with heading rows
+================================================================
 
-Classes for reading Excel CSV files with rows as L{namedtuple} instances.
-Automatically converts between CP1252 (or other file encoding that
-does not use null values) and unicode Python strings.
+The default file encoding is Windows cp1252, but any non-null-using encoding
+(such as utf-8) may be specified. Text is converted to unicode strings on
+reading, and from unicode to native file encoding on writing.
+
+The first row of the files must specify headings for each column, and headings
+must be valid Python identifiers for `namedtuple` attributes.  For files
+with no heading, a 'fields' parameter is used to construct the namedtuple.
 
 .. moduleauthor:: Graham Poulter
 """
@@ -18,8 +22,7 @@ from compat import namedtuple
 class reader:
     """An Excel CSV reader (for CP1252 encoding by default) that parses a
     file-like iteration of byte-strings and yields namedtuples where the
-    field strings have been decoded to unicode. The resulting tuples can be
-    written back to file using :class:`writer`.
+    field strings have been decoded to unicode.
     
     :ivar Row: class of the returned rows
     :type Row: namedtuple 
@@ -57,9 +60,9 @@ class reader:
 
 
 class writer:
-    """An Excel CSV writer (with CP1252 encoding by default), which takes rows
-    of unicode strings and encodes before writing them to the file stream. Do
-    not specify encodings that use nulls (such as utf-16).
+    """An Excel CSV writer which accepts rows of unicode strings and encodes
+    them before writing encoded to the output stream. Do not specify encodings
+    that use nulls (such as utf-16).
     
     >>> from StringIO import StringIO
     >>> out = StringIO()

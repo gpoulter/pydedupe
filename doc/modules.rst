@@ -2,22 +2,22 @@
  Main Modules
 ==============
 
-.. automodule:: dedupe.excel
+.. automodule:: excel
    :synopsis: Read and write CSV files in Excel format and CP1252 encoding.
    :members:
    
-.. automodule:: dedupe.indexer
+.. automodule:: indexer
    :synopsis: Index records and carry out pairwise comparisons.
    :members:
 
-.. automodule:: dedupe.link
+.. automodule:: link
    :synopsis: Link within and between sets of records.
    :members:
 
-.. automodule:: dedupe.linkcsv
+.. automodule:: linkcsv
    :synopsis: Link records together from CSV file input.
    :members:
 
-.. automodule:: dedupe.recordgroups
+.. automodule:: recordgroups
    :synopsis: Create a graph from pairwise matches and calculate the mutually matching groups of records.
    :members:

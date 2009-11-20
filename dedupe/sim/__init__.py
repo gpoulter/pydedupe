@@ -1,19 +1,19 @@
 """
-:mod:`~dedupe.sim` -- Similarity of records
-===========================================
+:mod:`sim` -- Similarity measures for values, fields, and records
+=================================================================
 
 .. moduleauthor:: Graham Poulter
 """
 
-from dedupe.compat import namedtuple, OrderedDict
+from ..compat import namedtuple, OrderedDict
 
 def getvalue(record, field):
     """Retrieve value of a field from a record by any means.
     
-    :type record: :class:`Container` T
-    :param record: record object from which to retrive field value
-    :type field: string, int, or function(T)
-    :param field: field specifier, to attempt T.field, T[field] and field(T)
+    :type record: :class:`namedtuple` or :class:`tuple`
+    :param record: record from which to retrive field value
+    :type field: :class:`str`, :class:`int`, or function(`R`)
+    :param field: field specifier, to attempt R.field, R[field] and field(R)
     :rtype: any field value (string, number, or collection of strings)
     :return: Value of `field` on `record`
     
@@ -38,11 +38,11 @@ def multivalue(sep, *fields):
     """Return a function that combines delimited fields as a virtual
     multi-value field.
 
-    :type sep: string
+    :type sep: :class:`str`
     :param sep: Delimiter to split fields into multiple values
     :type fields: Field specifiers for :func:`getvalue`
     :param fields: Fields whose values are to be combined.
-    :rtype: :class:`Sequence`
+    :rtype: [`V`, ...]
     :return: The virtual-field values
 
     >>> multivalue(";", 0, 1)(['1;2;3','4;5'])
@@ -65,7 +65,7 @@ def combine(*fields):
     
     :type fields: Field specifiers for :func:`getvalue`
     :param fields: Fields whose values are to be combined.
-    :rtype: :class:`Sequence`
+    :rtype: [`V`, ...]
     :return: The virtual-field values
     
     >>> combine(0, 2, 3)(['A','B','C','D','E'])
@@ -77,18 +77,18 @@ def combine(*fields):
 class ValueSim(object):
     """Defines a callable comparison of a pair of records on a defined field.
     
-    :type comparevalues: function(V,V) float
+    :type comparevalues: function(`V`, `V`) :class:`float`
     :param comparevalues: Compares the encoded values and returns similarity.
-    :type field1: string|int|function(record) -> T1
-    :param field1: How to :func:`getvalue` from the first record 
-    :type encode1: function(T1) V
+    :type field1: :class:`str`, :class:`int`, or function(`R`)
+    :param field1: the :func:`getvalue` specifier for the first record 
+    :type encode1: function(`T1`) `V`
     :param encode1: Encoder of field1 values.
-    :type field2: string|int|function(record) -> T2
-    :param field2: How to :func:`getvalue` from the second record (default=`field1`).
-    :type encode2: function(T2) V
+    :type field2: :class:`str`, :class:`int`, or function(`R`)
+    :param field2: the :func:`getvalue` specifier for the second record 
+    :type encode2: function(`T2`) `V`
     :param encode2: Encoder of field2 value (default=`encode1`).
-    :rtype: callable(a,b) float
-    :return: Computes similarity of records `a` and `b` on the defined field.
+    :rtype: callable(`R1`,`R2`) :class:`float`
+    :return: Computes similarity of records `R1` and `R2` on the defined field.
 
     >>> # define some 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
@@ -122,18 +122,18 @@ class ValueSimAvg(ValueSim):
     the length of the shorter field.  That means that if the shorter field
     is a subset of the longer field, the similarity should work out to 1.0.
     
-    :type comparevalues: function(V,V) float
+    :type comparevalues: function(`V`, `V`) :class:`float`
     :param comparevalues: Compares the encoded values and returns similarity.
-    :type field1: function(record) [T1,...]
+    :type field1: function(`R`) [`T1`,...]
     :param field1: Iterates over multi-values of the field.
-    :type field2: function(record) [T2,...]
+    :type field2: function(`R`) [`T2`,...]
     :param field2: Iterates over multi-values of the field (default=`field1`).
-    :type encode1: function(T1) V
+    :type encode1: function(`T1`) `V`
     :param encode1: Encoder of field1 values.
-    :type encode2: function(T2) V
+    :type encode2: function(`T2`) `V`
     :param encode2: Encoder of field2 value (default=`encode1`).
-    :rtype: callable(a,b) float
-    :return: Computer of average similarity of records `a` and `b` for values of the field.
+    :rtype: callable(`R1`, `R2`) float
+    :return: Computer of average similarity of records `R1` and `R2` for values of the field.
     
     >>> # define an exponential 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
@@ -173,18 +173,18 @@ class ValueSimMax(ValueSim):
     sets. One perfectly matching pair of values between the two sets returns a
     similarity of 1.0.
     
-    :type comparevalues: function(V,V) float
+    :type comparevalues: function(`V`, `V`) :class:`float`
     :param comparevalues: Compares the encoded values and returns similarity.
-    :type field1: function(record) [T1,...]
+    :type field1: function(`R`) [`T1`,...]
     :param field1: Iterates over multi-values of the field.
-    :type field2: function(record) [T2,...]
+    :type field2: function(`R`) [`T2`,...]
     :param field2: Iterates over multi-values of the field (default=`field1`).
-    :type encode1: function(T1) V
+    :type encode1: function(`T1`) `V`
     :param encode1: Encoder of field1 values.
-    :type encode2: function(T2) V
+    :type encode2: function(`T2`) `V`
     :param encode2: Encoder of field2 value (default=`encode1`).
-    :rtype: callable(a,b) float
-    :return: Computes maximum similarity of `a` and `b` over valuef of the field.
+    :rtype: callable(`R1`, `R2`) float
+    :return: Computes maximum similarity of `R1` and `R2` over values of the field.
 
     >>> # define an exponential 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))

@@ -1,6 +1,6 @@
 """
-:mod:`~dedupe.link` -- Record Linkage
-=====================================
+:mod:`link` -- Record linkage routines
+========================================
  
 .. moduleauthor:: Graham Poulter
 """
@@ -8,11 +8,11 @@
 def within_allpair(compare, records):
     """Return comparisons for all distinct pairs of records.
     
-    :type compare: func(R,R) [float,...]
+    :type compare: func(`R`, `R`) [:class:`float`,...]
     :param compare: how to obtain similarity of a pair of records.
-    :type records: [R,...]
+    :type records: [`R`,...]
     :param records: find links within this set of records
-    :rtype: {(R,R):[float,...],...}
+    :rtype: {(`R`, `R`):[:class:`float`,...],...}
     :return: similarity vectors for ordered pairs of compared records.
     
     >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
@@ -31,11 +31,11 @@ def within_allpair(compare, records):
 def between_allpair(compare, records1, records2):
     """Return comparisons for all distinct pairs of records.
     
-    :type compare: func(R,R) [float,...]
+    :type compare: func(`R`, `R`) [:class:`float`,...]
     :param compare: how to obtain similarity of a pair of records.
-    :type records1, records2: [R,...]
+    :type records1, records2: [`R`,...]
     :param records1, records2: find links between these sets of records
-    :rtype: {(R1,R2):[float,...],...}
+    :rtype: {(`R`, `R`):[:class:`float`,...],...}
     :return: similarity vectors for corresponding pairs of compared records.
 
     >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
@@ -54,9 +54,9 @@ def between_allpair(compare, records1, records2):
 def within_indexed(compare, indices):
     """Return comparisons against self for indexed records.
     
-    :type compare: func(R,R) [float,...]
+    :type compare: func(`R`, `R`) [:class:`float`,...]
     :param compare: how to obtain similarity of a pair of records.
-    :type indices: :class:`Indices`, {str:{obj:[R,...],...},...}
+    :type indices: :class:`~indexer.Indices`
     :param indices: indexed left-hand records
     :rtype: {(R,R):[float,...],...}
     :return: comparison similarity vectors for ordered pairs of compared records.
@@ -69,11 +69,11 @@ def within_indexed(compare, indices):
 def between_indexed(compare, indices1, indices2):
     """Return comparisons between two sets of indexed records.
 
-    :type compare: func(R,R) [float,...]
+    :type compare: func(`R`, `R`) [:class:`float`,...]
     :param compare: how to obtain similarity of a pair of records.
-    :type indices1: :class:`Indices`, {str:{obj:[R,...],...},...}
+    :type indices1: :class:`~indexer.Indices`
     :param indices1: indexed left-hand records
-    :type indices2: :class:`Indices`, {str:{obj:[R,...],...},...}
+    :type indices2: :class:`~indexer.Indices`
     :param indices2: indexed right-hand records
     :rtype: {(R,R):[float,...],...}
     :return: similarity vectors for corresponding pairs of compared records.
@@ -88,13 +88,13 @@ def between_indexed(compare, indices1, indices2):
 def within(compare, indices, records):
     """Find similar pairs within a set of records.
     
-    :type compare: func(R,R) [float,...]
+    :type compare: func(`R`, `R`) [:class:`float`,...]
     :param compare: how to obtain similarity of a pair of records.
-    :type indices: :class:`Indices`
+    :type indices: :class:`~indexer.Indices`
     :param indices: prototypical index layout for the records
     :type records: [:class:`namedtuple`,...]
     :param records: records to be linked
-    :rtype: {(R,R):[float,...]}, :class:`Indices`
+    :rtype: {(R,R):[float,...]}, :class:`~indexer.Indices`
     :return: comparison similarity vectors for ordered pairs of compared\
       records, and a filled :class:`Indices` instance.
     """
@@ -106,15 +106,15 @@ def within(compare, indices, records):
 def between(compare, indices, records1, records2):
     """Find similar pairs between two sets of records.
     
-    :type compare: func(R,R) [float,...]
+    :type compare: func(`R`, `R`) [:class:`float`,...]
     :param compare: how to obtain similarity of a pair of records.
-    :type indices: :class:`Indices`
+    :type indices: :class:`~indexer.Indices`
     :param indices: prototypical index layout for the records
     :type records1: [:class:`namedtuple`,...]
     :param records1: left-hand records to link to right-hand
     :type records2: [:class:`namedtuple`,...]
     :param records2: right-hand being linked to
-    :rtype: {(R,R):[float,...]}, :class:`Indices`, :class:`Indices`
+    :rtype: {(R,R):[float,...]}, :class:`~indexer.Indices`, :class:`~indexer.Indices`
     :return: similarity vectors for pairwise comparisons, and the\
       filled :class:`Indices` instances for `records1` and `records2`.
     """
@@ -124,6 +124,7 @@ def between(compare, indices, records1, records2):
     comparisons = between_indexed(compare, indices1, indices2)
     return comparisons, indices1, indices2
 
+####################
 ### log indexing estimates for :func:`within` and :func:`between` 
 
 import logging

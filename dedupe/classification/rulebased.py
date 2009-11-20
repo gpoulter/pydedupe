@@ -1,27 +1,21 @@
 """
-:mod:`~dedupe.classification.rulebased` -- Rule-based classifier of vector
-==========================================================================
-
-Function to a apply a rule-based classifier that returns True, False or
-None. Generally, using a strict rule-based classifier to create training
-examples for a stronger classifiers.
+:mod:`classification.rulebased` -- Rule-based classifier of vectors
+===================================================================
 
 .. moduleauthor:: Graham Poulter
 """
 
-import logging
-
 def classify_bool(rule, comparisons):
-    """Use provided rule function to judge comparison 
-    similarity vectors as matches (if True), non-matches (if False)
-    and uncertain (if None).  
+    """Use provided rule function to classify similarity vectors as
+    matches (True), non-matches (False) and uncertain (None).
     
-    :type rule: function([float,...]) bool or None
-    :param rule: "is this similarity vector a match" - returns True, False or None
-    :type comparisons: {(R,R):[float,...],...}
+    :type rule: function([:keyword:`float`,...]) :keyword:`bool` | :keyword:`None`
+    :param rule: "is this similarity vector a match" - returns :keyword:`True`\
+      :keyword:`False` or :keyword:`None`
+    :type comparisons: {(`R`, `R`):[:class:`float`,...],...}
     :param comparisons: similarity vectors of compared record pairs.
-    :rtype: {(R,R)...}, {(R,R)...}, {(R,R)...}
-    :return: match, non-match and uncertain record pairs
+    :rtype: {(`R`, `R`)...}, {(`R`, `R`)...}, {(`R`, `R`)...}
+    :return: sets of matching, non-matching and uncertain record pairs
     """
     matches, nonmatches, uncertain = set(), set(), set()
     for pair, simvec in comparisons.iteritems():
@@ -34,17 +28,20 @@ def classify_bool(rule, comparisons):
             uncertain.add(pair)
         else:
             raise ValueError("rulebased classify: %s is not True/False/None" % repr(ismatch))
+    import logging
     logging.debug("rulebased classifier on %d vectors: %d matches, %d non-matches, %d uncertain", 
                   len(comparisons), len(matches), len(nonmatches), len(uncertain))
     return matches, nonmatches, uncertain
 
 def classify(rule, comparisons):
-    """Uses :func:`classify_bool` but returns the boolean results as scores in
-    the same format as results from :mod:`kmeans` and :mod:`nearest`.
+    """Uses a boolean classification rule, but maps the results to 
+    the scores 1.0 and 0.0, to return the same result format as
+    from :mod:`~classification.kmeans` and :mod:`~classification.nearest`.
     
-    :type rule: function([float,...]) bool or None
-    :param rule: "is this similarity vector a match" - returns True, False or None
-    :rtype: {(R,R):float}, {(R,R):float}
+    :type rule: function([:keyword:`float`,...]) :keyword:`bool` | :keyword:`None`
+    :param rule: "is this similarity vector a match" - returns :keyword:`True`\
+      :keyword:`False` or :keyword:`None`
+    :rtype: {(`R`, `R`)::class:`float`}, {(`R`, `R`)::class:`float`}
     :return: classifier scores for match pairs (1.0) and non-match pairs (0.0)
     """
     match,nomatch,unknown = classify_bool(rule, comparisons)

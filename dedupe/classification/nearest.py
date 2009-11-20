@@ -1,24 +1,22 @@
 """
-:mod:`~dedupe.classification.nearest` -- Nearest neighbour classification
+:mod:`classification.nearest` -- Nearest neighbour classification
 =========================================================================
 
 .. moduleauthor:: Graham Poulter
 """
 
-import logging, math
-
 def classify(comparisons, ex_matches, ex_nonmatches, distance):
     """Nearest-neighbour classification of comparisons vectors.
 
-    :type comparisons: {(R,R):[float,...],...}
+    :type comparisons: {(`R`, `R`):[:class:`float`,...],...}
     :param comparisons: similarity vectors of compared record pairs.
-    :type ex_matches: [[float,...],...]
+    :type ex_matches: [[:class:`float`,...],...]
     :param ex_matches: List of examples of matching similarity vectors.
-    :type ex_matches: [[float,...],...]
+    :type ex_matches: [[:class:`float`,...],...]
     :param ex_nonmatches: List examples of non-matching similarity vectors.
-    :type distance: function([float,...],[float,...]) float
+    :type distance: function([:class:`float`,...],[:class:`float`,...]) :class:`float`
     :param distance: calculates distance between similarity vectors.
-    :rtype: {(R,R):float}, {(R,R):float}
+    :rtype: {(`R`, `R`)::class:`float`}, {(`R`, `R`)::class:`float`}
     :return: classifier scores for match pairs and non-match pairs
     
     >>> ## Test 1D vectors
@@ -44,6 +42,7 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance):
     >>> sorted(nomatches.keys())
     [(1, 2), (4, 5)]
     """
+    import logging, math
     logging.info("Nearest neighbour: %s match examples and %d non-match examples.", 
                  len(ex_matches), len(ex_nonmatches))
     matches, nonmatches = {}, {}

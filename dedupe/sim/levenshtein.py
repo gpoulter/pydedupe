@@ -1,6 +1,6 @@
 """
-:mod:`~dedupe.sim.levenshtein` -- Levenshtein string distance
-=============================================================
+:mod:`sim.levenshtein` -- Levenshtein string distance
+============================================================
 
 .. note:: Algorithm comes from the Tyriel_ search engine by caelyx, source
    code found here_.
@@ -52,11 +52,11 @@ def _compare(maxdiff, s1, s2, missing, distance):
 def compare(maxdiff, s1, s2, missing=None):
     """Return similarity of strings based on Levenshtein distance.
     
-    :type maxdiff: float between 0.0 and 1.0.
+    :type maxdiff: :class:`float` in 0.0 to 1.0
     :param maxdiff: proportion of ``max(len(s1),len(s2))`` beyond which\
-     the similarity is considered similarity of 0. Higher values are more lenient.
-    :param missing: If one of the strings is empty or :keyword:`None`, return `missing`.
-    :rtype: float
+       the similarity is considered similarity of 0. Higher values are more lenient.
+    :param missing: return this if one string is empty or :keyword:`None`
+    :rtype: :class:`float`
     :return: similarity between 0.0 and 1.0.
     
     >>> compare(1.0, "abcd","abcd")

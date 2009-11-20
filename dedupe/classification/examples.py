@@ -1,6 +1,6 @@
 """
-:mod:`~dedupe.classification.examples` -- Similarity vectors for training a classifier
-======================================================================================
+:mod:`classification.examples` -- Similarity vectors for training
+===================================================================
 
 .. moduleauthor:: Graham Poulter
 """
@@ -17,14 +17,14 @@ def load(comparator, records, outdir=None):
     comments when reading records from CSV files). Remaining columns are
     record data for the `comparator`.
 
-    :type comparator: function(R,R) [:class:`float`,...]
+    :type comparator: function(`R`, `R`) [:class:`float`,...]
     :param comparator: gets similarity vectors for pairs of records.
-    :type records: [('TRUE'|'FALSE',key,value,..),...]
+    :type records: [('TRUE'|'FALSE', `key`, `value`,..),...]
     :param records: training records with match & key metadata in first two fields.
-    :type outdir: str
+    :type outdir: :class:`str`
     :param outdir: optional debug para to, write comparisons as CSV to\
        :file:`{outdir}/{foo}_true.csv` and :file:`{outdir}/{foo}_false.csv`.
-    :rtype: set([float,...],...), set([float,...],...)
+    :rtype: {[:class:`float`,...],...},{[:class:`float`,...],...}
     :return: similarity vectors of the true comparisons and false comparisons.
 
     .. testsetup::

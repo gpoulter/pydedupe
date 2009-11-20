@@ -1,5 +1,5 @@
 """
-:mod:`~dedupe.indexer` -- Inverted index of records
+:mod:`indexer` -- Inverted index of records
 ===================================================
 
 An inverted index lists records sharing an index key. By only comparing
@@ -21,7 +21,7 @@ class Index(dict):
     :type makekey: function(`R`) [`K`,...]
     :param makekey: Generates the index keys for the record.
     
-    :type records: [R,...]
+    :type records: [`R`,...]
     :param records: Initial records to load into the index.
     
     >>> makekey = lambda r: [int(r[1])]
@@ -77,7 +77,7 @@ class Index(dict):
 
         :type: other: :class:`Index` or :keyword:`None`
         :param other: Count comparisons against this index.
-        :rtype: int
+        :rtype: :class:`int`
         :return: Most pairwise comparisons that need to be made.
         """
         comparisons = 0

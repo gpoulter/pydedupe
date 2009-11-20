@@ -1,12 +1,12 @@
-=======================================
- :mod:`encoding` -- Encoding of values
-=======================================
+==================================
+ :mod:`enc` -- Encoding of values
+==================================
 
-.. automodule:: dedupe.enc
+.. automodule:: enc
    :synopsis: Transform and encode field values.
    :members:
 
-.. automodule:: dedupe.enc.dmetaphone
+.. automodule:: enc.dmetaphone
    :synopsis: Phonetically encode strings with double metaphone.
    :members:
    
