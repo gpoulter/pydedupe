@@ -5,7 +5,10 @@
 .. moduleauthor:: Graham Poulter
 """
 
-from ..compat import namedtuple, OrderedDict
+try:
+    from ..compat import namedtuple, OrderedDict
+except ValueError: # compat is top-level for Sphinx automod docs
+    from compat import namedtuple, OrderedDict
 
 def getvalue(record, field):
     """Retrieve value of a field from a record by any means.
