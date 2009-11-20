@@ -43,15 +43,33 @@ Record linkage from `Wikipedia <http://en.wikipedia.org/wiki/Record_linkage>`::
   when you have to join data sets that do not have a unique database key in
   common. A data set that has undergone record linkage is said to be linked.
   
-PyDedupe has been in use since January 2009 as an internal tool for linking a
-directory database, where it identifies groups of records where the same
-business has been entered multiple times with variations on name, address and
-contact details.  This is the core library of routines.
+The author of PyDedupe has been using it since January 2009 as an internal
+tool for linking a directory database.  The PyDedupe scripts identify groups of
+records where the same business has been entered multiple times with
+variations on name, address and contact details.
+
+PyDedupe has been designed to support maximum flexibility of algorithm. 
+Although it comes with a small set of common encoding, comparison
+and classification methods, the required interface to those methods 
+is a simple function call, making it easy to plug in new algorithms.
+
+PyDedupe also supports maximum flexibility in the data it accepts: we believe
+that you should not have to edit your data in order to satisfy arbitrary input
+restrictions of a record linkage tool. PyDedupe accepts any tabular data as a
+list of records that may come from any source, such as CSV file, database or
+XML. The linkage strategy has extension points for specifying arbitrary
+transformations on fields for the purposes of indexing or comparison - all
+without changing the original records. This facility has been used to combine
+multiple phone number fields, including a field which contained
+semicolon-delimited numbers, to compare only the domain from a URL field, and
+much more.
+
   
 Installation
 ============
 
-PyDedupe runs on Python_ 2.5, 2.6 or 2.7.
+PyDedupe runs on Python_ 2.5, 2.6 or 2.7, and because it has no dependencies,
+porting to Python 3 is planned.
 
 For installation from PyPi_, run `easy_install pydedupe` or using PIP
 run `pip install pydedupe`.
@@ -63,17 +81,13 @@ To install locally on linux, run::
 
  python setup.py install --prefix=~/.local
 
-To check the test suite after installation, run::
-
- python -m dedupe.tests.__init__
-
 .. _PyPi: http://pypi.python.org/pypi
 .. _setuptools: http://pypi.python.org/pypi/setuptools
 .. _Python: http://python.org/download/
 
 
-How it Works
-============
+How record linkage works
+========================
 
 Deduplication takes place in three stages:
 
