@@ -53,12 +53,12 @@ class TestLinkCSV(unittest.TestCase):
         )
 
         # link and print the output
-        linker = linkcsv.LinkCSV("", comparator, indices, classify, records)
+        linker = linkcsv.LinkCSV("/tmp", comparator, indices, classify, records)
         linker.write_all()
         for name,s in sorted(iostreams.iteritems()):
             print name, '\n', s.getvalue()                    
         # link and print the output
-        linker = linkcsv.LinkCSV("", comparator, indices, classify, records, master=records)
+        linker = linkcsv.LinkCSV("/tmp", comparator, indices, classify, records, master=records)
         linker.write_all()
         for name,s in sorted(iostreams.iteritems()):
             print name, '\n', s.getvalue()            
