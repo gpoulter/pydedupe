@@ -52,13 +52,14 @@ class TestLinkCSV(unittest.TestCase):
             ("Compare", ValueSim(vcompare, 1, float)),
         )
 
-        # do the linking and print the output
-        linkcsv.linkcsv(comparator, indices, classify, records, odir="", master=None)
+        # link and print the output
+        linker = linkcsv.LinkCSV("", comparator, indices, classify, records)
+        linker.write_all()
         for name,s in sorted(iostreams.iteritems()):
-            print name, '\n', s.getvalue()            
-        
-        # do the linking and print output
-        linkcsv.linkcsv(comparator, indices, classify, records, odir="", master=records)
+            print name, '\n', s.getvalue()                    
+        # link and print the output
+        linker = linkcsv.LinkCSV("", comparator, indices, classify, records, master=records)
+        linker.write_all()
         for name,s in sorted(iostreams.iteritems()):
             print name, '\n', s.getvalue()            
 
