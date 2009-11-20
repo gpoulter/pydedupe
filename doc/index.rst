@@ -1,10 +1,5 @@
-.. PyDedupe documentation master file, created by
-   sphinx-quickstart on Fri Nov 13 14:38:27 2009.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to PyDedupe's documentation!
-====================================
+PyDedupe - Record linkage tools for Python
+==========================================
 
 Contents:
 
@@ -21,10 +16,42 @@ To-Do List
 
 .. todolist::
 
+Introduction
+============
+
+Record linkage from the Encyclopedia of Public Health::
+
+  Record linkage is the process of bringing together two or more records
+  relating to the same entity(e.g., person, family, event, community,
+  business, hospital, or geographical area). In 1946, H. L. Dunn of the United
+  States National Bureau of Statistics introduced the term in this way: "Each
+  person in the world creates a Book of Life. This Book starts with birth and
+  ends with death. Record linkage is the name of the process of assembling the
+  pages of this Book into a volume" (Dunn, 1946). Computerized record linkage
+  was first undertaken by the Canadian geneticist Howard Newcombe and his
+  associates in 1959. Newcombe recognized the full implications of extending
+  the principle to the arrangement of personal files and into family
+  histories. Computerized record linkage has the advantages of quality
+  control, speed, consistency, reproducibility of results, and the ability to
+  handle large volumes of data. For its actual implementation, Newcombe
+  prepared a handbook in 1988.
+  
+Record linkage from `Wikipedia <http://en.wikipedia.org/wiki/Record_linkage>`::
+
+  Record linkage (RL) refers to the task of finding entries that refer to the
+  same entity in two or more files. Record linkage is an appropriate technique
+  when you have to join data sets that do not have a unique database key in
+  common. A data set that has undergone record linkage is said to be linked.
+  
+PyDedupe has been in use since January 2009 as an internal tool for linking a
+directory database, where it identifies groups of records where the same
+business has been entered multiple times with variations on name, address and
+contact details.  This is the core library of routines.
+  
 Installation
 ============
 
-PyDedupe is available for Python_ 2.5 or greater.
+PyDedupe runs on Python_ 2.5, 2.6 or 2.7.
 
 For installation from PyPi_, run `easy_install pydedupe` or using PIP
 run `pip install pydedupe`.
@@ -43,6 +70,7 @@ To check the test suite after installation, run::
 .. _PyPi: http://pypi.python.org/pypi
 .. _setuptools: http://pypi.python.org/pypi/setuptools
 .. _Python: http://python.org/download/
+
 
 How it Works
 ============
