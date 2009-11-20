@@ -1,11 +1,9 @@
 """
-Subclasses of tuple with named fields
-=====================================
+:mod:`compat._namedtuple` -- Tuple with named attribute fields
+==============================================================
 
 Source code from http://code.activestate.com/recipes/500261/
 
-.. module:: namedtuple
-   :synopsis: Generate tuple classes with named fields.
 .. moduleauthor:: Raymond Hettinger (2007)
 """
 

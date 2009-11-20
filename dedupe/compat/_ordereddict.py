@@ -1,6 +1,6 @@
 """
-OrderedDict
-===========
+:mod:`compat._ordereddict` -- Dictionary with ordered keys
+==========================================================
 
 Source: http://dev.pocoo.org/hg/sandbox/raw-file/tip/odict.py
 
@@ -8,9 +8,7 @@ This module is an example implementation of an ordered dict for the
 collections module. The ordering is maintained with a Python list so the
 performance is poor: only use it for small collections.
 
-.. module:: ordereddict
-  :synopsis: Dictionary that remembers the order of keys.
-.. moduleauthor:: Unknown
+.. moduleauthor:: Raymond Hettinger (2007)
 """
 from itertools import izip, imap
 from copy import deepcopy
