@@ -1,11 +1,8 @@
 """
-:mod:`link` -- Record Linkage
-=============================
-
-.. module:: link
-   :synopsis: Link within and between sets of records.
+:mod:`~dedupe.link` -- Record Linkage
+=====================================
+ 
 .. moduleauthor:: Graham Poulter
-
 """
 
 def within_allpair(compare, records):

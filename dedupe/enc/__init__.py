@@ -1,9 +1,7 @@
 """
-:mod:`enc` -- Value transformation
-==================================
+:mod:`dedupe.enc` -- Encodings and transformations of field values
+==================================================================
 
-.. module:: enc
-   :synopsis: Transform and encode field values.
 .. moduleauthor:: Graham Poulter
 """
 

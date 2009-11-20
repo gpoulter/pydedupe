@@ -1,6 +1,6 @@
 """
-:mod:`dale` -- Damerau-Levenshtein string distance
-==================================================
+:mod:`~dedupe.sim.dale` -- Damerau-Levenshtein string distance
+==============================================================
 
 Implementation of Damerau-Levenshtein distance by `mwh.geek.nz`_::
 
@@ -26,8 +26,6 @@ Implementation of Damerau-Levenshtein distance by `mwh.geek.nz`_::
 
 .. _`mwh.geek.nz`: http://mwh.geek.nz/2009/04/26/python-damerau-levenshtein-distance/
 
-.. module:: dale
-   :synopsis: Calculate Dameraus-Levenshtein string distance
 .. moduleauthor:: mwh.geek.nz
 """
 

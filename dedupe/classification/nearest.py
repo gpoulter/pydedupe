@@ -1,9 +1,7 @@
 """
-:mod:`nearest` -- Nearest neighbour classification
-==================================================
+:mod:`~dedupe.classification.nearest` -- Nearest neighbour classification
+=========================================================================
 
-.. module:: nearest
-   :synopsis: Classify match/non-match vectors by distance to nearest example.
 .. moduleauthor:: Graham Poulter
 """
 

@@ -1,13 +1,11 @@
 """
-:mod:`rulebased` -- Rule-based classifier of vector
-===================================================
+:mod:`~dedupe.classification.rulebased` -- Rule-based classifier of vector
+==========================================================================
 
 Function to a apply a rule-based classifier that returns True, False or
 None. Generally, using a strict rule-based classifier to create training
 examples for a stronger classifiers.
 
-.. module:: rulebased
-   :synopsis: Classify match/non-match vectors using rules.
 .. moduleauthor:: Graham Poulter
 """
 

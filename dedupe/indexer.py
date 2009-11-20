@@ -1,15 +1,12 @@
 """
-:mod:`indexer` -- Inverted index of records
-===========================================
+:mod:`~dedupe.indexer` -- Inverted index of records
+===================================================
 
 An inverted index lists records sharing an index key. By only comparing
 pairs of records that share index keys the total number of comparisons
 can be vastly reduced over the case of comparing all pairs of records.
 
-.. module:: indexer
-   :synopsis: Index records and carry out pairwise comparisons.
 .. moduleauthor:: Graham Poulter
-
 """
 
 from __future__ import with_statement

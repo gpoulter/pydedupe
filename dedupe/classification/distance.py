@@ -1,6 +1,6 @@
 """
-:mod:`distance` -- Distances between similarity vectors
-=======================================================
+:mod:`~dedupe.classification.distance` -- Distances between similarity vectors
+==============================================================================
 
 .. note:: Vector distance functions should accommodate the presence of
    :keyword:`None` values in the vectors, interpreted as "no comparison possible
@@ -8,8 +8,6 @@
    Alternatively, the distance function may replace :keyword:`None` with a
    default value for missing vector components.
 
-.. module:: distance
-   :synopsis: Functions to calculate distance between two similarity vectors.
 .. moduleauthor:: Graham Poulter
 """
 

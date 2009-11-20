@@ -1,14 +1,12 @@
 # coding=utf8
 """
-:mod:`excel` -- Excel CSV input and output
-==========================================
+:mod:`~dedupe.excel` -- Excel CSV input and output
+==================================================
 
 Classes for reading Excel CSV files with rows as L{namedtuple} instances.
 Automatically converts between CP1252 (or other file encoding that
 does not use null values) and unicode Python strings.
 
-.. module:: excel
-   :synopsis: Read and write CSV files in Excel format and CP1252 encoding.
 .. moduleauthor:: Graham Poulter
 """
 

@@ -1,14 +1,11 @@
 """
-:mod:`recordgroups` -- Groups of mutually matching records
-==========================================================
+:mod:`~dedupe.recordgroups` -- Groups of mutually matching records
+==================================================================
 
 Use breadth-first search to identify components in the match graph,
 representing groups of matching records.
 
-.. module:: recordgroups
-   :synopsis: Create a graph from pairwise matches and calculate the mutually matching groups of records.
 .. moduleauthor::: Graham Poulter
-
 """
 
 import optparse, os, sys

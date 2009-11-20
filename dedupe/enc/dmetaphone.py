@@ -2,11 +2,9 @@
 #coding= latin-1
 
 """
-:mod:`dmetaphone` -- Double metaphone encoding
-==============================================
+:mod:`~dedupe.enc.dmetaphone` -- Double metaphone encoding
+==========================================================
 
-.. module:: dmetaphone
-  :synopsis: Phonetically encodi strings with double metaphone.
 .. moduleauthor:: Andrew Collins 
 
 .. note:: Double Metaphone algorithm (c) 1998, 1999 by Lawrence Philips. it was

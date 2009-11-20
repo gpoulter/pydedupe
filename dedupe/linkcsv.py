@@ -2,8 +2,6 @@
 :mod:`linkcsv` -- Record linkage for CSV inputs
 ===============================================
 
-.. module:: linkcsv
-   :synopsis: Link records together from CSV file input.
 .. moduleauthor:: Graham Poulter
 """
 

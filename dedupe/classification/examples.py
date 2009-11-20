@@ -1,9 +1,7 @@
 """
-:mod:`examples` - Similarity vectors for training a classifier
-==============================================================
+:mod:`~dedupe.classification.examples` -- Similarity vectors for training a classifier
+======================================================================================
 
-.. module:: examples
-   :synopsis: Generate match and non-match similarity vectors for training classifiers.
 .. moduleauthor:: Graham Poulter
 """
 

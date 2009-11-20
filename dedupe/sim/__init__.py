@@ -1,9 +1,7 @@
 """
-:mod:`sim` -- Similarity of records
-===================================
+:mod:`~dedupe.sim` -- Similarity of records
+===========================================
 
-.. module:: sim
-   :synopsis: Calculate named-field similarities, and record similarity vector.
 .. moduleauthor:: Graham Poulter
 """
 

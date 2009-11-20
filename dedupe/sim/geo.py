@@ -1,9 +1,7 @@
 """
-:mod:`geo` -- Geographic comparisons
-===============================================
+:mod:`~dedupe.sim.geo` -- Geographic comparisons
+================================================
 
-.. module:: geo
-   :synopsis: Calculate distance and similarity between geographic coordinates.
 .. moduleauthor:: Graham Poulter
 """
 

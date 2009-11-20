@@ -1,9 +1,7 @@
 """
-:mod:`kmeans` -- K-Means vector clustering
-==========================================
+:mod:`~dedupe.classification.kmeans` -- K-Means vector clustering
+=================================================================
 
-.. module:: kmeans
-   :synopsis: Cluster match and non-match vectors using K=2 K-means.
 .. moduleauthor:: Graham Poulter
 """
 
