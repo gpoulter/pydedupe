@@ -10,8 +10,7 @@ except ImportError:
 setup(
     name='dedupe',
     version='1.0',
-    description="""Identifies similar tuples in a list or between two lists.
-    Has modules to handle CSV input and output..""",
+    description='Identifies similar pairs and groups of records.',
     author='Graham Poulter',
     author_email='http://www.grahampoulter.com',
     url='http://launchpad.net/pydedupe',
@@ -19,5 +18,4 @@ setup(
     zip_safe=True,
     license='GPL',
     platforms='any',
-    test_suite="dedupe.tests",
 )
