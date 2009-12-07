@@ -5,7 +5,7 @@
 .. moduleauthor:: Graham Poulter
 """
 
-def classify(comparisons, ex_matches, ex_nonmatches, distance):
+def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
     """Nearest-neighbour classification of comparisons vectors.
 
     :type comparisons: {(`R`, `R`):[:class:`float`,...],...}
@@ -16,6 +16,10 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance):
     :param ex_nonmatches: List examples of non-matching similarity vectors.
     :type distance: function([:class:`float`,...],[:class:`float`,...]) :class:`float`
     :param distance: calculates distance between similarity vectors.
+    :type rule: function([:class:`float`,...]) -> :class:`bool` or :keyword:`None`
+    :param rule: optional rule-based override that returns a boolean for\
+    simvectors that definitely match/non-match, and :keyword:`None`\
+    to fall back to nearest neighbour algorithm.
     :rtype: {(`R`, `R`)::class:`float`}, {(`R`, `R`)::class:`float`}
     :return: classifier scores for match pairs and non-match pairs
     
@@ -24,12 +28,13 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance):
     >>> matches, nomatches = classify(
     ... comparisons= {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
     ... ex_matches = [[1.0]],
-    ... ex_nonmatches = [[0.3]],
-    ... distance = L2)
+    ... ex_nonmatches = [[0.4]], # means we match if sim[0] > 0.7 = (1.0+0.4)/2 
+    ... distance = L2,
+    ... rule = lambda s: True if s[0]==0.5 else None) # override non-match at 0.5
     >>> sorted(matches.keys())
-    [(2, 3), (3, 4)]
+    [(1, 2), (2, 3), (3, 4)]
     >>> sorted(nomatches.keys())
-    [(1, 2), (4, 5)]
+    [(4, 5)]
     
     >>> ## Test 2D vectors with some null components
     >>> matches, nomatches = classify(
@@ -47,15 +52,23 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance):
                  len(ex_matches), len(ex_nonmatches))
     matches, nonmatches = {}, {}
     for pair, comparison in comparisons.iteritems():
-        match_dist = min(distance(comparison, example) for example in ex_matches)
-        nonmatch_dist = min(distance(comparison, example) for example in ex_nonmatches)
-        # Calculate a smoothed score as the log of the ratio of distances
-        # of the similarity vector to the nearest match and non-match.
-        score = math.log10((nonmatch_dist+0.1) / (match_dist+0.1))
-        if match_dist < nonmatch_dist:
-            matches[pair] = score
+        judge = rule(comparison) if rule else None
+        if judge is None:
+            match_dist = min(distance(comparison, example) for example in ex_matches)
+            nonmatch_dist = min(distance(comparison, example) for example in ex_nonmatches)
+            # Calculate a smoothed score as the log of the ratio of distances
+            # of the similarity vector to the nearest match and non-match.
+            score = math.log10((nonmatch_dist+0.1) / (match_dist+0.1))
+            if match_dist < nonmatch_dist:
+                matches[pair] = score
+            else:
+                nonmatches[pair] = score
+        elif judge is True:
+            matches[pair] = 1.0
+        elif judge is False:
+            nonmatches[pair] = 0.0
         else:
-            nonmatches[pair] = score
+            raise ValueError("rule returned %s (should be True/False/None)" % str(judge))
     logging.info("Nearest neighbour: %d matches and %d non-matches",
                  len(matches), len(nonmatches))
     return matches, nonmatches
