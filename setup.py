@@ -1,21 +1,59 @@
 #!/usr/bin/python
+"""Library for record linkage: identifying pairs of similar records.
+
+From `Wikipedia <http://en.wikipedia.org/wiki/Record_linkage>`::
+
+  Record linkage (RL) refers to the task of finding entries that refer to the
+  same entity in two or more files. Record linkage is an appropriate technique
+  when you have to join data sets that do not have a unique database key in
+  common. A data set that has undergone record linkage is said to be linked.
+"""
 
 try:
     from setuptools import setup
 except ImportError:
-    import ez_setup
-    ez_setup.use_setuptools()
-    from setuptools import setup
+    try:
+        from distribute_setup import use_setuptools
+        use_setuptools()
+        from setuptools import setup
+    except ImportError:
+        from distutils.core import setup
+
+extra = {}
+import sys
+if sys.version_info >= (3,):
+    extra['use_2to3'] = True
+    extra['convert_2to3_doctests'] = ['doc/tutorial.rst']
+
+extra['classifiers'] = [c.strip() for c in """
+Development Status :: 4 - Beta
+Intended Audience :: Developers
+Intended Audience :: Information Technology
+License :: OSI Approved :: GNU General Public License (GPL)
+Topic :: Text Processing :: Linguistic
+Topic :: Scientific/Engineering :: Information Analysis
+Topic :: Scientific/Engineering :: Artificial Intelligence
+Environment :: Console
+Operating System :: OS Independent
+Programming Language :: Python :: 2
+Programming Language :: Python :: 2.6
+""".split('\n') if c.strip()]
+
+doclines = __doc__.split("\n")
+extra['description'] = doclines[0]
+extra['long_description'] = "\n".join(doclines[2:])
 
 setup(
-    name='dedupe',
-    version='1.0',
-    description='Identifies similar pairs and groups of records.',
-    author='Graham Poulter',
-    author_email='http://www.grahampoulter.com',
-    url='http://launchpad.net/pydedupe',
-    packages=['dedupe'],
-    zip_safe=True,
-    license='GPL',
-    platforms='any',
+    name = 'pydedupe',
+    version = '1.0',
+    packages = ['dedupe'],
+    author ='Graham Poulter',
+    maintainer = 'Graham Poulter',
+    license = 'http://www.fsf.org/licensing/licenses/gpl.html',
+    url = 'http://launchpad.net/pydedupe',
+    download_url = 'http://pypi.python.org/pypi/pydedupe',
+    keywords = 'record linkage, deduplication, entity resolution',
+    zip_safe = True,
+    platforms = 'any',
+    **extra
 )
