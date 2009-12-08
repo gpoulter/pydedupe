@@ -19,6 +19,21 @@ from __future__ import with_statement
 import csv
 from compat import namedtuple
 
+def fake_open(module):
+    """Patch module's `open` builtin so that it returns StringIOs instead of
+    creating real files, which is useful for testing. Returns a dict that maps
+    opened file names to StringIO objects."""
+    from contextlib import closing
+    from StringIO import StringIO
+    streams = {}
+    def fakeopen(filename,mode):
+        stream = StringIO()
+        stream.close = lambda: None
+        streams[filename] = stream
+        return closing(stream)
+    module.open = fakeopen
+    return streams
+
 class reader:
     """An Excel CSV reader (for CP1252 encoding by default) that parses a
     file-like iteration of byte-strings and yields namedtuples where the
