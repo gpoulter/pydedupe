@@ -14,11 +14,12 @@
 def distance(a,b):
     """Calculates the Levenshtein distance between a and b.
     
-    >>> distance("abcd","ab")
+    >>> from dedupe.sim import levenshtein
+    >>> levenshtein.distance("abcd","ab")
     2
-    >>> distance("abcd","abdc")
+    >>> levenshtein.distance("abcd","abdc")
     2
-    >>> distance("dbca","abcd")
+    >>> levenshtein.distance("dbca","abcd")
     2
     """
     n, m = len(a), len(b)
@@ -59,15 +60,16 @@ def compare(maxdiff, s1, s2, missing=None):
     :rtype: :class:`float`
     :return: similarity between 0.0 and 1.0.
     
-    >>> compare(1.0, "abcd","abcd")
+    >>> from dedupe.sim import levenshtein
+    >>> levenshtein.compare(1.0, "abcd","abcd")
     1.0
-    >>> compare(1.0, "abcd","abdc")
+    >>> levenshtein.compare(1.0, "abcd","abdc")
     0.5
-    >>> compare(1.0, "abcd","") is None
+    >>> levenshtein.compare(1.0, "abcd","") is None
     True
-    >>> compare(0.5, "abcd","abdc")
+    >>> levenshtein.compare(0.5, "abcd","abdc")
     0.0
-    >>> compare(0.5, "abcd","badc")
+    >>> levenshtein.compare(0.5, "abcd","badc")
     0.0
     """
     return _compare(maxdiff, s1, s2, missing, distance)

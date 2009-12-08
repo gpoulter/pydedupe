@@ -21,11 +21,12 @@ def getvalue(record, field):
     :return: Value of `field` on `record`
     
     >>> from collections import namedtuple
-    >>> getvalue(namedtuple('Record','A B')(1,2), 'A')
+    >>> from dedupe import sim
+    >>> sim.getvalue(namedtuple('Record','A B')(1,2), 'A')
     1
-    >>> getvalue(['a','b'], 0)
+    >>> sim.getvalue(['a','b'], 0)
     'a'
-    >>> getvalue({'A':'B'}, lambda r: r['A'])
+    >>> sim.getvalue({'A':'B'}, lambda r: r['A'])
     'B'
     """
     if isinstance(field, str):
@@ -48,7 +49,8 @@ def multivalue(sep, *fields):
     :rtype: [`V`, ...]
     :return: The virtual-field values
 
-    >>> multivalue(";", 0, 1)(['1;2;3','4;5'])
+    >>> from dedupe import sim
+    >>> sim.multivalue(";", 0, 1)(['1;2;3','4;5'])
     ['1', '2', '3', '4', '5']
     """
     def field_splitter(record):
@@ -71,7 +73,8 @@ def combine(*fields):
     :rtype: [`V`, ...]
     :return: The virtual-field values
     
-    >>> combine(0, 2, 3)(['A','B','C','D','E'])
+    >>> from dedupe import sim
+    >>> sim.combine(0, 2, 3)(['A','B','C','D','E'])
     ['A', 'C', 'D']
     """
     return multivalue(None, *fields)    
@@ -93,6 +96,7 @@ class ValueSim(object):
     :rtype: callable(`R1`,`R2`) :class:`float`
     :return: Computes similarity of records `R1` and `R2` on the defined field.
 
+    >>> from dedupe.sim import ValueSim
     >>> # define some 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
     >>> ValueSim(similarity, 1, float)(('A',1),('B',1))
@@ -141,6 +145,7 @@ class ValueSimAvg(ValueSim):
     >>> # define an exponential 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
     >>> field = lambda r: set([r[0],r[2]])
+    >>> from dedupe.sim import ValueSimAvg
     >>> ValueSimAvg(similarity, field, float)((1,'A','1'),(-2,'B',2))
     0.5
     >>> field = lambda r: set(r[1].split(';'))
@@ -192,6 +197,7 @@ class ValueSimMax(ValueSim):
     >>> # define an exponential 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
     >>> field = lambda r: set([r[0],r[2]])
+    >>> from dedupe.sim import ValueSimMax
     >>> ValueSimMax(similarity, field, float)((0,'A','1'),(2,'B',2))
     0.5
     >>> field = lambda r: set(r[1].split(';'))
@@ -230,6 +236,7 @@ class RecordSim(OrderedDict):
 
     >>> # define a 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
+    >>> from dedupe.sim import ValueSim, RecordSim
     >>> vcomp1 = ValueSim(similarity, 1, float) # field 1 from record
     >>> vcomp2 = ValueSim(similarity, 2, float) # field 2 from field
     >>> rcomp = RecordSim(("V1",vcomp1),("V2",vcomp2))

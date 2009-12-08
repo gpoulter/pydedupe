@@ -47,11 +47,12 @@ def distance(seq1, seq2):
     :param seq1, seq2: sequences to compare
     :type seq1, seq2: any sequence type
 
-    >>> distance("abcd","ab")
+    >>> from dedupe.sim import dale
+    >>> dale.distance("abcd","ab")
     2
-    >>> distance("abcd","abdc")
+    >>> dale.distance("abcd","abdc")
     1
-    >>> distance("dbca","abcd")
+    >>> dale.distance("dbca","abcd")
     2
     """
     # codesnippet:D0DE4716-B6E6-4161-9219-2903BF8F547F
@@ -86,17 +87,18 @@ def compare(maxdiff, s1, s2, missing=None):
     :rtype: :class:`float`
     :return: similarity between 0.0 and 1.0.
     
-    >>> compare(1.0, "abcd","abcd")
+    >>> from dedupe.sim import dale
+    >>> dale.compare(1.0, "abcd","abcd")
     1.0
-    >>> compare(1.0, "abcd","abdc")
+    >>> dale.compare(1.0, "abcd","abdc")
     0.75
-    >>> compare(1.0, "abcd","") is None
+    >>> dale.compare(1.0, "abcd","") is None
     True
-    >>> compare(0.5, "abcd","badc")
+    >>> dale.compare(0.5, "abcd","badc")
     0.0
-    >>> compare(1.0, "abcdef","abcd")
+    >>> dale.compare(1.0, "abcdef","abcd")
     0.66666666666666674
-    >>> compare(0.5, "abcdef","abcd")
+    >>> dale.compare(0.5, "abcdef","abcd")
     0.33333333333333337
     """
     from levenshtein import _compare

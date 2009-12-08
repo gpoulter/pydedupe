@@ -3,6 +3,9 @@
 =================================================================
 
 .. moduleauthor:: Graham Poulter
+
+>>> from dedupe.enc import *   
+
 """
 
 import re

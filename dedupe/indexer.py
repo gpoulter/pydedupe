@@ -30,6 +30,7 @@ class Index(dict):
     >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
     >>> compare(('A','5.5'),('B','4.5'))
     0.5
+    >>> from dedupe.indexer import Index
     >>> a = Index(makekey, [('A',5.5),('B',4.5),('C',5.0)])
     >>> a.count_comparisons()
     1
@@ -152,6 +153,7 @@ class Indices(OrderedDict):
     >>> makekey = lambda r: [int(r[1])]
     >>> makekey(('A',3.5))
     [3]
+    >>> from dedupe.indexer import Indices, Index
     >>> a = Indices(("IntValue",Index(makekey,[('A',5.5),('B',4.5),('C',5.25)])))
     >>> a
     OrderedDict([('IntValue', {4: [('B', 4.5)], 5: [('A', 5.5), ('C', 5.25)]})])

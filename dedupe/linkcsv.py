@@ -7,6 +7,15 @@
 
 import excel
 
+def _magic_open(module):
+    """Patch the module's `open` built-in to return a StringIO singleton."""
+    from StringIO import StringIO
+    from contextlib import closing
+    io = StringIO() # the 'file'
+    io.close = lambda: None # disable closing
+    module.open = lambda f,m: closing(io)
+    return io
+    
 def write_indices(indices, outdir, prefix):
     """Write indices in CSV format.
 
@@ -17,27 +26,16 @@ def write_indices(indices, outdir, prefix):
     :type prefix: :class:`str`
     :param prefix: prepend this to each output file name.
     
-    .. testsetup::
-    
-       >>> from StringIO import StringIO
-       >>> from contextlib import closing
-       >>> io = StringIO() # the 'file'
-       >>> io.close = lambda: None # disable closing
-       >>> import linkcsv # patch module
-       >>> linkcsv.open = lambda f,m: closing(io)
-       >>> def magic(fields):
-       ...    io.seek(0)
-       ...    return list(excel.reader(io, fields=fields))
-       
-    .. doctest::
-    
-       >>> from .indexer import Indices,Index
-       >>> makekey = lambda r: [int(r[1])]
-       >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
-       >>> indices = Indices(("Idx",Index(makekey, [('A',5.5),('C',5.25)])))
-       >>> write_indices(indices, outdir="/tmp", prefix="foo")
-       >>> magic('Idx V1 V2') # magically read fake '/tmp/foo-Idx.csv'
-       [Row(Idx=u'5', V1=u'A', V2=u'5.5'), Row(Idx=u'5', V1=u'C', V2=u'5.25')]
+    >>> from dedupe import linkcsv, excel
+    >>> io = linkcsv._magic_open(linkcsv)
+    >>> from .indexer import Indices,Index
+    >>> makekey = lambda r: [int(r[1])]
+    >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
+    >>> indices = Indices(("Idx",Index(makekey, [('A',5.5),('C',5.25)])))
+    >>> linkcsv.write_indices(indices, outdir="/tmp", prefix="foo")
+    >>> io.seek(0)
+    >>> list(excel.reader(io, fields='Idx V1 V2'))
+    [Row(Idx=u'5', V1=u'A', V2=u'5.5'), Row(Idx=u'5', V1=u'C', V2=u'5.25')]
     """
     def write_index(index, stream):
         """Write a single index in CSV format to a stream"""

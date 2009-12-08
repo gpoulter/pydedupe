@@ -16,8 +16,9 @@ def field(latfield, lonfield, record):
     
     >>> from functools import partial
     >>> from collections import namedtuple
+    >>> from dedupe.sim import geo
     >>> Record = namedtuple("Record", ("FullName","Lon","Lat","Phone"))
-    >>> getter = partial(field, "Lat", "Lon")
+    >>> getter = partial(geo.field, "Lat", "Lon")
     >>> getter(Record("Joe Bloggs", "10.0", "20.0", "555 1234"))
     (20.0, 10.0)
     """
@@ -38,17 +39,18 @@ def valid(coords):
     :return: :keyword:`True` only if coords is a tuple pair of floats\
        in -90.0 to 90.0 on the latitude and -180.0 to 180.0 on the longitude.
     
-    >>> valid((0.0,0))
+    >>> from dedupe.sim import geo
+    >>> geo.valid((0.0,0))
     False
-    >>> valid((0.0,0.0))
+    >>> geo.valid((0.0,0.0))
     True
-    >>> valid((0.0,90.0))
+    >>> geo.valid((0.0,90.0))
     True
-    >>> valid((91.0,0.0))
+    >>> geo.valid((91.0,0.0))
     False
-    >>> valid(None)
+    >>> geo.valid(None)
     False
-    >>> valid((-1.0,-1.0))
+    >>> geo.valid((-1.0,-1.0))
     True
     """
     if not (isinstance(coords,tuple) and len(coords) == 2):
@@ -71,10 +73,11 @@ def distance(loc1, loc2):
     :rtype: :class:`float`
     :return: Kilometer distance between locations.
 
-    >>> km_per_degree = 111.21
-    >>> distance((0.0,0.0),(1.0,0.0))
+    >>> from dedupe.sim import geo
+    >>> # there are 111.21 kilometers per degree at the equator
+    >>> geo.distance((0.0,0.0),(1.0,0.0))
     111.21237993706758
-    >>> distance((0.0,0.0),(0.0,1.0))
+    >>> geo.distance((0.0,0.0),(0.0,1.0))
     111.21237993706758
     """
     import math
@@ -107,9 +110,10 @@ def compare(max_distance, point1, point2):
     
     >>> ## maximum distance is 1.5 degrees, so 1 degree = 1/3 similarity
     >>> from functools import partial
+    >>> from dedupe.sim import geo
     >>> km_per_deg = 111.21237993706758
-    >>> geocompare = partial(compare, km_per_deg*1.5)
-    >>> geocompare((0.0,0.0), (1.0,0.0))
+    >>> compare = partial(geo.compare, km_per_deg*1.5)
+    >>> compare((0.0,0.0), (1.0,0.0))
     0.33333333333333337
     """
     if not (valid(point1) and valid(point2)):

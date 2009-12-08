@@ -27,9 +27,10 @@ class reader:
     :ivar Row: class of the returned rows
     :type Row: namedtuple 
     
+    >>> from dedupe import excel
     >>> from StringIO import StringIO
     >>> infile = StringIO("\\n".join(["A,B","a,b\xc3\xa9","c,d"]))
-    >>> reader = reader(infile, encoding='utf-8')
+    >>> reader = excel.reader(infile, encoding='utf-8')
     >>> reader.next()
     Row(A=u'a', B=u'b\\xe9')
     """
@@ -64,9 +65,10 @@ class writer:
     them before writing encoded to the output stream. Do not specify encodings
     that use nulls (such as utf-16).
     
+    >>> from dedupe import excel
     >>> from StringIO import StringIO
     >>> out = StringIO()
-    >>> writer = writer(out, encoding='utf-8')
+    >>> writer = excel.writer(out, encoding='utf-8')
     >>> writer.writerow([u"a",u"b\\xe9"]) # unicode é
     >>> out.getvalue() # utf-8 é
     'a,b\\xc3\\xa9\\r\\n'

@@ -53,6 +53,7 @@ setup(
     url = 'http://launchpad.net/pydedupe',
     download_url = 'http://pypi.python.org/pypi/pydedupe',
     keywords = 'record linkage, deduplication, entity resolution',
+    test_suite = 'tests',
     zip_safe = True,
     platforms = 'any',
     **extra

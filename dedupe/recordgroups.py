@@ -7,6 +7,7 @@ are written out as sets of mutually matching records, assuming transitive
 property on matching: A matches B and B matches C implies A matches C.
 
 .. moduleauthor::: Graham Poulter
+
 """
 
 import optparse, os, sys
@@ -25,8 +26,9 @@ def adjacency_list(nodepairs):
     :rtype: {T:[T,...], ...}
     :return: nodes adjacent to each node in the graph.
     
+    >>> from dedupe import recordgroups
     >>> edges = [ (1,2), (2,3), (4,5), (1,5) ]
-    >>> dict(adjacency_list(edges))
+    >>> dict(recordgroups.adjacency_list(edges))
     {1: [2, 5], 2: [1, 3], 3: [2], 4: [5], 5: [4, 1]}
     """
     neighbours = defaultdict(list)
@@ -43,8 +45,9 @@ def components(adjlist):
     :rtype: [[T,...],...]
     :return: connected components as lists of nodes.
     
+    >>> from dedupe import recordgroups
     >>> edges = [ (1,2), (2,3), (4,5), (5,6) ]
-    >>> components(adjacency_list(edges))
+    >>> recordgroups.components(recordgroups.adjacency_list(edges))
     [[1, 2, 3], [4, 5, 6]]
     """
     groups = [] # List of lists describing groups
@@ -76,7 +79,8 @@ def singles_and_groups(matches, allrecords):
     :rtype: [T,...],[[T,...],...]
     :return: single records (match nothing) and groups (of matching records)
     
-    >>> singles_and_groups([(1,2),(2,3),(4,5)],[1,2,3,4,5,6,7])
+    >>> from dedupe import recordgroups
+    >>> recordgroups.singles_and_groups([(1,2),(2,3),(4,5)],[1,2,3,4,5,6,7])
     ([6, 7], [[1, 2, 3], [4, 5]])
     """
     adjlist = adjacency_list(matches) # Map from record to neighbours

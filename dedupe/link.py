@@ -15,8 +15,9 @@ def within_allpair(compare, records):
     :rtype: {(`R`, `R`):[:class:`float`,...],...}
     :return: similarity vectors for ordered pairs of compared records.
     
+    >>> from dedupe import link
     >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
-    >>> within_allpair(compare, [('A','1'),('B','2'),('C','3')])
+    >>> link.within_allpair(compare, [('A','1'),('B','2'),('C','3')])
     {(('A', '1'), ('C', '3')): 0.25, (('B', '2'), ('C', '3')): 0.5, (('A', '1'), ('B', '2')): 0.5}
     """
     comparisons = {}
@@ -38,8 +39,9 @@ def between_allpair(compare, records1, records2):
     :rtype: {(`R`, `R`):[:class:`float`,...],...}
     :return: similarity vectors for corresponding pairs of compared records.
 
+    >>> from dedupe import link
     >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
-    >>> between_allpair(compare, [('A','1')], [('B','2'),('C','3')])
+    >>> link.between_allpair(compare, [('A','1')], [('B','2'),('C','3')])
     {(('A', '1'), ('C', '3')): 0.25, (('A', '1'), ('B', '2')): 0.5}
     """
     comparisons = {}
@@ -132,7 +134,7 @@ import logging
 def _stat_index(index, name):
     """Log block statistics for `index`, prefixing lines with `name`.
     
-    >>> from indexer import Index
+    >>> from dedupe.indexer import Index
     >>> makekey = lambda r: [int(r[1])]
     >>> idx = Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
     >>> def log(s,*a):

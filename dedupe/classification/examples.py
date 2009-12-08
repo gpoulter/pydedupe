@@ -5,6 +5,19 @@
 .. moduleauthor:: Graham Poulter
 """
 
+def _magic_open(module):
+    """Patch module's `open` builtin to return StringIOs, added to streams dict."""
+    streams = {}
+    def fakeopen(filename,mode):
+        from contextlib import closing
+        from StringIO import StringIO
+        stream = StringIO()
+        stream.close = lambda: None
+        streams[filename] = stream
+        return closing(stream)
+    module.open = fakeopen
+    return streams
+
 def load(comparator, records, outdir=None):
     """Use example records to create match and non-match similarity vectors 
     for training a classifier.
@@ -27,40 +40,24 @@ def load(comparator, records, outdir=None):
     :rtype: {[:class:`float`,...],...},{[:class:`float`,...],...}
     :return: similarity vectors of the true comparisons and false comparisons.
 
-    .. testsetup::
-    
-       >>> iostreams = {}
-       >>> def fakeopen(f,m):
-       ...   from contextlib import closing
-       ...   from StringIO import StringIO
-       ...   stream = StringIO()
-       ...   stream.close = lambda: None
-       ...   iostreams[f] = stream
-       ...   return closing(stream)
-       >>> import examples
-       >>> examples.open = fakeopen
-       >>> from ..compat import namedtuple
-       >>> from ..sim import ValueSim, RecordSim
-       >>> def printstreams():
-       ...    for k,s in iostreams.items():
-       ...       print k, '\\n', s.getvalue()
-       
-    .. doctest::
-    
-       >>> R = namedtuple('Record', 'Match ID Name Age')
-       >>> records = [
-       ...  R('TRUE','1','Joe1',8), R('TRUE','1','Joe2',7), R('TRUE','1','Joe3',3),
-       ...  R('TRUE','2','Abe1',3), R('TRUE','2','Abe2',5),
-       ...  R('FALSE','3','Zip1',9), R('FALSE','3','Zip2',1),
-       ...  R('FALSE','4','Nobody',1)]
-       >>> compare = RecordSim(("V",ValueSim(
-       ...  lambda x,y: 2**-abs(x-y), lambda r:r[3], float)))
-       >>> t, f = load(compare, records, '/tmp')
-       >>> sorted(t)
-       [W(V=0.03125), W(V=0.0625), W(V=0.25), W(V=0.5)]
-       >>> sorted(f)
-       [W(V=0.00390625)]
-       >>> #see /tmp/examples_false.csv  and /tmp/examples_true.csv 
+    >>> from dedupe.classification import examples
+    >>> streams = examples._magic_open(examples)
+    >>> from ..compat import namedtuple
+    >>> from ..sim import ValueSim, RecordSim
+    >>> R = namedtuple('Record', 'Match ID Name Age')
+    >>> records = [
+    ...  R('TRUE','1','Joe1',8), R('TRUE','1','Joe2',7), R('TRUE','1','Joe3',3),
+    ...  R('TRUE','2','Abe1',3), R('TRUE','2','Abe2',5),
+    ...  R('FALSE','3','Zip1',9), R('FALSE','3','Zip2',1),
+    ...  R('FALSE','4','Nobody',1)]
+    >>> compare = RecordSim(("V",ValueSim(
+    ...  lambda x,y: 2**-abs(x-y), lambda r:r[3], float)))
+    >>> t, f = examples.load(compare, records, '/tmp')
+    >>> sorted(t)
+    [W(V=0.03125), W(V=0.0625), W(V=0.25), W(V=0.5)]
+    >>> sorted(f)
+    [W(V=0.00390625)]
+    >>> #see /tmp/examples_false.csv  and /tmp/examples_true.csv 
     """
     from ..indexer import Index, Indices
     t_rows = [r for r in records if r[0] in ['TRUE','T','YES','Y','1',1,True] ]

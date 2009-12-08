@@ -24,6 +24,8 @@ def L2(vec1, vec2):
     :rtype: :class:`float`
     :return: Euclidian (pythagorean) distance between `vec1` and `vec2`
     
+    >>> from dedupe.classification.distance import L2, normL2
+    >>> import math
     >>> L2([2,None],[5,None])
     3.0
     >>> L2([2,None],[5,1])

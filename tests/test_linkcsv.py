@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, unittest
+import logging, sys, unittest
 from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
 

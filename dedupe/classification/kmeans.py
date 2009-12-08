@@ -28,8 +28,9 @@ def classify(comparisons, distance, maxiter=10):
     :return: classifier scores for match pairs and non-match pairs
     
     >>> ## simple test of clustering 1D vectors
-    >>> from distance import L2
-    >>> matches, nomatches = classify(
+    >>> from dedupe.classification.distance import L2
+    >>> from dedupe.classification import kmeans
+    >>> matches, nomatches = kmeans.classify(
     ...   comparisons = {(1,2):[0.5], (2,3):[0.8], (3,4):[0.9], (4,5):[0.0]},
     ...   distance = L2)
     >>> sorted(matches.keys())
@@ -38,7 +39,7 @@ def classify(comparisons, distance, maxiter=10):
     [(4, 5)]
 
     >>> ## cluster 2D vectors with some nulled components
-    >>> matches, nomatches = classify(
+    >>> matches, nomatches = kmeans.classify(
     ...  comparisons= {(1,2):[0.5,None], (2,3):[0.8,0.7], (3,4):[0.9,0.5], (4,5):[0.0,0.5]},
     ...  distance = L2)
     >>> sorted(matches.keys())
