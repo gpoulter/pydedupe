@@ -122,7 +122,7 @@ def loadcsv(path):
         return list(excel.reader(istream))
     
     
-class LinkCSV:
+class LinkCSV(object):
     """Link the input records, either to themselves or to the master records
     if provided. 
     

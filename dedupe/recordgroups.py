@@ -10,7 +10,6 @@ property on matching: A matches B and B matches C implies A matches C.
 
 """
 
-import optparse, os, sys
 from itertools import chain
 from collections import defaultdict
 
