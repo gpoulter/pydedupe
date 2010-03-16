@@ -112,7 +112,7 @@ class ValueSim(object):
         self.field1 = field1
         self.encode1 = encode1 if encode1 else lambda x:x
         self.field2 = field2 or field1
-        self.encode2 = encode2 or encode1
+        self.encode2 = encode2 if encode2 else self.encode1
 
     def __call__(self, record1, record2):
         """Compare the two records on the defined fields."""
