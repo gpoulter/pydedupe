@@ -46,7 +46,7 @@ extra['long_description'] = "\n".join(doclines[2:])
 setup(
     name = 'pydedupe',
     version = '1.0',
-    packages = ['dedupe'],
+    packages = ['dedupe', 'dedupe.compat', 'dedupe.sim', 'dedupe.febrl', 'dedupe.enc', 'dedupe.classification' ],
     author ='Graham Poulter',
     maintainer = 'Graham Poulter',
     license = 'http://www.fsf.org/licensing/licenses/gpl.html',
