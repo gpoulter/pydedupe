@@ -1,6 +1,6 @@
 """
 :mod:`indexer` -- Inverted index of records
-===================================================
+===========================================
 
 An inverted index lists records sharing an index key. By only comparing
 pairs of records that share index keys the total number of comparisons
@@ -11,7 +11,7 @@ can be vastly reduced over the case of comparing all pairs of records.
 
 from __future__ import with_statement
 
-from compat import OrderedDict
+from compat import OrderedDict as _OrderedDict
 import logging
 import excel
 
@@ -144,11 +144,11 @@ class Index(dict):
         return comparisons
 
 
-class Indices(OrderedDict):
+class Indices(_OrderedDict):
     """Represents a sever Index instances as an ordered dictionary.
 
-    :type \*indices: (:class:`str`, :class:`Index`), ...
-    :param \*indices: Named indices in which to insert records.
+    :type indices: (:class:`str`, :class:`Index`), ...
+    :param indices: Named indices in which to insert records.
     
     >>> makekey = lambda r: [int(r[1])]
     >>> makekey(('A',3.5))
@@ -162,7 +162,7 @@ class Indices(OrderedDict):
     """
 
     def __init__(self, *indices):
-        OrderedDict.__init__(self)
+        _OrderedDict.__init__(self)
         for key, value in indices:
             self[key] = value
             

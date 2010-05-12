@@ -1,6 +1,6 @@
 """
-:mod:`link` -- Record linkage routines
-========================================
+:mod:`compare` -- Compare sets of records
+=========================================
  
 .. moduleauthor:: Graham Poulter
 """
@@ -15,9 +15,9 @@ def within_allpair(compare, records):
     :rtype: {(`R`, `R`):[:class:`float`,...],...}
     :return: similarity vectors for ordered pairs of compared records.
     
-    >>> from dedupe import link
-    >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
-    >>> link.within_allpair(compare, [('A','1'),('B','2'),('C','3')])
+    >>> from dedupe import compare
+    >>> numcomp = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
+    >>> compare.within_allpair(numcomp, [('A','1'),('B','2'),('C','3')])
     {(('A', '1'), ('C', '3')): 0.25, (('B', '2'), ('C', '3')): 0.5, (('A', '1'), ('B', '2')): 0.5}
     """
     comparisons = {}
@@ -39,9 +39,9 @@ def between_allpair(compare, records1, records2):
     :rtype: {(`R`, `R`):[:class:`float`,...],...}
     :return: similarity vectors for corresponding pairs of compared records.
 
-    >>> from dedupe import link
-    >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
-    >>> link.between_allpair(compare, [('A','1')], [('B','2'),('C','3')])
+    >>> from dedupe import compare
+    >>> numcomp = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
+    >>> compare.between_allpair(numcomp, [('A','1')], [('B','2'),('C','3')])
     {(('A', '1'), ('C', '3')): 0.25, (('A', '1'), ('B', '2')): 0.5}
     """
     comparisons = {}

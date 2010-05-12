@@ -1,15 +1,12 @@
 """
-:mod:`enc` -- Encodings and transformations of field values
-=================================================================
+:mod:`enc` -- Transform and encode field values.
+================================================
 
 .. moduleauthor:: Graham Poulter
-
->>> from dedupe.enc import *   
 
 """
 
 import re
-from functools import partial
 
 def normspace(text):
     """Strip multiple and trailing spaces.

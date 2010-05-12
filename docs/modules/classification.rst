@@ -1,6 +1,9 @@
-====================================================
- :mod:`classification` -- Classification of vectors
-====================================================
+===========================================================
+ :mod:`dedupe.classification` -- Classification of vectors
+===========================================================
+
+.. module:: classification
+   :synopsis: Classify pairs of compared records as match/nonmatch.
 
 .. automodule:: classification.distance
    :synopsis: Functions to calculate distance between two similarity vectors.

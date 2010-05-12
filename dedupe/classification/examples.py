@@ -36,11 +36,11 @@ def load(comparator, records, outdir=None):
     ...  R('FALSE','3','Zip1',9), R('FALSE','3','Zip2',1),
     ...  R('FALSE','4','Nobody',1)]
     >>> from ..sim import ValueSim, RecordSim
-    >>> compare = RecordSim(("V",ValueSim(
+    >>> comparator = RecordSim(("V",ValueSim(
     ...  lambda x,y: 2**-abs(x-y), lambda r:r[3], float)))
-    >>> from ..excel import fake_open
-    >>> streams = fake_open(examples) # redirect open to StringIO
-    >>> t, f = examples.load(compare, records, '/tmp')
+    >>> from ..excel import _fake_open
+    >>> streams = _fake_open(examples) # redirect open to StringIO
+    >>> t, f = examples.load(comparator, records, '/tmp')
     >>> sorted(t)
     [W(V=0.03125), W(V=0.0625), W(V=0.25), W(V=0.5)]
     >>> sorted(f)

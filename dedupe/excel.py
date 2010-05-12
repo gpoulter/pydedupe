@@ -17,9 +17,8 @@ with no heading, a 'fields' parameter is used to construct the namedtuple.
 from __future__ import with_statement
 
 import csv
-from compat import namedtuple
 
-def fake_open(module):
+def _fake_open(module):
     """Patch module's `open` builtin so that it returns StringIOs instead of
     creating real files, which is useful for testing. Returns a dict that maps
     opened file names to StringIO objects."""
@@ -62,7 +61,12 @@ class reader:
             iterable = open(iterable) 
         self.encoding = encoding
         self.reader = csv.reader(iterable, dialect)
-        self.Row = namedtuple(typename, fields if fields else self.reader.next())
+        header = fields if fields else self.reader.next()
+        for field in header:
+            if len(field) == 0:
+                raise ValueError("Empty field name")
+        from compat import namedtuple
+        self.Row = namedtuple(typename, header)
         
     def __iter__(self):
         return self
@@ -76,7 +80,9 @@ class reader:
 
 
 class writer:
-    """An Excel CSV writer which accepts rows of unicode strings and encodes
+    """Excel CSV writer.
+    
+    Accepts rows of unicode strings and encodes
     them before writing encoded to the output stream. Do not specify encodings
     that use nulls (such as utf-16).
     

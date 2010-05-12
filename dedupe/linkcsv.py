@@ -1,11 +1,11 @@
 """
-:mod:`linkcsv` -- Record linkage using CSV outputs
-==================================================
+:mod:`linkcsv` -- Link CSV files, with CSV output
+=================================================
 
 .. moduleauthor:: Graham Poulter
 """
 
-import excel
+import excel, compare
 
 def write_indices(indices, outdir, prefix):
     """Write indices in CSV format.
@@ -22,7 +22,7 @@ def write_indices(indices, outdir, prefix):
     >>> makekey = lambda r: [int(r[1])]
     >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
     >>> indices = Indices(("Idx",Index(makekey, [('A',5.5),('C',5.25)])))
-    >>> streams = excel.fake_open(linkcsv)
+    >>> streams = excel._fake_open(linkcsv)
     >>> linkcsv.write_indices(indices, outdir="/tmp", prefix="foo-")
     >>> stream = streams["/tmp/foo-Idx.csv"]
     >>> stream.seek(0)
@@ -145,6 +145,8 @@ class LinkCSV(object):
     :param odir: Directory in which to place output files and log files.
     :type master: [`R`,...]
     :param master: master records to which `records` should be linked.
+    :type samecolumns: `bool`
+    :param samecolumns: If True, it is an error for two input files to have different column orders.
     :type logname: :class:`str` or :keyword:`None`
     :param logname: Name of log file to write to in output directory.
     
@@ -153,7 +155,7 @@ class LinkCSV(object):
     """
     
     def __init__(self, odir, comparator, indices, classifier, records, 
-                 master=None, logname='linkage.log'):
+                 master=None, samecolumns=True, logname='linkage.log'):
         """
         :rtype: {(R,R):float}, {(R,R):float}
         :return: classifier scores for match pairs and non-match pairs
@@ -164,14 +166,19 @@ class LinkCSV(object):
         self.master = master if master else []
         self.records = records
         self.odir = odir
+        self.samecolumns = samecolumns
         if self.odir is not None and logname is not None:
             filelog(self.opath(logname))
-        import link
+        if self.samecolumns and self.master:
+            if self.fields != self.master_fields:
+                import logging
+                logging.error("Input and master have different fields!")
+                raise SystemExit
         if master:
-            self.comparisons, self.indices, self.master_indices = link.between(
+            self.comparisons, self.indices, self.master_indices = compare.between(
                 self.comparator, self.index_proto, self.records, self.master)
         else:
-            self.comparisons, self.indices = link.within(
+            self.comparisons, self.indices = compare.within(
                 self.comparator, self.index_proto, self.records)
             self.master_indices = None 
         self.matches, self.nonmatches = classifier(self.comparisons)

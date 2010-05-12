@@ -6,9 +6,10 @@
 """
 
 try:
-    from ..compat import namedtuple, OrderedDict
-except ValueError: # compat is top-level for Sphinx automod docs
-    from compat import namedtuple, OrderedDict
+    from compat import OrderedDict as _OrderedDict
+except:
+    from ..compat import OrderedDict as _OrderedDict
+
 
 def getvalue(record, field):
     """Retrieve value of a field from a record by any means.
@@ -219,7 +220,7 @@ class ValueSimMax(ValueSim):
                 best = max(best, comp)
         return best
     
-class RecordSim(OrderedDict):
+class RecordSim(_OrderedDict):
     """Returns a vector of field value similarities between two records.
 
     :type \*comparators: (:class:`str`, :class:`ValueSim`), ...
@@ -246,7 +247,8 @@ class RecordSim(OrderedDict):
     
     def __init__(self, *comparators):
         super(RecordSim, self).__init__(comparators)
-        self.Weights = namedtuple("W", self.keys())
+        import dedupe.compat as c
+        self.Weights = c.namedtuple("W", self.keys())
 
     def __call__(self, A, B):
         return self.Weights._make(

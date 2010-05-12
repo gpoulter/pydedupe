@@ -2,6 +2,8 @@
 :mod:`recordgroups` -- Find groups of mutually matching records
 ==================================================================
 
+Create a graph from pairwise matches and calculate the mutually matching groups of records.  
+
 The match pairs represent edges in a grapth. The components of the match graph
 are written out as sets of mutually matching records, assuming transitive
 property on matching: A matches B and B matches C implies A matches C.
@@ -9,9 +11,6 @@ property on matching: A matches B and B matches C implies A matches C.
 .. moduleauthor::: Graham Poulter
 
 """
-
-from itertools import chain
-from collections import defaultdict
 
 import excel
 
@@ -30,6 +29,7 @@ def adjacency_list(nodepairs):
     >>> dict(recordgroups.adjacency_list(edges))
     {1: [2, 5], 2: [1, 3], 3: [2], 4: [5], 5: [4, 1]}
     """
+    from collections import defaultdict
     neighbours = defaultdict(list)
     for node1, node2 in nodepairs:
         neighbours[node1].append(node2)
