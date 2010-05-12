@@ -194,7 +194,7 @@ class LinkCSV(object):
         try:
             return self.records[0]._fields
         except (IndexError, AttributeError) as e:
-            return None
+            return []
     
     @property
     def master_fields(self):
@@ -202,7 +202,7 @@ class LinkCSV(object):
         try:
             return self.master[0]._fields
         except (IndexError, AttributeError) as e:
-            return None
+            return []
     
     def write_all(self):
         """Call all of the other `write_*` methods, for full analysis.
@@ -260,6 +260,8 @@ class LinkCSV(object):
         """Write out all records, with numbered groups of mutually linked records first."""
         with open(self.opath(groups),'wb') as ofile:
             import recordgroups
+            projection = recordgroups.Projection.unionfields(
+                self.master_fields, self.fields)
             recordgroups.write_csv(
-                self.matches, self.records+self.master, ofile, self.fields)
+                self.matches, self.records+self.master, ofile, projection)
 

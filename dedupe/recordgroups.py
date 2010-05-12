@@ -87,7 +87,7 @@ def singles_and_groups(matches, allrecords):
     singles = [rec for rec in allrecords if rec not in adjlist]
     return singles, groups
 
-def write_csv(matches, records, ostream, fields=None):
+def write_csv(matches, records, ostream, projection):
     """Write out the records, with grouping 
 
     :type matches: [(T,T),...]
@@ -96,20 +96,63 @@ def write_csv(matches, records, ostream, fields=None):
     :param records: Iteration over records.
     :type ostream: binary writer
     :param ostream: where to write the CSV for the records
-    :type fields: [:class:`str`,...]
-    :param fields: List of CSV headings for the records.
+    :type projection: :class:`Projection`
+    :param projection: Projection from input fields onto output fields.
     :rtype: [T,...], [[T,...],...]
     :return: list of single rows (no matches) and groups (mutually matching)
     """
     singles, groups = singles_and_groups(matches, records)
-    w = excel.writer(ostream, dialect='excel') 
-    w.writerow(["GroupID"] + list(fields) if fields else [])
+    w = excel.writer(ostream, dialect='excel')
+    w.writerow(["GroupID"] + list(projection.Row._fields))
     # Write groups of similar records
     for groupid, group in enumerate(groups):
         for row in group:
-            w.writerow((str(groupid),) + row)
+            w.writerow((str(groupid),) + projection(row))
     # Write single records
     for row in singles:
-        w.writerow(("-",) + row)
+        w.writerow(("-",) + projection(row))
     return singles, groups
+
+class Projection:
+    """Convert input rows into a consistent output format (column ordering)
+    so rows from different schemas can be written to the same CSV
+    group file.
+    
+    :param fields: Ordered list of fields for all projected rows.
+
+    >>> import recordgroups
+    >>> from collections import namedtuple
+    >>> A = namedtuple('A', 'a b x y')
+    >>> B = namedtuple('B', 'a y c x z')
+    >>> a = A(1,2,3,4)
+    >>> b = B(1,2,3,4,5)
+    >>> P = recordgroups.Projection.unionfields(A._fields, B._fields)
+    >>> P(a)
+    Row(a=1, b=2, x=3, y=4, c='', z='')
+    >>> P(b)
+    Row(a=1, b='', x=4, y=2, c=3, z=5)
+    """
+
+    def __init__(self, fields):
+        from collections import namedtuple
+        self.fields = fields
+        self.Row = namedtuple('Row', fields)
+
+    @staticmethod
+    def unionfields(fields1, fields2):
+        """Takes two lists of fields and returns a projection onto
+        the list of fields given by fields1 plus any fields from field2 not
+        already found in fields1."""
+        outfields = list(fields1)
+        for field in fields2:
+            if field not in outfields:
+                outfields.append(field)
+        return Projection(outfields)
+
+    def __call__(self, row):
+        """Return a row with output columns, given an input row with any
+        columns.  Drops any input columns not listed in outfields."""
+        return self.Row._make(
+            getattr(row, field) if field in row._fields else "" 
+                for field in self.fields)
 
