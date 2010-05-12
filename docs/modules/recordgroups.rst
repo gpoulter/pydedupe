@@ -2,7 +2,8 @@
 :mod:`dedupe.recordgroups`
 ==========================
 
-.. automodule:: dedupe.recordgroups
+.. automodule:: recordgroups
+   :synopsis: Write groups of records to CSV
    :members:
    :show-inheritance:
 

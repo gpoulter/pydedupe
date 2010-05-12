@@ -1,27 +1,27 @@
-===========================================================
- :mod:`dedupe.classification` -- Classification of vectors
-===========================================================
+==============================
+ :mod:`dedupe.classification`
+==============================
 
 .. module:: classification
    :synopsis: Classify pairs of compared records as match/nonmatch.
 
 .. automodule:: classification.distance
-   :synopsis: Functions to calculate distance between two similarity vectors.
+   :synopsis: Distance between two vectors.
    :members:
 
 .. automodule:: classification.examples
-   :synopsis: Generate match and non-match similarity vectors for training classifiers.
+   :synopsis: Load match/non-match example vectors.
    :members:
 
 .. automodule:: classification.kmeans
-   :synopsis: Cluster match and non-match vectors using K=2 K-means.
+   :synopsis: K-Means (K=2) clustersing of match and non-match.
    :members:
 
 .. automodule:: classification.nearest
-   :synopsis: Classify match/non-match vectors by distance to nearest example.
+   :synopsis: Nearest-neighbour classification as match or non-match.
    :members:
 
 .. automodule:: classification.rulebased
-   :synopsis: Classify match/non-match vectors using rules.
+   :synopsis: Rule-based classification of match or non-match.
    :members:
 

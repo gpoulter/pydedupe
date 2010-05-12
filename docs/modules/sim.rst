@@ -1,19 +1,20 @@
-===========================================================
- :mod:`dedupe.sim` -- record, field and value similarities
-===========================================================
+===================
+ :mod:`dedupe.sim`
+===================
 
-.. automodule:: dedupe.sim
-   :synopsis: Calculate named-field similarities, and record similarity vector.
+.. automodule:: sim
+   :synopsis: Field and record similarity.
+   :members:
+   :show-inheritance:
+
+.. automodule:: sim.dale
+   :synopsis: Damerau-Levenshtein edit distance
    :members:
 
-.. automodule:: dedupe.sim.dale
-   :synopsis: Calculate Dameraus-Levenshtein string distance
+.. automodule:: sim.geo
+   :synopsis: Geographic similarity.
    :members:
 
-.. automodule:: dedupe.sim.geo
-   :synopsis: Calculate distance and similarity between geographic coordinates.
-   :members:
-
-.. automodule:: dedupe.sim.levenshtein
-   :synopsis: Calculate Levenshtein distance between two strings.
+.. automodule:: sim.levenshtein
+   :synopsis: Levenshtein edit distance.
    :members:
