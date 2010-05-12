@@ -41,7 +41,7 @@ def write_indices(indices, outdir, prefix):
             write_index(index, stream)
 
 def write_comparisons(ostream, comparator, comparisons, scores, indices1, 
-                      indices2=None, fields=None, origstream=None):
+                      indices2=None, projection=None, origstream=None):
     """Write pairs of compared records, together with index keys and 
     field comparison weights.  Inspection shows which index keys matched,
     and the field-by-field similarity.
@@ -58,8 +58,8 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
     :param indices1: index of records being linked
     :type indices2: :class:`~indexer.Indices`
     :param indices2: optional index of right-hand records for master-linkage.
-    :type fields: [:class:`str`,...]
-    :param fields: header fields for writing original records to CSV
+    :type projection: :class:`Projection`
+    :param projection: Converts each record into output form.
     :type origstream: binary writer
     :param origstream: where to write CSV for pairs of compared original records.
     """
@@ -73,7 +73,10 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
     record_writer = None
     if origstream is not None:
         record_writer = excel.writer(origstream)
-        if fields: record_writer.writerow(fields)
+        if projection: 
+            record_writer.writerow(projection.fields)
+        else:
+            projection = lambda x:x # no transformation
     # Obtain field-getter for each value comparator
     field1 = [ vcomp.field1 for vcomp in comparator.itervalues() ]
     field2 = [ vcomp.field2 for vcomp in comparator.itervalues() ]
@@ -98,8 +101,8 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
         weightrow = [score] + idxmatch + list(weights)
         writer.writerow(str(x) for x in weightrow)
         if record_writer:
-            record_writer.writerow(rec1)
-            record_writer.writerow(rec2)
+            record_writer.writerow(projection(rec1))
+            record_writer.writerow(projection(rec2))
             
 def filelog(path):
     """Add filehandler to main logger, writing to :file:`{path}`."""
@@ -203,7 +206,13 @@ class LinkCSV(object):
             return self.master[0]._fields
         except (IndexError, AttributeError) as e:
             return []
-    
+
+    @property
+    def projection(self):
+        """Projection instance to convert input/master records into output records."""
+        import recordgroups
+        return recordgroups.Projection.unionfields(self.master_fields, self.fields)
+
     def write_all(self):
         """Call all of the other `write_*` methods, for full analysis.
         
@@ -245,7 +254,7 @@ class LinkCSV(object):
         with nested(open(_.opath(comps),'wb'),
                     open(_.opath(pairs),'wb')) as (o_comps, o_pairs):
             write_comparisons(o_comps, _.comparator, _.comparisons, _.matches, 
-                              _.indices, _.master_indices, _.fields, o_pairs)
+                              _.indices, _.master_indices, self.projection, o_pairs)
             
     def write_nonmatch_pairs(self, comps="nonmatch-comparisons.csv", pairs="nonmatch-pairs.csv"):
         """For non-matched pairs, write the record comparisons and original record pairs."""
@@ -254,14 +263,12 @@ class LinkCSV(object):
         with nested(open(_.opath(comps),'wb'),
                     open(_.opath(pairs),'wb')) as (o_comps, o_pairs):
             write_comparisons(o_comps, _.comparator, _.comparisons, _.nonmatches, 
-                              _.indices, _.master_indices, _.fields, o_pairs)
+                              _.indices, _.master_indices, self.projection, o_pairs)
             
     def write_groups(self, groups="groups.csv"):
         """Write out all records, with numbered groups of mutually linked records first."""
         with open(self.opath(groups),'wb') as ofile:
             import recordgroups
-            projection = recordgroups.Projection.unionfields(
-                self.master_fields, self.fields)
             recordgroups.write_csv(
-                self.matches, self.records+self.master, ofile, projection)
+                self.matches, self.records+self.master, ofile, self.projection)
 

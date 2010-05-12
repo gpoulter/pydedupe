@@ -62,6 +62,7 @@ class reader:
         self.encoding = encoding
         self.reader = csv.reader(iterable, dialect)
         header = fields if fields else self.reader.next()
+        header = [ h.strip() for h in header ]
         for field in header:
             if len(field) == 0:
                 raise ValueError("Empty field name")
