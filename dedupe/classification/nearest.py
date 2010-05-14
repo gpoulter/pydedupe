@@ -1,6 +1,11 @@
 """
-:mod:`classification.nearest` -- Nearest neighbour classification
-=========================================================================
+Nearest neighbour classification of match/non-match
+===================================================
+
+Nearest-Neighbour classification works best with a small number of carefully
+specified example pairs pre-labelled as matches and non-matches.  Each
+comparison (a similarity vector) is then classified by whether the closest
+example vector is a match or a non-match.  
 
 .. moduleauthor:: Graham Poulter
 """

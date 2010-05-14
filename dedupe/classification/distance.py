@@ -1,12 +1,11 @@
 """
-:mod:`classification.distance` -- Distances between similarity vectors
-==============================================================================
+Distances between similarity vectors
+====================================
 
-.. note:: Vector distance functions should accommodate the presence of
-   :keyword:`None` values in the vectors, interpreted as "no comparison possible
-   on this component for this vector", and ignore that component for comparisons.
-   Alternatively, the distance function may replace :keyword:`None` with a
-   default value for missing vector components.
+These distance functions drop dimensions where one or both of the vectors have
+None instead of a numeric value.  We feel that lowering dimensionality in
+response to missing values is better than replacing the None with a default
+similarity value (such as 0.2).
 
 .. moduleauthor:: Graham Poulter
 """

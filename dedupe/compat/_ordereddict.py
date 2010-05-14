@@ -1,6 +1,6 @@
 """
-:mod:`compat._ordereddict` -- Dictionary with ordered keys
-==========================================================
+Dictionary with ordered keys
+============================
 
 Source: http://dev.pocoo.org/hg/sandbox/raw-file/tip/odict.py
 

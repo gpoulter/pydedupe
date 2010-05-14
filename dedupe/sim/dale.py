@@ -1,6 +1,6 @@
 """
-:mod:`sim.dale` -- Damerau-Levenshtein string distance
-==============================================================
+Damerau-Levenshtein string distance
+===================================
 
 Implementation of Damerau-Levenshtein distance by `mwh.geek.nz`_::
 

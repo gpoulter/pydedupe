@@ -1,6 +1,6 @@
 """
-:mod:`linkcsv` -- Link CSV files, with CSV output
-=================================================
+Helpers for record linkage with CSV files for input and output
+==============================================================
 
 .. moduleauthor:: Graham Poulter
 """

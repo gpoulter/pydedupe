@@ -1,9 +1,8 @@
 """
-:mod:`enc` -- Transform and encode field values.
-================================================
+Transform and encode values, for both indexing and comparison
+=============================================================
 
 .. moduleauthor:: Graham Poulter
-
 """
 
 import re

@@ -1,6 +1,6 @@
 """
-:mod:`sim` -- Similarity measures for values, fields, and records
-=================================================================
+Compare values, fields, and records for similarity
+==================================================
 
 .. moduleauthor:: Graham Poulter
 """

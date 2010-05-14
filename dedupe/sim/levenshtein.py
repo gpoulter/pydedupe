@@ -1,6 +1,6 @@
 """
-:mod:`sim.levenshtein` -- Levenshtein string distance
-============================================================
+Levenshtein edit distance for strings
+=====================================
 
 .. note:: Algorithm comes from the Tyriel_ search engine by caelyx, source
    code found here_.

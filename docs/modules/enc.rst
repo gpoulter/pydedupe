@@ -6,9 +6,9 @@
    :synopsis: Transform and encode field values.
    :members:
 
-==========================
- :mod:`dedupe.dmetaphone`
-==========================
+==============================
+ :mod:`dedupe.enc.dmetaphone`
+==============================
 
 .. automodule:: enc.dmetaphone
    :members:

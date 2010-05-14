@@ -1,12 +1,10 @@
 """
-:mod:`recordgroups` -- Find groups of mutually matching records
-==================================================================
+Group matched pairs of records together
+=======================================
 
-Create a graph from pairwise matches and calculate the mutually matching groups of records.  
-
-The match pairs represent edges in a grapth. The components of the match graph
-are written out as sets of mutually matching records, assuming transitive
-property on matching: A matches B and B matches C implies A matches C.
+If A matches B and B matches C, then group A, B and C together.  Use
+`func`:write_csv to output original records reorderd to have numbered groups
+placed at the top of the files.
 
 .. moduleauthor::: Graham Poulter
 

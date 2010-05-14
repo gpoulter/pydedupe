@@ -1,10 +1,12 @@
 """
-:mod:`indexer` -- Inverted index of records
-===========================================
+Index records before comparing them
+===================================
 
-An inverted index lists records sharing an index key. By only comparing
-pairs of records that share index keys the total number of comparisons
-can be vastly reduced over the case of comparing all pairs of records.
+An Index groups records together so that only pairs of records in the same
+group need to be compared, greatly reducing the number of record pairs to
+analyse.   For example, indexing on phone number and phonetic name will compare
+only records that have the same phone number, or the same phonetic version of
+the name.
 
 .. moduleauthor:: Graham Poulter
 """

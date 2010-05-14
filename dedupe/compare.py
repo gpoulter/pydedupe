@@ -1,6 +1,6 @@
 """
-:mod:`compare` -- Compare sets of records
-=========================================
+Compare sets of records
+=======================
  
 .. moduleauthor:: Graham Poulter
 """

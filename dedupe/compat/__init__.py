@@ -1,6 +1,9 @@
 """
-:mod:`compat` -- Backports of standard library classes
-======================================================
+Compatibility layer for Python 2.x
+==================================
+
+Provides namedtuple and OrderdDict in case they aren't available in this version
+of Python (2.5/2.6).
 
 .. moduleauthor: Graham Poulter
 """

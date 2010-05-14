@@ -1,6 +1,6 @@
 """
-:mod:`classification.examples` -- Similarity vectors for training
-===================================================================
+Convert example pairs into training vectors
+===========================================
 
 .. moduleauthor:: Graham Poulter
 """

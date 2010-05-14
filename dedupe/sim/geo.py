@@ -1,6 +1,6 @@
 """
-:mod:`sim.geo` -- Geographic comparisons
-============================================================
+Geographic distance and similarity
+==================================
 
 .. moduleauthor:: Graham Poulter
 """

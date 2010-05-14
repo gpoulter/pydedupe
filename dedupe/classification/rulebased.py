@@ -1,12 +1,16 @@
 """
-:mod:`classification.rulebased` -- Rule-based classifier of vectors
-===================================================================
+Rule-based classification into match/non-match
+==============================================
+
+Uses a function of the similarity vector to determine match or non-match.  Note
+that Nearest-Neighbour classifier allows an override rule to assist
+classification.
 
 .. moduleauthor:: Graham Poulter
 """
 
 def classify_bool(rule, comparisons):
-    """Use provided rule function to classify similarity vectors as
+    """Use provided rule to classify similarity vectors as
     matches (True), non-matches (False) and uncertain (None).
     
     :type rule: function([:keyword:`float`,...]) :keyword:`bool` | :keyword:`None`
@@ -34,9 +38,8 @@ def classify_bool(rule, comparisons):
     return matches, nonmatches, uncertain
 
 def classify(rule, comparisons):
-    """Uses a boolean classification rule, but maps the results to 
-    the scores 1.0 and 0.0, to return the same result format as
-    from :mod:`~classification.kmeans` and :mod:`~classification.nearest`.
+    """Uses a rule to classify matches/non-matches using scores of 0.0 and 1.0,
+    which is the format produced by :mod:`~classification.kmeans` and :mod:`~classification.nearest`.
     
     :type rule: function([:keyword:`float`,...]) :keyword:`bool` | :keyword:`None`
     :param rule: "is this similarity vector a match" - returns :keyword:`True`\

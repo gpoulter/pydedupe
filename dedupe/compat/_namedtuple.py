@@ -1,6 +1,6 @@
 """
-:mod:`compat._namedtuple` -- Tuple with named attribute fields
-==============================================================
+Tuple with named attribute fields
+=================================
 
 Source code from http://code.activestate.com/recipes/500261/
 

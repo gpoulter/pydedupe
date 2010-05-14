@@ -1,8 +1,8 @@
 #!/usr/bin/python
 #coding= latin-1
 """
-:mod:`enc.dmetaphone` -- Double Metaphone phonetic encoding
-===========================================================
+Double Metaphone phonetic encoding
+==================================
 
 .. note:: Double Metaphone algorithm (c) 1998, 1999 by Lawrence Philips. it was
    translated to Python from the C source written by Kevin Atkinson
