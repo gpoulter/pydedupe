@@ -5,7 +5,8 @@
 .. moduleauthor:: Graham Poulter
 """
 
-import excel, compare
+import logging, os
+import compare, excel, recordgroups, sim 
 
 def write_indices(indices, outdir, prefix):
     """Write indices in CSV format.
@@ -26,12 +27,12 @@ def write_indices(indices, outdir, prefix):
     >>> linkcsv.write_indices(indices, outdir="/tmp", prefix="foo-")
     >>> stream = streams["/tmp/foo-Idx.csv"]
     >>> stream.seek(0)
-    >>> list(excel.reader(stream, fields='Idx V1 V2'))
+    >>> list(excel.Reader(stream, fields='Idx V1 V2'))
     [Row(Idx=u'5', V1=u'A', V2=u'5.5'), Row(Idx=u'5', V1=u'C', V2=u'5.25')]
     """
     def write_index(index, stream):
         """Write a single index in CSV format to a stream"""
-        writer = excel.writer(stream)
+        writer = excel.Writer(stream)
         for indexkey, rows in index.iteritems():
             for row in rows:
                 writer.writerow([unicode(indexkey)] + [unicode(v) for v in row])
@@ -63,16 +64,16 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
     :type origstream: binary writer
     :param origstream: where to write CSV for pairs of compared original records.
     """
+    import excel, sim
     if not comparisons: return # in case no comparisons were done
-    from sim import getvalue # for getting record fields
     # File for comparison statistics
-    writer = excel.writer(ostream)
+    writer = excel.Writer(ostream)
     writer.writerow(["Score"] + indices1.keys() + comparator.keys())
     indices2 = indices2 if indices2 else indices1
     # File for original records
     record_writer = None
     if origstream is not None:
-        record_writer = excel.writer(origstream)
+        record_writer = excel.Writer(origstream)
         if projection: 
             record_writer.writerow(projection.fields)
         else:
@@ -90,10 +91,10 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
         keys2 = [ idx.makekey(rec2) for idx in indices2.itervalues() ]
         writer.writerow([u""] + 
             [u";".join(unicode(k) for k in kl) for kl in keys1] + 
-            [ unicode(getvalue(rec1,f)) for f in field1 ])
+            [ unicode(sim.getvalue(rec1,f)) for f in field1 ])
         writer.writerow([u""] + 
             [u";".join(unicode(k) for k in kl) for kl in keys2] + 
-            [ unicode(getvalue(rec2,f)) for f in field2 ])
+            [ unicode(sim.getvalue(rec2,f)) for f in field2 ])
         # Tuple of booleans indicating whether index keys are equal
         idxmatch = [ bool(set(k1).intersection(set(k2))) if 
                      (k1 is not None and k2 is not None) else ""
@@ -114,15 +115,17 @@ def filelog(path):
 
 def writecsv(path, rows, header=None):
     """Write the `header` and `rows` to csv file at `path`"""
+    import excel
     with open(path, 'wb') as out:
-        writer = excel.writer(out)
+        writer = excel.Writer(out)
         if header: writer.writerow(header)
         writer.writerows(rows)
         
 def loadcsv(path):
     """Load records from csv at `path` as a list of :class:`namedtuple`"""
+    import excel
     with open(path, 'rb') as istream:
-        return list(excel.reader(istream))
+        return list(excel.Reader(istream))
     
     
 class LinkCSV(object):
@@ -210,8 +213,8 @@ class LinkCSV(object):
     @property
     def projection(self):
         """Projection instance to convert input/master records into output records."""
-        import recordgroups
-        return recordgroups.Projection.unionfields(self.master_fields, self.fields)
+        import excel
+        return excel.Projection.unionfields(self.master_fields, self.fields)
 
     def write_all(self):
         """Call all of the other `write_*` methods, for full analysis.
