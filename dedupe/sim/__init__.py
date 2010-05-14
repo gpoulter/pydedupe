@@ -5,6 +5,8 @@ Compare values, fields, and records for similarity
 .. moduleauthor:: Graham Poulter
 """
 
+import dale, geo, levenshtein
+
 try:
     from compat import OrderedDict as _OrderedDict
 except:

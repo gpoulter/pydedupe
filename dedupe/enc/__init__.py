@@ -1,11 +1,14 @@
 """
-Transform and encode values, for both indexing and comparison
-=============================================================
+Transform and encode values
+===========================
+
+Values can be encoded for indexing, or transformed prior to comparison.
 
 .. moduleauthor:: Graham Poulter
 """
 
 import re
+import dmetaphone
 
 def normspace(text):
     """Strip multiple and trailing spaces.
@@ -101,6 +104,4 @@ def wrap(*funcs):
             text = func(text)
         return text
     return _wrapper
-
-
 
