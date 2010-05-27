@@ -12,6 +12,15 @@ try:
 except:
     from ..compat import OrderedDict as _OrderedDict
 
+def fallback(main, backup, row):
+    """Attempt to use main attribute of row, but fall back to a backup attribute
+    if the main one is empty."""
+    val = ""
+    if hasattr(row, main):
+        val = getattr(row, main)
+    if not val.strip() and hasattr(row, backup):
+        val = getattr(row, backup)
+    return val
 
 def getvalue(record, field):
     """Retrieve value of a field from a record by any means.

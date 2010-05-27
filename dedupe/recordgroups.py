@@ -108,6 +108,6 @@ def write_csv(matches, records, ostream, projection):
             w.writerow((str(groupid),) + projection(row))
     # Write single records
     for row in singles:
-        w.writerow(("-",) + projection(row))
+        w.writerow(("",) + projection(row))
     return singles, groups
 
