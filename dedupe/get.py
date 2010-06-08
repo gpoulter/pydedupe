@@ -12,7 +12,7 @@ def getter(fieldspec):
     """Build a getter for unknown `fieldspec`. Returns either 
     attrgetter(fieldspec) for string, itemgetter(fieldspec) for int, 
     or fieldspec unchanged if it is already a function.
-    
+
     >>> from collections import namedtuple
     >>> from dedupe import get
     >>> Record = namedtuple('Record', 'A B')
@@ -35,13 +35,13 @@ def getter(fieldspec):
 def getany(record, field):
     """Get field from a record by any of attribute lookup (string), index
     lookup (int), or application (function).
-    
+
     :type record: :class:`namedtuple` or :class:`tuple`
     :param record: record from which to retriev the field value
     :type field: :class:`str`, :class:`int`, or function(`R`)
     :param field: Attempt to return R.field, R[field] or field(R)
     :return: Value of `field` in `record`
-    
+
     >>> from collections import namedtuple
     >>> from dedupe import get
     >>> Record = namedtuple('Record','A B')
@@ -59,7 +59,7 @@ def getany(record, field):
     elif isinstance(field, int):
         return record[field]
     else:
-	raise TypeError("field: " + str(type(fieldspec)))
+        raise TypeError("field: " + str(type(fieldspec)))
 
 def fallback(fields, test=bool, default=None):
     """Build a getter that tries fields in order until one passes the test."""
@@ -79,12 +79,11 @@ def fallback(fields, test=bool, default=None):
 
 def combine(*fields):
     """Build a getter that combines several fields into a list of strings.
-    
-    :type fields: Field specifiers for :func:`getvalue`
-    :param fields: Fields whose values are to be combined.
+
+    :param fields: List of field-getters whose values are to be combined.
     :rtype: [`V`, ...]
     :return: The virtual-field values
-    
+
     >>> from dedupe import get
     >>> combiner = get.combine(0, 2, 3)
     >>> combiner(('A','B','C','D','E'))
@@ -98,7 +97,7 @@ def multivalue(sep, *fields):
 
     :type sep: :class:`str`
     :param sep: Optional delimiter to split fields into multiple values
-    :param fields: Fields names to whose values are to be combined.
+    :param fields: List of field-getters whose values are to be combined.
     :rtype: [`V`, ...]
     :return: The virtual-field values
 
@@ -109,7 +108,7 @@ def multivalue(sep, *fields):
     ['a', 'b', 'c', 'd']
     """
     def splitcombine(record):
-        """Create a multi-value from multiple delimited fields %s using delimiter %s"""
+        """Get multi-valued from delimited fields %s using delimiter %s"""
         result = []
         for field in fields:
             value = getany(record, field)
