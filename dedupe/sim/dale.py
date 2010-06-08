@@ -77,32 +77,23 @@ def distance(seq1, seq2):
                 thisrow[y] = min(thisrow[y], twoago[y-2] + 1)
     return thisrow[len(seq2) - 1]
 
-def compare(maxdiff, s1, s2, missing=None):
-    """Return similarity of strings based on Damerau-Levenshtein distance.
-    
-    :type maxdiff: :class:`float` in 0.0 to 1.0
-    :param maxdiff: proportion of ``max(len(s1),len(s2))`` beyond which\
-       the similarity is considered similarity of 0. Higher values are more lenient.
-    :param missing: return this if one string is empty or :keyword:`None`
-    :rtype: :class:`float`
-    :return: similarity between 0.0 and 1.0.
+def similarity(a,b):
+    """Damerau-Levenshtein distance as similarity in the range 0.0 to 1.0.
     
     >>> from dedupe.sim import dale
-    >>> dale.compare(1.0, "abcd","abcd")
+    >>> dale.similarity("abcd","abcd")
     1.0
-    >>> dale.compare(1.0, "abcd","abdc")
+    >>> dale.similarity("abcd","abdc")
     0.75
-    >>> dale.compare(1.0, "abcd","") is None
-    True
-    >>> dale.compare(0.5, "abcd","badc")
-    0.0
-    >>> dale.compare(1.0, "abcdef","abcd")
+    >>> dale.similarity("abcdef","abcd")
     0.66666666666666674
-    >>> dale.compare(0.5, "abcdef","abcd")
-    0.33333333333333337
+    >>> print dale.similarity("abcd","")
+    None
     """
-    from levenshtein import _compare
-    return _compare(maxdiff, s1, s2, missing, distance)
+    if not a or not b:
+        return None
+    else:
+        return 1.0 - float(distance(a,b)) / max(len(a),len(b))
 
 if __name__=="__main__":
     import sys

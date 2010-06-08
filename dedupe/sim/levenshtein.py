@@ -38,41 +38,22 @@ def distance(a,b):
             current[j] = min(add, delete, change)
     return current[n]
 
-def _compare(maxdiff, s1, s2, missing, distance):
-    if not (0.0 <= maxdiff <= 1.0):
-        raise ValueError("Difference threshold must be between 0.0 and 1.0.")
-    if not s1 or not s2:
-        return missing
-    ndiffs = distance(s1,s2)
-    maxdiffs = max(len(s1),len(s2)) * maxdiff
-    if ndiffs >= maxdiffs:
-        return 0.0
-    else:
-        return 1.0 - (ndiffs / maxdiffs)
-
-def compare(maxdiff, s1, s2, missing=None):
-    """Return similarity of strings based on Levenshtein distance.
-    
-    :type maxdiff: :class:`float` in 0.0 to 1.0
-    :param maxdiff: proportion of ``max(len(s1),len(s2))`` beyond which\
-       the similarity is considered similarity of 0. Higher values are more lenient.
-    :param missing: return this if one string is empty or :keyword:`None`
-    :rtype: :class:`float`
-    :return: similarity between 0.0 and 1.0.
+def similarity(a,b):
+    """Levenshtein distance as similarity in the range 0.0 to 1.0.  Empty
+    or missing values return a similarity of None.
     
     >>> from dedupe.sim import levenshtein
-    >>> levenshtein.compare(1.0, "abcd","abcd")
+    >>> levenshtein.similarity("abcd","abcd")
     1.0
-    >>> levenshtein.compare(1.0, "abcd","abdc")
+    >>> levenshtein.similarity("abcd","abdc")
     0.5
-    >>> levenshtein.compare(1.0, "abcd","") is None
-    True
-    >>> levenshtein.compare(0.5, "abcd","abdc")
-    0.0
-    >>> levenshtein.compare(0.5, "abcd","badc")
-    0.0
+    >>> print levenshtein.similarity("abcd","")
+    None
     """
-    return _compare(maxdiff, s1, s2, missing, distance)
+    if not a or not b:
+        return None
+    else:
+        return 1.0 - float(distance(a,b)) / max(len(a),len(b))
 
 if __name__=="__main__":
     import sys
