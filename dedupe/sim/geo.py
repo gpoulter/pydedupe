@@ -68,9 +68,7 @@ def distance(loc1, loc2):
     is greater than max_distance, the similarity is 0.  Assumes that
     the coordinates are valid!
     
-    :type loc1, loc2: :class:`float`, :class:`float`
-    :param loc1, loc2: (latitude,longitude) of two locations
-    :rtype: :class:`float`
+    :param loc1, loc2: floating-point (latitude,longitude) of two locations
     :return: Kilometer distance between locations.
 
     >>> from dedupe.sim import geo
@@ -96,31 +94,38 @@ def distance(loc1, loc2):
         distance = 0
     return distance
 
-
-def compare(max_distance, point1, point2):
+def similarity(a, b, near=0.0, far=3.0, missing=None):
     """Compare two (lat,lon) coordinates. Similarity is 1.0 for identical
     locations, reducing to zero at max_distance in kilometers.
     
-    :type max_distance: :class:`float`
-    :param max_distance: Distance greater than this means similarity of 0.0
-    :type point1,point2: (:class:`float`, :class:`float`)
-    :param point1,point2: Coordinate pairs to be compared.    
+    :param near: Points closer than `near` km have similarity 1.0.
+    :param far: Points further than `far` km have similarity 0.0.
+    :param missing: Return this value if one point is invalid.
+    :type a,b: (`float`, `float`)
+    :param a,b: Calculate similarity of this pair of coordinates.
     :rtype: :class:`float` or :keyword:`None`
     :return: scaled imilarity of the points, or :keyword:`None` if missing/invalid.
     
-    >>> ## maximum distance is 1.5 degrees, so 1 degree = 1/3 similarity
-    >>> from functools import partial
+    >>> ## if similarity at 1.5 degrees is 0, similarity at 1 degree is 1/3
     >>> from dedupe.sim import geo
-    >>> km_per_deg = 111.21237993706758
-    >>> compare = partial(geo.compare, km_per_deg*1.5)
-    >>> compare((0.0,0.0), (1.0,0.0))
+    >>> deg = 111.21237993706758 # kilometers per degree
+    >>> geo.similarity((0.0,0.0), (1.0,0.0), near=deg*1.5, far=deg*2)
+    1.0
+    >>> geo.similarity((0.0,0.0), (1.0,0.0), far=deg*0.5)
+    0.0
+    >>> geo.similarity((0.0,0.0), (1.0,0.0), far=deg*1.5)
     0.33333333333333337
+    >>> print geo.similarity(None,(1.0,0.0))
+    None
     """
-    if not (valid(point1) and valid(point2)):
-        return None
-    dist = distance(point1, point2)
-    if dist >= max_distance:
+    assert (near<far) and near >= 0 and far > 0
+    if not (valid(a) and valid(b)):
+        return missing
+    dist = distance(a, b)
+    if dist <= near:
+        return 1.0
+    if dist >= far:
         return 0.0
     else:
-        return 1.0 - (dist / max_distance)
+        return 1.0 - (dist-near)/(far-near)
 
