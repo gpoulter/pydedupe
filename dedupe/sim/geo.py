@@ -7,8 +7,8 @@ Geographic distance and similarity
 
 from __future__ import division
 
-def field(latfield, lonfield, record):
-    """A function to get (lat,lon) coordinates of a record.
+def getter(latfield, lonfield):
+    """Build a field getter for (latitude, longitude) coordinates.
     
     :type latfield, lonfield: :class:`str` or :class:`int` or :class:`function`
     :param latfield, lonfield: how to :func:`sim.getvalue` the fields
@@ -18,17 +18,22 @@ def field(latfield, lonfield, record):
     >>> from collections import namedtuple
     >>> from dedupe.sim import geo
     >>> Record = namedtuple("Record", ("FullName","Lon","Lat","Phone"))
-    >>> getter = partial(geo.field, "Lat", "Lon")
-    >>> getter(Record("Joe Bloggs", "10.0", "20.0", "555 1234"))
+    >>> rec = Record("Joe Bloggs", "10.0", "20.0", "555 1234")
+    >>> getter = getter("Lat", "Lon")
+    >>> getter(rec)
     (20.0, 10.0)
     """
-    from . import getvalue
-    try:
-        lat = float(getvalue(record, latfield))
-        lon = float(getvalue(record, lonfield))
-    except (TypeError, ValueError):
-        return None
-    return (lat,lon)
+    from dedupe.get import getter
+    latget = getter(latfield)
+    longet = getter(lonfield)
+    def geoget(record):
+        try:
+            lat = float(latget(record))
+            lon = float(longet(record))
+        except ValueError:
+            return None
+        return (lat,lon)
+    return geoget
 
 def valid(coords):
     """Check whether the argument constitutes valid geographic coordinates. 
@@ -62,7 +67,6 @@ def valid(coords):
         return True
     return False
 
-
 def distance(loc1, loc2):
     """Compare to geographical coordinates by distance. If the distance
     is greater than max_distance, the similarity is 0.  Assumes that
@@ -94,38 +98,47 @@ def distance(loc1, loc2):
         distance = 0
     return distance
 
-def similarity(a, b, near=0.0, far=3.0, missing=None):
+class Similarity:
     """Compare two (lat,lon) coordinates. Similarity is 1.0 for identical
     locations, reducing to zero at max_distance in kilometers.
     
-    :param near: Points closer than `near` km have similarity 1.0.
-    :param far: Points further than `far` km have similarity 0.0.
-    :param missing: Return this value if one point is invalid.
-    :type a,b: (`float`, `float`)
-    :param a,b: Calculate similarity of this pair of coordinates.
-    :rtype: :class:`float` or :keyword:`None`
-    :return: scaled imilarity of the points, or :keyword:`None` if missing/invalid.
-    
+    :ivar near: Points closer than `near` km have similarity 1.0.
+    :ivar far: Points further than `far` km have similarity 0.0.
+    :ivar  missing: Return this value if one point is invalid.
+
     >>> ## if similarity at 1.5 degrees is 0, similarity at 1 degree is 1/3
     >>> from dedupe.sim import geo
     >>> deg = 111.21237993706758 # kilometers per degree
-    >>> geo.similarity((0.0,0.0), (1.0,0.0), near=deg*1.5, far=deg*2)
+    >>> geo.Similarity(near=deg*1.5, far=deg*2)((0.0,0.0), (1.0,0.0))
     1.0
-    >>> geo.similarity((0.0,0.0), (1.0,0.0), far=deg*0.5)
+    >>> geo.Similarity(far=deg*0.5)((0.0,0.0), (1.0,0.0))
     0.0
-    >>> geo.similarity((0.0,0.0), (1.0,0.0), far=deg*1.5)
+    >>> geo.Similarity(far=deg*1.5)((0.0,0.0), (1.0,0.0))
     0.33333333333333337
-    >>> print geo.similarity(None,(1.0,0.0))
+    >>> print geo.Similarity()(None,(1.0,0.0))
     None
     """
-    assert (near<far) and near >= 0 and far > 0
-    if not (valid(a) and valid(b)):
-        return missing
-    dist = distance(a, b)
-    if dist <= near:
-        return 1.0
-    if dist >= far:
-        return 0.0
-    else:
-        return 1.0 - (dist-near)/(far-near)
+
+    def __init__(self, near=0.0, far=3.0, missing=None):
+        self.near = near
+        self.far = far
+        self.missing = missing
+
+    def __call__(self, a, b):
+        """Compute the similarity of two geographic points.
+        :type a,b: (`float`, `float`)
+        :param a,b: Calculate similarity of this pair of coordinates.
+        :rtype: :class:`float` or :keyword:`None`
+        :return: scaled similarity of the points
+        """
+        assert (self.near < self.far) and self.near >= 0 and self.far > 0
+        if not (valid(a) and valid(b)):
+            return self.missing
+        dist = distance(a, b)
+        if dist <= self.near:
+            return 1.0
+        if dist >= self.far:
+            return 0.0
+        else:
+            return 1.0 - (dist-self.near)/(self.far-self.near)
 
