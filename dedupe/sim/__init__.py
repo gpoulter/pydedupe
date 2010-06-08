@@ -8,10 +8,64 @@ Compare values, fields, and records for similarity
 import dale, geo, levenshtein
 
 try:
-    from compat import OrderedDict as _OrderedDict
+    from dedupe.compat import OrderedDict as _OrderedDict
 except:
     from ..compat import OrderedDict as _OrderedDict
 
+class Scale:
+    """Re-scale the return values of similarity function so that a sub-range 
+    of its is mapped onto the 0.0 to 1.0 result.  
+    
+    :note: The default `low`=0.0 and `high`=1.0 do nothing. Higher values of
+    `low` make stricter comparisons, and lower values of `high` make more
+    lenient comparisons.
+    
+    @ivar similarity: A similarity function, takes two records and returns 
+    a float in the range 0.0 to 1.0.
+    @ivar low: Raw similarity values below `low` are scaled to 0.0.  
+    @ivar high: Raw similarity values above `high` are scaled to 1.0
+    @ivar missing: Return `missing` when `similarity` returns `None` (defaults to `None`).
+    @ivar test: Optional function to check for bad values.  If `a` and `b` pass
+    the test then return `similarity(a,b)`, otherwise return `missing`.
+    
+    >>> from dedupe import sim
+    >>> simfunc = lambda a,b: 2**-abs(a-b) 
+    >>> isnum = lambda x: isinstance(x,int) or isinstance(x,float)
+    >>> simfunc(1,2)
+    0.5
+    >>> sim.Scale(simfunc)(1,2)
+    0.5
+    >>> sim.Scale(simfunc, low=0.6)(1,2)
+    0.0
+    >>> sim.Scale(simfunc, high=0.4)(1,2)
+    1.0
+    >>> sim.Scale(simfunc, low=0.4, high=0.6)(1,2)
+    0.5
+    >>> print sim.Scale(simfunc, test=isnum)("blah",2)
+    None
+    """
+    
+    def __init__(self, similarity, low=0.0, high=1.0, missing=None, test=None):
+        if not (0.0 <= low <= 1.0 and 0.0 <= high <= 1.0 and low < high):
+            raise ValueError("low: %s, high: %s" % (str(low),str(high)))
+        self.similarity = similarity 
+        self.low = low
+        self.high = high
+        self.missing = missing
+        self.test = test
+        
+    def __call__(self, a, b):
+        if self.test and not (self.test(a) and self.test(b)):
+            return self.missing
+        v = self.similarity(a,b)
+        if v is None:
+            return self.missing
+        if v <= self.low:
+            return 0.0
+        if  v >= self.high:
+            return 1.0
+        return (v-self.low)/(self.high-self.low)
+    
 def fallback(main, backup, row):
     """Attempt to use main attribute of row, but fall back to a backup attribute
     if the main one is empty."""
@@ -234,17 +288,16 @@ class ValueSimMax(ValueSim):
 class RecordSim(_OrderedDict):
     """Returns a vector of field value similarities between two records.
 
-    :type \*comparators: (:class:`str`, :class:`ValueSim`), ...
-    :param \*comparators: Named and ordered field similarity functions.
+    :type \*simfuncs: [(:class:`str`, :class:`ValueSim`), ...]
+    :param \*simfuncs: Named and ordered field similarity functions.
     
-    :type Weights: :class:`namedtuple` (float,...)
+    :type Weights: :class:`namedtuple` or (float,...)
     :ivar Weights: type of similarity vector between records\
       with field names corresponding to the names in `comparators`.
     
-    :rtype: function(`R`, `R`) :class:`W` 
-    :return: Compares two records with each :class:`ValueSim` in turn,\
-      returning a `W` vector [:class:`float`,...] of corresponding named\
-      similarity values.
+    :rtype: function(`R`, `R`) :class:`Similarity` 
+    :return: Function that takes two records and returns
+    a `Similarity` tuple of similarity values.
 
     >>> # define a 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
@@ -253,14 +306,14 @@ class RecordSim(_OrderedDict):
     >>> vcomp2 = ValueSim(similarity, 2, float) # field 2 from field
     >>> rcomp = RecordSim(("V1",vcomp1),("V2",vcomp2))
     >>> rcomp(('A',1,1), ('B',2,4))
-    W(V1=0.5, V2=0.125)
+    Similarity(V1=0.5, V2=0.125)
     """
     
-    def __init__(self, *comparators):
-        super(RecordSim, self).__init__(comparators)
+    def __init__(self, *simfuncs):
+        super(RecordSim, self).__init__(simfuncs)
         import dedupe.compat as c
-        self.Weights = c.namedtuple("W", self.keys())
+        self.Weights = c.namedtuple("Similarity", self.keys())
 
     def __call__(self, A, B):
         return self.Weights._make(
-            comparator(A, B) for comparator in self.itervalues())
+            valuesim(A, B) for valuesim in self.itervalues())
