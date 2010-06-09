@@ -85,7 +85,7 @@ class Index:
         self.records.append(record)
         
     def compare(self, simfunc, other=None):
-        """Computer similarity vectors for all pairs."""
+        """Compute similarity vectors for all pairs of records."""
         if other is None or other is self:
             return within(simfunc, self.records)
         else:

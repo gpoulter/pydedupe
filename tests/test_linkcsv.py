@@ -4,13 +4,16 @@ import logging, sys, unittest
 from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
+from dedupe import block, sim, linkcsv
+
 def classify(comparisons):
     """Returns match pairs and non-match pairs.
     
     :type comparisons: {(R,R):[float,...]}
     :param comparisons: similarity vectors for pairs of records
 
-    >>> classify({(1,2):[0.8], (2,3):[0.2]})
+    >>> comparisons = {(1,2):[0.8], (2,3):[0.2]}
+    >>> classify(comparisons)
     ({(1, 2): 1.0}, {(2, 3): 0.0})
     """
     matches, nomatches = {}, {}
@@ -21,47 +24,45 @@ def classify(comparisons):
             nomatches[pair] = 0.0
     return matches, nomatches
 
+class FakeOpen:
+    
+    def __init__(self, name, mode):
+        self.name = name
+
+    def write(self, text):
+        sys.stdout.write(self.name + ": " + text)
+        sys.stdout.flush()
+        
+    def close(self):
+        pass
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, a, b, c):
+        pass
+    
+
 class TestLinkCSV(unittest.TestCase):
         
     def test(self):
-        
         # fudge the built-in open function for linkcsv
-        iostreams = {}
-        def fakeopen(f,m):
-            from contextlib import closing
-            from StringIO import StringIO
-            stream = StringIO()
-            stream.close = lambda: None
-            iostreams[f] = stream
-            return closing(stream)
-        from dedupe import linkcsv
-        linkcsv.open = fakeopen
-        import logging
-        logging.open = fakeopen
-                
+        linkcsv.open = FakeOpen
+        logging.open = FakeOpen   
         # set up parameters
-        from dedupe.sim import ValueSim, RecordSim
-        from dedupe.indexer import Index, Indices
         records = [("A","5.5"), ("B","3.5"),("C","5.25")]
         makekey = lambda r: [int(float(r[1]))]
         vcompare = lambda x,y: float(int(x) == int(y))
-        indices = Indices(
-            ("Idx", Index(makekey)),
+        indexing = [ ("Idx", block.Index, makekey) ]
+        comparator = sim.Record(
+            ("Compare", sim.Field(vcompare, 1, float)),
         )
-        comparator = RecordSim(
-            ("Compare", ValueSim(vcompare, 1, float)),
-        )
-
         # link and print the output
-        linker = linkcsv.LinkCSV("/tmp", comparator, indices, classify, records)
+        linker = linkcsv.LinkCSV("/single", indexing, comparator, classify, records)
         linker.write_all()
-        for name,s in sorted(iostreams.iteritems()):
-            print name, '\n', s.getvalue()                    
-        # link and print the output
-        linker = linkcsv.LinkCSV("/tmp", comparator, indices, classify, records, master=records)
+        # link against master and print the output
+        linker = linkcsv.LinkCSV("/master", indexing, comparator, classify, records, master=records)
         linker.write_all()
-        for name,s in sorted(iostreams.iteritems()):
-            print name, '\n', s.getvalue()            
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)

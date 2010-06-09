@@ -25,7 +25,6 @@ def encode(st) :
     :param st: Text to encode.
     :rtype: (:class:`str`, :class:`str`) or (:class:`str`, :keyword:`None`)
     
-    >>> from dedupe.enc.dmetaphone import encode
     >>> names = ('maurice aubrey cambrillo heidi catherine katherine ' +
     ... 'richard bob eric geoff dave ray steven bryce randy bryan brian ' +
     ... 'otto auto maisey zhang solilijs')

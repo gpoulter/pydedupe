@@ -14,7 +14,7 @@ code found here_.
 def distance(a,b):
     """Calculates the Levenshtein distance between a and b.
     
-    >>> from dedupe.sim import levenshtein
+    >>> from dedupe import levenshtein
     >>> levenshtein.distance("abcd","ab")
     2
     >>> levenshtein.distance("abcd","abdc")
@@ -42,7 +42,7 @@ def similarity(a,b):
     """Levenshtein distance as similarity in the range 0.0 to 1.0.  Empty
     or missing values return a similarity of None.
     
-    >>> from dedupe.sim import levenshtein
+    >>> from dedupe import levenshtein
     >>> levenshtein.similarity("abcd","abcd")
     1.0
     >>> levenshtein.similarity("abcd","abdc")

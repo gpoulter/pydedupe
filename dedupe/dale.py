@@ -48,7 +48,7 @@ def distance(seq1, seq2):
     :param seq1, seq2: sequences to compare
     :type seq1, seq2: any sequence type
 
-    >>> from dedupe.sim import dale
+    >>> from dedupe import dale
     >>> dale.distance("abcd","ab")
     2
     >>> dale.distance("abcd","abdc")
@@ -81,7 +81,7 @@ def distance(seq1, seq2):
 def similarity(a,b):
     """Damerau-Levenshtein distance as similarity in the range 0.0 to 1.0.
     
-    >>> from dedupe.sim import dale
+    >>> from dedupe import dale
     >>> dale.similarity("abcd","abcd")
     1.0
     >>> dale.similarity("abcd","abdc")

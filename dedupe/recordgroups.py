@@ -99,9 +99,12 @@ def write_csv(matches, records, ostream, projection):
     :rtype: [T,...], [[T,...],...]
     :return: list of single rows (no matches) and groups (mutually matching)
     """
-    singles, groups = singles_and_groups(matches, records)
     w = excel.Writer(ostream, dialect='excel')
-    w.writerow(["GroupID"] + list(projection.Row._fields))
+    if projection is None:
+        projection = lambda x:x
+    else:
+        w.writerow(["GroupID"] + projection.fields)
+    singles, groups = singles_and_groups(matches, records)
     # Write groups of similar records
     for groupid, group in enumerate(groups):
         for row in group:

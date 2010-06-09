@@ -37,9 +37,13 @@ def within(indices):
 
 def between(indices1, indices2):
     """Log the expected between-index comparisons."""
-    for (n1, i1), (n2, i2) in zip(indices1.items(), indices2.items()): 
-        logging.info("Index %s to %s may require up to %d comparisons.",
-            n1, n2, i1.count(i2))
-        indexstats(i1, "Indeces1 " + n1)
-        indexstats(i2, "Indeces2 " + n2)
+    if indices2 is not None:
+        for (n1, i1), (n2, i2) in zip(indices1.items(), indices2.items()): 
+            logging.info("Index %s to %s may require up to %d comparisons.",
+                n1, n2, i1.count(i2))
+            indexstats(i1, "Indeces1 " + n1)
+            indexstats(i2, "Indeces2 " + n2)
+    else:
+        within(indices1)
+
 

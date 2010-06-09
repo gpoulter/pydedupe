@@ -6,7 +6,7 @@ Helpers for record linkage with CSV files for input and output
 """
 
 import logging, os
-import compare, excel, recordgroups, sim 
+import excel, indexstats, recordgroups, sim
 
 def write_indices(indices, outdir, prefix):
     """Write indices in CSV format.
@@ -18,11 +18,12 @@ def write_indices(indices, outdir, prefix):
     :type prefix: :class:`str`
     :param prefix: prepend this to each output file name.
     
-    >>> from dedupe import linkcsv, excel
-    >>> from .indexer import Indices,Index
+    >>> from dedupe import linkcsv, excel, block, sim
     >>> makekey = lambda r: [int(r[1])]
     >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
-    >>> indices = Indices(("Idx",Index(makekey, [('A',5.5),('C',5.25)])))
+    >>> records = [('A',5.5), ('C',5.25)]
+    >>> indexstrategy = [ ("Idx", block.Index, makekey) ]
+    >>> indices = sim.Indices(indexstrategy, records)
     >>> streams = excel._fake_open(linkcsv)
     >>> linkcsv.write_indices(indices, outdir="/tmp", prefix="foo-")
     >>> stream = streams["/tmp/foo-Idx.csv"]
@@ -49,8 +50,8 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
     
     :type ostream: binary writer
     :param ostream: where to write CSV for similarity vectors.
-    :type comparator: :class:`~sim.RecordSim`
-    :param comparator: collection of named :class:`~sim.ValueSim` field comparators
+    :type comparator: :class:`~sim.Record`
+    :param comparator: dict of named :class:`~sim.Field` field comparators
     :type comparisons: {(`R`, `R`):[:class:`float`,...],...}
     :param comparisons: Similarity vectors from pairs of record comparisons.
     :type scores: {(`R`,`R`)::class:`float`,...} or :keyword:`None`
@@ -64,7 +65,6 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
     :type origstream: binary writer
     :param origstream: where to write CSV for pairs of compared original records.
     """
-    import excel, sim
     if not comparisons: return # in case no comparisons were done
     # File for comparison statistics
     writer = excel.Writer(ostream)
@@ -72,12 +72,6 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
     indices2 = indices2 if indices2 else indices1
     # File for original records
     record_writer = None
-    if origstream is not None:
-        record_writer = excel.Writer(origstream)
-        if projection: 
-            record_writer.writerow(projection.fields)
-        else:
-            projection = lambda x:x # no transformation
     # Obtain field-getter for each value comparator
     field1 = [ vcomp.field1 for vcomp in comparator.itervalues() ]
     field2 = [ vcomp.field2 for vcomp in comparator.itervalues() ]
@@ -91,17 +85,23 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
         keys2 = [ idx.makekey(rec2) for idx in indices2.itervalues() ]
         writer.writerow([u""] + 
             [u";".join(unicode(k) for k in kl) for kl in keys1] + 
-            [ unicode(sim.getvalue(rec1,f)) for f in field1 ])
+            [ unicode(f(rec1)) for f in field1 ])
         writer.writerow([u""] + 
             [u";".join(unicode(k) for k in kl) for kl in keys2] + 
-            [ unicode(sim.getvalue(rec2,f)) for f in field2 ])
+            [ unicode(f(rec2)) for f in field2 ])
         # Tuple of booleans indicating whether index keys are equal
         idxmatch = [ bool(set(k1).intersection(set(k2))) if 
                      (k1 is not None and k2 is not None) else ""
                      for k1,k2 in zip(keys1,keys2) ]
         weightrow = [score] + idxmatch + list(weights)
         writer.writerow(str(x) for x in weightrow)
-        if record_writer:
+    if origstream is not None:
+        record_writer = excel.Writer(origstream)
+        if projection: 
+            record_writer.writerow(projection.fields)
+        else:
+            projection = lambda x:x # no transformation
+        for (rec1, rec2), score in scores.iteritems():
             record_writer.writerow(projection(rec1))
             record_writer.writerow(projection(rec2))
             
@@ -139,10 +139,12 @@ class LinkCSV(object):
     messages and estimates are written to the root logger, for which
     a FileHandler directs output to the output directory.
     
-    :type indices: :class:`~indexer.Indices`
-    :param indices: prototype for indexing records (copied with `.clone()`)
-    :type comparator: :class:`~sim.RecordSim`
-    :param comparator: gets similarity vectors for record pairs.
+    :type indexstrategy: [ (`str`, `type`, `function`) ]    
+    :param indexstrategy: List of indexes to use, providing the index name,
+    the class for constructing the index, and the function for producing the
+    index key.
+    :type comparator: :class:`~sim.Record`
+    :param comparator: takes a pair of records and returns a similarity vector.
     :type classifier: function({(`R`,`R`):[:class:`float`]}) [(`R`, `R`)], [(`R`, `R`)]
     :param classifier: separate record comparisons into matching and non-matching.
     :type records: [`R`,...]
@@ -151,71 +153,70 @@ class LinkCSV(object):
     :param odir: Directory in which to place output files and log files.
     :type master: [`R`,...]
     :param master: master records to which `records` should be linked.
-    :type samecolumns: `bool`
-    :param samecolumns: If True, it is an error for two input files to have different column orders.
     :type logname: :class:`str` or :keyword:`None`
     :param logname: Name of log file to write to in output directory.
     
+    :type indeces1, indeces2: :class:`~sim.Indeces`
+    :ivar indeces1, indeces2: Indexed input and master records.
     :type matches,nonmatches: {(`R`, `R`)::class:`float`}
-    :ivar matches,nonmatches: classifier scores of matched/nonmatched pairs
+    :ivar matches,nonmatches: classifier scores of matched/nonmatched pairs.
     """
     
-    def __init__(self, odir, comparator, indices, classifier, records, 
-                 master=None, samecolumns=True, logname='linkage.log'):
+    def __init__(self, outdir, indexstrategy, comparator, classifier, records, 
+                 master=None, logname='linkage.log'):
         """
         :rtype: {(R,R):float}, {(R,R):float}
         :return: classifier scores for match pairs and non-match pairs
         """
         self.comparator = comparator
-        self.index_proto = indices
+        self.indexstrategy = indexstrategy
         self.classifier = classifier
-        self.master = master if master else []
-        self.records = records
-        self.odir = odir
-        self.samecolumns = samecolumns
-        if self.odir is not None and logname is not None:
+        self.records1 = records
+        self.records2 = master if master else []
+        self.outdir = outdir
+        if self.outdir is not None and logname is not None:
             filelog(self.opath(logname))
-        if self.samecolumns and self.master:
-            if self.fields != self.master_fields:
-                import logging
-                logging.error("Input and master have different fields!")
-                raise SystemExit
-        if master:
-            self.comparisons, self.indices, self.master_indices = compare.between(
-                self.comparator, self.index_proto, self.records, self.master)
-        else:
-            self.comparisons, self.indices = compare.within(
-                self.comparator, self.index_proto, self.records)
-            self.master_indices = None 
+        # Index the records and print the stats
+        self.indices1 = sim.Indices(self.indexstrategy, self.records1)
+        self.indices2 = None
+        if self.records2:
+            self.indices2 = sim.Indices(self.indexstrategy, self.records2)
+        indexstats.between(self.indices1, self.indices2)
+        # Compute the similarity vectors
+        self.comparisons = self.indices1.compare(self.comparator, self.indices2)
+        # Classify the similarity vectors
         self.matches, self.nonmatches = classifier(self.comparisons)
 
     def opath(self, name):
         """Path for a file `name` in the :attr:`odir`."""
         import os
-        return os.path.join(self.odir, name)
+        return os.path.join(self.outdir, name)
     
     @property
-    def fields(self):
-        """Fields on input records."""
+    def fields1(self):
+        """Field names on input records."""
         try:
-            return self.records[0]._fields
+            return self.records1[0]._fields
         except (IndexError, AttributeError) as e:
             return []
     
     @property
-    def master_fields(self):
-        """Fields on master records."""
+    def fields2(self):
+        """Field names on master records."""
         try:
-            return self.master[0]._fields
+            return self.records2[0]._fields
         except (IndexError, AttributeError) as e:
             return []
 
     @property
     def projection(self):
         """Projection instance to convert input/master records into output records."""
-        import excel
-        return excel.Projection.unionfields(self.master_fields, self.fields)
-
+        if self.fields1:
+            import excel
+            return excel.Projection.unionfields(self.fields2, self.fields1)
+        else:
+            return None
+        
     def write_all(self):
         """Call all of the other `write_*` methods, for full analysis.
         
@@ -224,31 +225,32 @@ class LinkCSV(object):
         """
         self.write_records()
         self.write_indeces()
-        if self.master: self.write_input_splits()
+        if self.records2: 
+            self.write_input_splits()
         self.write_match_pairs()
         self.write_nonmatch_pairs()
         self.write_groups()
     
     def write_records(self, inputrecs="input-records.csv", masterrecs="input-master.csv"):
         """Write the input and master records CSV files."""
-        writecsv(self.opath(inputrecs), self.records, self.fields)
-        if self.master:
-            writecsv(self.opath(masterrecs), self.master, self.master_fields)
+        writecsv(self.opath(inputrecs), self.records1, self.fields1)
+        if self.indices2:
+            writecsv(self.opath(masterrecs), self.records2, self.fields2)
         
     def write_indeces(self, inputpre="InputIdx-", masterpre="MasterIdx-"):
         """Write contents of each :class:`~indexer.Index` to files starting with these prefixes."""
-        write_indices(self.indices, self.odir, inputpre)
-        if self.master:
-            write_indices(self.master_indices, self.odir, masterpre)
+        write_indices(self.indices1, self.outdir, inputpre)
+        if self.indices2:
+            write_indices(self.indices2, self.outdir, masterpre)
 
     def write_input_splits(self, matches='input-matchrows.csv', singles='input-singlerows.csv'):
         """Write input records that matched and did not match master (requires
         that `master` was specified)."""
         matchset = set(a for a,b in self.matches)
-        matchrows = [r for r in self.records if r in matchset]
-        singlerows = [r for r in self.records if r not in matchset]
-        writecsv(self.opath(matches), matchrows, self.fields)
-        writecsv(self.opath(singles), singlerows, self.fields)
+        matchrows = [r for r in self.records1 if r in matchset]
+        singlerows = [r for r in self.records1 if r not in matchset]
+        writecsv(self.opath(matches), matchrows, self.fields1)
+        writecsv(self.opath(singles), singlerows, self.fields1)
             
     def write_match_pairs(self, comps="match-comparisons.csv", pairs="match-pairs.csv"):
         """For matched pairs, write the record comparisons and original record pairs."""
@@ -257,7 +259,7 @@ class LinkCSV(object):
         with nested(open(_.opath(comps),'wb'),
                     open(_.opath(pairs),'wb')) as (o_comps, o_pairs):
             write_comparisons(o_comps, _.comparator, _.comparisons, _.matches, 
-                              _.indices, _.master_indices, self.projection, o_pairs)
+                              _.indices1, _.indices2, self.projection, o_pairs)
             
     def write_nonmatch_pairs(self, comps="nonmatch-comparisons.csv", pairs="nonmatch-pairs.csv"):
         """For non-matched pairs, write the record comparisons and original record pairs."""
@@ -266,12 +268,12 @@ class LinkCSV(object):
         with nested(open(_.opath(comps),'wb'),
                     open(_.opath(pairs),'wb')) as (o_comps, o_pairs):
             write_comparisons(o_comps, _.comparator, _.comparisons, _.nonmatches, 
-                              _.indices, _.master_indices, self.projection, o_pairs)
+                              _.indices1, _.indices2, self.projection, o_pairs)
             
     def write_groups(self, groups="groups.csv"):
         """Write out all records, with numbered groups of mutually linked records first."""
         with open(self.opath(groups),'wb') as ofile:
             import recordgroups
             recordgroups.write_csv(
-                self.matches, self.records+self.master, ofile, self.projection)
+                self.matches, self.records1+self.records2, ofile, self.projection)
 

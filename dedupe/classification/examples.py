@@ -35,31 +35,29 @@ def load(comparator, records, outdir=None):
     ...  R('TRUE','2','Abe1',3), R('TRUE','2','Abe2',5),
     ...  R('FALSE','3','Zip1',9), R('FALSE','3','Zip2',1),
     ...  R('FALSE','4','Nobody',1)]
-    >>> from ..sim import ValueSim, RecordSim
-    >>> comparator = RecordSim(("V",ValueSim(
-    ...  lambda x,y: 2**-abs(x-y), lambda r:r[3], float)))
+    >>> from .. import sim 
+    >>> numcomp = lambda x,y: 2**-abs(x-y)
+    >>> comparator = sim.Record(("V", sim.Field(numcomp, lambda r:r[3], float)))
     >>> from ..excel import _fake_open
     >>> streams = _fake_open(examples) # redirect open to StringIO
     >>> t, f = examples.load(comparator, records, '/tmp')
     >>> sorted(t)
-    [W(V=0.03125), W(V=0.0625), W(V=0.25), W(V=0.5)]
+    [Similarity(V=0.03125), Similarity(V=0.0625), Similarity(V=0.25), Similarity(V=0.5)]
     >>> sorted(f)
-    [W(V=0.00390625)]
+    [Similarity(V=0.00390625)]
     >>> streams['/tmp/examples_false.csv'].getvalue().split()
     ['Score,Key,V', ',3,9', ',3,1', '0.0,True,0.00390625']
     >>> streams['/tmp/examples_true.csv'].getvalue().split()
     ['Score,Key,V', ',1,8', ',1,3', '1.0,True,0.03125', ',1,7', ',1,3', '1.0,True,0.0625', ',1,8', ',1,7', '1.0,True,0.5', ',2,3', ',2,5', '1.0,True,0.25']
     """
-    from ..indexer import Index, Indices
+    from .. import block, sim
     t_rows = [r for r in records if r[0] in ['TRUE','T','YES','Y','1',1,True] ]
     f_rows = [r for r in records if r[0] in ['FALSE','F','NO','N','0',0,False] ]
     # Index on second column and self-compare within blocks
-    t_indices = Indices(("Key",Index(lambda r: [r[1]]) ))
-    t_indices.insertmany(t_rows)
-    f_indices = Indices(("Key",Index(lambda r: [r[1]]) ))
-    f_indices.insertmany(f_rows)
-    t_sims = t_indices["Key"].link_within(comparator)
-    f_sims = f_indices["Key"].link_within(comparator) 
+    t_indices = sim.Indices([("Key", block.Index, lambda r: [r[1]])],t_rows)
+    f_indices = sim.Indices([("Key", block.Index, lambda r: [r[1]])],f_rows)
+    t_sims = t_indices["Key"].compare(comparator)
+    f_sims = f_indices["Key"].compare(comparator) 
     # a debug dump of comparisons to CSV to output directory
     if outdir: 
         from os.path import join

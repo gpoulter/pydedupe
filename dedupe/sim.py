@@ -293,7 +293,7 @@ class Indices(_OrderedDict):
         """
         comparisons = {}
         if other is None or other is self:
-            for index in indices.itervalues():
+            for index in self.itervalues():
                 index.compare(simfunc, None, comparisons)
         else:
             for index1, index2 in zip(self.itervalues(), other.itervalues()):
