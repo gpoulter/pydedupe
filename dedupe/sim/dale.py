@@ -2,7 +2,7 @@
 Damerau-Levenshtein string distance
 ===================================
 
-Implementation of Damerau-Levenshtein distance by `mwh.geek.nz`_::
+Damerau-Levenshtein distance algorithm by `mwh.geek.nz`_::
 
    The Damerau-Levenshtein distance between two strings is the number of
    additions, deletions, substitutions, and transpositions needed to transform
@@ -16,8 +16,9 @@ Implementation of Damerau-Levenshtein distance by `mwh.geek.nz`_::
    do). I've put one together myself from the algorithmic definition that
    I've tested to work correctly and reasonably efficiently.
 
-   The algorithm is inherently O(N*M) in time, and the naive version is in space
-   as well. This implementation is O(M) in space, as only the last two rows of th
+   The algorithm is inherently O(N*M) in time, and the naive version is in
+   space as well. This implementation is O(M) in space, as only the last two
+   rows of the matrix are stored.
 
    The code is available under the MIT licence, in the hope that it will be
    useful, but without warranty of any kind. I have also included a codesnippet
@@ -94,7 +95,7 @@ def similarity(a,b):
         return None
     else:
         return 1.0 - float(distance(a,b)) / max(len(a),len(b))
-
+    
 if __name__=="__main__":
     import sys
     print distance(sys.argv[1],sys.argv[2])

@@ -2,8 +2,8 @@
 Levenshtein edit distance for strings
 =====================================
 
-.. note:: Algorithm comes from the Tyriel_ search engine by caelyx, source
-   code found here_.
+The algorithm is from the Tyriel_ search engine by caelyx, source
+code found here_.
 
 .. _Tyriel: http://sourceforge.net/projects/tyriel
 .. _here: http://www.koders.com/python/fid508C865D6E926EC0C45A7C4872E4F57AB33381B0.aspx
