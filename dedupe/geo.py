@@ -16,7 +16,6 @@ def getter(latfield, lonfield):
     
     >>> from functools import partial
     >>> from collections import namedtuple
-    >>> from dedupe.sim import geo
     >>> Record = namedtuple("Record", ("FullName","Lon","Lat","Phone"))
     >>> rec = Record("Joe Bloggs", "10.0", "20.0", "555 1234")
     >>> getter = getter("Lat", "Lon")
@@ -44,7 +43,7 @@ def valid(coords):
     :return: :keyword:`True` only if coords is a tuple pair of floats\
        in -90.0 to 90.0 on the latitude and -180.0 to 180.0 on the longitude.
     
-    >>> from dedupe.sim import geo
+    >>> from dedupe import geo
     >>> geo.valid((0.0,0))
     False
     >>> geo.valid((0.0,0.0))
@@ -75,7 +74,7 @@ def distance(loc1, loc2):
     :param loc1, loc2: floating-point (latitude,longitude) of two locations
     :return: Kilometer distance between locations.
 
-    >>> from dedupe.sim import geo
+    >>> from dedupe import geo
     >>> # there are 111.21 kilometers per degree at the equator
     >>> geo.distance((0.0,0.0),(1.0,0.0))
     111.21237993706758
@@ -107,7 +106,7 @@ class Similarity:
     :ivar  missing: Return this value if one point is invalid.
 
     >>> ## if similarity at 1.5 degrees is 0, similarity at 1 degree is 1/3
-    >>> from dedupe.sim import geo
+    >>> from dedupe import geo
     >>> deg = 111.21237993706758 # kilometers per degree
     >>> geo.Similarity(near=deg*1.5, far=deg*2)((0.0,0.0), (1.0,0.0))
     1.0
