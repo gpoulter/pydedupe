@@ -11,12 +11,6 @@ the name.
 .. moduleauthor:: Graham Poulter
 """
 
-from __future__ import with_statement
-
-from compat import OrderedDict as _OrderedDict
-import logging
-import excel
-
 class Index(dict):
     """Mapping from index key to records.
     
@@ -34,22 +28,22 @@ class Index(dict):
     0.5
     >>> from dedupe.indexer import Index
     >>> a = Index(makekey, [('A',5.5),('B',4.5),('C',5.0)])
-    >>> a.count_comparisons()
+    >>> a.count()
     1
-    >>> a.link_within(compare)
+    >>> a.compare(compare)
     {(('A', 5.5), ('C', 5.0)): 0.70710678118654757}
     >>> b = Index(makekey, [('D',5.5),('E',4.5)])
-    >>> a.count_comparisons(b)
+    >>> a.count(b)
     3
-    >>> a.link_between(compare, b)
+    >>> a.compare(compare, b)
     {(('C', 5.0), ('D', 5.5)): 0.70710678118654757, (('A', 5.5), ('D', 5.5)): 1.0, (('B', 4.5), ('E', 4.5)): 1.0}
     """
     
-    def __init__(self, makekey, records=None):
+    def __init__(self, makekey, records=[]):
         super(Index, self).__init__()
         self.makekey = makekey
-        if records:
-            self.insertmany(records)
+        for record in records:
+            self.insert(record)
         
     def insert(self, record):
         """Insert a record into the index.
@@ -67,21 +61,13 @@ class Index(dict):
             recordsforkey.append(record)
         return keys
     
-    def insertmany(self, records):
-        """Insert records into the index."""
-        for record in records:
-            self.insert(record)
-    
-    def count_comparisons(self, other=None):
-        """Upper bound on the number of comparisons required by this index.
-        
-        .. note:: comparisons are cached so the actual number of calls to the
-           comparison function will in general be less than this.
+    def count(self, other=None):
+        """Return upper bound on the number of comparisons required by this
+        index. The actual number of comparison function calls will be lower
+        due to caching of comparisons.
 
         :type: other: :class:`Index` or :keyword:`None`
         :param other: Count comparisons against this index.
-        :rtype: :class:`int`
-        :return: Most pairwise comparisons that need to be made.
         """
         comparisons = 0
         if not other or (other is self):
@@ -96,44 +82,54 @@ class Index(dict):
                     comparisons += len(self[key]) * len(other[key])
         return comparisons
     
-    def link_within(self, compare, comparisons=None):
-        """Perform dedupe comparisons on the index.  Note that this sorts
-        the lists of records in each index key to ensure that rec1<rec2 
-        in each resulting comparison tuple.
+    def search(self, record):
+        """Returns a list of records that are indexed under the same keys as
+        the provided record."""
+        result = []
+        for key in self.makekey(record):
+            result.extend(self.get(key), [])
+        return result
+    
+    def compare(self, compare, other=None, comparisons=None):
+        """Perform comparisons based on the index groups.  By default
+        against itself, and optionally against another index.
         
-        :type compare: function(`R1`, `R2`) [:class:`float`,...]
-        :param compare: how to compare each pair of records.
+        :type compare: function(`R1`, `R2`) [`float`,...]
+        :param compare: Function for comparing a pair of records.
         
-        :type comparisons: {(`R1`, `R2`):[:class:`float`,...]} where `R1` < `R2`
-        :param comparisons: Cache of comparisons of ordered-pairs of records.
+        :type other: :class:`Index`
+        :param other: Optional second index to compare against.
+
+        :type comparisons: {(`R1`, `R2`):[`float`,...]} 
+        :param comparisons: Dict mapping pairs of records to comparisons. For
+        single-index we must have `R1` < `R2`, while with two indeces `R1` is
+        from `self` while `R2` is from `other`.
+        
+        :return: Updated comparisons dict.
         """
+        if other is None or other is self:
+            return self._compare_self(compare, comparisons)
+        else:
+            return self._compare_other(compare, other, comparisons)
+    
+    def _compare_self(self, compare, comparisons=None):
         if comparisons is None:
             comparisons = {}
         for indexkey, records in self.iteritems():
-            records.sort()
+            records.sort() # sort the group to ensure a < b
             for j in range(len(records)):
                 for i in range(j):
                     # i < j, and sorting means record[i] <= record[j]
                     a,b = records[i], records[j] 
                     # same record indexed under multiple keys!
-                    if a is b: continue
+                    if a is b: 
+                        continue
                     # now compare a and b, keeping a <= b
                     if (a,b) not in comparisons:
                         comparisons[(a,b)] = compare(a,b)
         return comparisons
                         
-    def link_between(self, compare, other, comparisons=None):
-        """Perform linkage comparisons for this index against the other index.
-        
-        :type compare: function(`R1`, `R2`) [:class:`float`,...]
-        :param compare: how to compare each pair of records.
-        
-        :type other: :class:`Index`
-        :param other: link records from this index to the `other` index.
-
-        :type comparisons: {(`R1`, `R2`):[:class:`float`,...]} where `R1` < `R2`
-        :param comparisons: Cache of comparisons of ordered-pairs of records.
-        """
+    def _compare_other(self, compare, other, comparisons=None):
         if comparisons is None:
             comparisons = {}
         for indexkey in self.iterkeys():
@@ -146,42 +142,62 @@ class Index(dict):
         return comparisons
 
 
-class Indices(_OrderedDict):
-    """Represents a sever Index instances as an ordered dictionary.
+from compat import OrderedDict as _OrderedDict
 
-    :type indices: (:class:`str`, :class:`Index`), ...
-    :param indices: Named indices in which to insert records.
+class Indices(_OrderedDict):
+    """Inserts records into several indeces simultaneously. Behaves as an
+    ordered dictionary of Index instances.
     
+    :type strategy: [ (`str`, `type`, `function`), ... ]
+    :param strategy: List of (index names, index class, key function).
+    The index class must support `compare` method, and key function
+    must return list of index keys for a record.    
+
+    :type records: [ `tuple`, ... ]
+    :param records: List of records to insert into the indeces.
+
+    >>> from dedupe.indexer import Indices, Index
     >>> makekey = lambda r: [int(r[1])]
     >>> makekey(('A',3.5))
     [3]
-    >>> from dedupe.indexer import Indices, Index
-    >>> a = Indices(("IntValue",Index(makekey,[('A',5.5),('B',4.5),('C',5.25)])))
-    >>> a
-    OrderedDict([('IntValue', {4: [('B', 4.5)], 5: [('A', 5.5), ('C', 5.25)]})])
-    >>> a.clone([('D',5.5),('E',4.5),('F',5.25)])
-    OrderedDict([('IntValue', {4: [('E', 4.5)], 5: [('D', 5.5), ('F', 5.25)]})])
+    >>> strategy = [ ("MyIndex", Index, makekey) ]
+    >>> records1 = [('A',5.5),('B',4.5),('C',5.25)]
+    >>> records2 = [('D',5.5),('E',4.5),('F',5.25)]
+    >>> Indices(strategy, records1)
+    OrderedDict([('MyIndex', {4: [('B', 4.5)], 5: [('A', 5.5), ('C', 5.25)]})])
     """
 
-    def __init__(self, *indices):
-        _OrderedDict.__init__(self)
-        for key, value in indices:
-            self[key] = value
+    def __init__(self, strategy, records=[]):
+        super(Indices, self).__init__(
+            (name, idxtype(keyfunc, records)) for name, idxtype, keyfunc in strategy)
             
-    def clone(self, records=None):
-        """Return a new :class:`Indices` with same layout as this one,
-        and optionally loaded with provided `records`."""
-        indices = Indices(*[(n,Index(idx.makekey)) for n,idx in self.iteritems()])
-        if records:
-            indices.insertmany(records)
-        return indices
-    
     def insert(self, record):
         """Insert a record into each :class:`Index`."""
         for index in self.itervalues():
             index.insert(record)
-            
-    def insertmany(self, records):
-        """Insert records into each :class:`Index`."""
-        for record in records:
-            self.insert(record)
+                        
+    def compare(self, simfunc, other=None):
+        """Compute similarities of indexed pairs of records.  
+        
+        :type simfunc: func(`R`, `R`) (`float`,...)
+        :param simfunc: takes a pair of records and returns a similarity vector.
+        
+        :type other: :class:`Indeces`
+        :param other: Compare records against another set of Indeces (default
+        is to compare records against themselves).
+        
+        :rtype: {(R,R):(float,...)}
+        :return: mapping from pairs of records similarity vectors.
+        """
+        comparisons = {}
+        if other is None or other is self:
+            for index in indices.itervalues():
+                index.compare(simfunc, None, comparisons)
+        else:
+            for index1, index2 in zip(self.itervalues(), other.itervalues()):
+                if type(index1) is not type(index2):
+                    raise TypeError(
+                        "Indeces of type %s and type %s are incompatible" % 
+                        (type(index1), type(index2)))
+                index1.compare(simfunc, index2, comparisons)
+        return comparisons
