@@ -72,10 +72,20 @@ class Index:
     def __init__(self, makekey=None, records=[]):
         self.records = records
         
+    def count(self, other=None):
+        """Compute number of comparisons required."""
+        if other is None or other is self:
+            N = len(self.records)
+            return N*(N+1)/2
+        else:
+            return len(self.records) * len(other.records)
+        
     def insert(self, record):
+        """Add a record to the index"""
         self.records.append(record)
         
     def compare(self, simfunc, other=None):
+        """Computer similarity vectors for all pairs."""
         if other is None or other is self:
             return within(simfunc, self.records)
         else:
