@@ -10,9 +10,9 @@ import logging
 def indexstats(index, name):
     """Log statistics about block sizes for `index`, prefixing lines with `name`.
     
-    >>> from dedupe.indexer import Index
+    >>> from dedupe import block
     >>> makekey = lambda r: [int(r[1])]
-    >>> idx = Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
+    >>> idx = block.Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
     >>> def log(s,*a):
     ...     print s % a
     >>> logging.info = log
