@@ -8,7 +8,12 @@ Values can be encoded for indexing, or transformed prior to comparison.
 """
 
 import re
-import dmetaphone
+
+def dmetaphone(text):
+    """Compute list of double-metaphone encodings of text.  See
+    :mod:`dedupe.dmetaphone`."""
+    import dmetaphone
+    return dmetaphone.encode(text)
 
 def normspace(text):
     """Strip multiple and trailing spaces.
