@@ -56,3 +56,27 @@ def between(comparator, records1, records2):
             if pair not in comparisons:
                 comparisons[pair] = comparator(rec1, rec2)
     return comparisons
+
+class Index:
+    """An "Index" that compares all pairs of records.  The `makekey` 
+    parameter is ignored.
+    
+    >>> from dedupe import allpairs
+    >>> comparator = lambda a,b: int(a == b)
+    >>> idx = allpairs.Index(None, ['A','B','C'])
+    >>> idx.insert('A')
+    >>> idx.compare(comparator)
+    {('B', 'C'): 0, ('A', 'B'): 0, ('A', 'A'): 1, ('A', 'C'): 0}
+    """
+    
+    def __init__(self, makekey=None, records=[]):
+        self.records = records
+        
+    def insert(self, record):
+        self.records.append(record)
+        
+    def compare(self, simfunc, other=None):
+        if other is None or other is self:
+            return within(simfunc, self.records)
+        else:
+            return between(simfunc, self.records, other.records)
