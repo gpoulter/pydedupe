@@ -5,7 +5,8 @@ Compare values, fields, and records for similarity
 .. moduleauthor:: Graham Poulter
 """
 
-import dale, geo, levenshtein
+from dale import similarity as dale
+from levenshtein import similarity as levenshtein
 
 try:
     from dedupe.compat import OrderedDict as _OrderedDict
