@@ -1,12 +1,14 @@
 """
-Index records before comparing them
-===================================
+Block index that groups records sharing a key
+=============================================
 
-An Index groups records together so that only pairs of records in the same
-group need to be compared, greatly reducing the number of record pairs to
-analyse.   For example, indexing on phone number and phonetic name will compare
-only records that have the same phone number, or the same phonetic version of
-the name.
+The Index is a dictionary from key to a set of records.  When a record
+similarity function is applied, it only compares pairs of records that
+have same index key, which saves a lot of comparisons.
+
+For example, indexing on the double-metaphone of a field will mean only
+computing similarity vectors for pairs records that have the same
+douple-metaphone.
 
 .. moduleauthor:: Graham Poulter
 """
@@ -26,13 +28,13 @@ class Index(dict):
     >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
     >>> compare(('A','5.5'),('B','4.5'))
     0.5
-    >>> from dedupe.indexer import Index
-    >>> a = Index(makekey, [('A',5.5),('B',4.5),('C',5.0)])
+    >>> from dedupe import block
+    >>> a = block.Index(makekey, [('A',5.5),('B',4.5),('C',5.0)])
     >>> a.count()
     1
     >>> a.compare(compare)
     {(('A', 5.5), ('C', 5.0)): 0.70710678118654757}
-    >>> b = Index(makekey, [('D',5.5),('E',4.5)])
+    >>> b = block.Index(makekey, [('D',5.5),('E',4.5)])
     >>> a.count(b)
     3
     >>> a.compare(compare, b)
@@ -141,63 +143,3 @@ class Index(dict):
                             comparisons[pair] = compare(*pair)
         return comparisons
 
-
-from compat import OrderedDict as _OrderedDict
-
-class Indices(_OrderedDict):
-    """Inserts records into several indeces simultaneously. Behaves as an
-    ordered dictionary of Index instances.
-    
-    :type strategy: [ (`str`, `type`, `function`), ... ]
-    :param strategy: List of (index names, index class, key function).
-    The index class must support `compare` method, and key function
-    must return list of index keys for a record.    
-
-    :type records: [ `tuple`, ... ]
-    :param records: List of records to insert into the indeces.
-
-    >>> from dedupe.indexer import Indices, Index
-    >>> makekey = lambda r: [int(r[1])]
-    >>> makekey(('A',3.5))
-    [3]
-    >>> strategy = [ ("MyIndex", Index, makekey) ]
-    >>> records1 = [('A',5.5),('B',4.5),('C',5.25)]
-    >>> records2 = [('D',5.5),('E',4.5),('F',5.25)]
-    >>> Indices(strategy, records1)
-    OrderedDict([('MyIndex', {4: [('B', 4.5)], 5: [('A', 5.5), ('C', 5.25)]})])
-    """
-
-    def __init__(self, strategy, records=[]):
-        super(Indices, self).__init__(
-            (name, idxtype(keyfunc, records)) for name, idxtype, keyfunc in strategy)
-            
-    def insert(self, record):
-        """Insert a record into each :class:`Index`."""
-        for index in self.itervalues():
-            index.insert(record)
-                        
-    def compare(self, simfunc, other=None):
-        """Compute similarities of indexed pairs of records.  
-        
-        :type simfunc: func(`R`, `R`) (`float`,...)
-        :param simfunc: takes a pair of records and returns a similarity vector.
-        
-        :type other: :class:`Indeces`
-        :param other: Compare records against another set of Indeces (default
-        is to compare records against themselves).
-        
-        :rtype: {(R,R):(float,...)}
-        :return: mapping from pairs of records similarity vectors.
-        """
-        comparisons = {}
-        if other is None or other is self:
-            for index in indices.itervalues():
-                index.compare(simfunc, None, comparisons)
-        else:
-            for index1, index2 in zip(self.itervalues(), other.itervalues()):
-                if type(index1) is not type(index2):
-                    raise TypeError(
-                        "Indeces of type %s and type %s are incompatible" % 
-                        (type(index1), type(index2)))
-                index1.compare(simfunc, index2, comparisons)
-        return comparisons

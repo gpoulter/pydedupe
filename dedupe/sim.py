@@ -240,3 +240,66 @@ class Record(_OrderedDict):
     def __call__(self, A, B):
         return self.Similarity._make(
             fieldsimilarity(A, B) for fieldsimilarity in self.itervalues())
+    
+    
+class Indices(_OrderedDict):
+    """Dictionary containing indeces defined on a single set of records.  
+    When comparing, it caches the similarity vectors so that a pair of records
+    compared in one index is not compared again if the pair shows up in one
+    of the other indeces.
+    
+    :type strategy: [ (`str`, `type`, `function`), ... ]
+    :param strategy: List of indexing strategies, as 
+    (index name, index class, key function). The index class must support 
+    the `compare` method, and the key function takes a record and returns
+    a list of keys for indexing.
+
+    :type records: [ `tuple`, ... ]
+    :param records: List of records to insert into the indeces.
+
+    >>> from dedupe import block, sim
+    >>> makekey = lambda r: [int(r[1])]
+    >>> makekey(('A',3.5))
+    [3]
+    >>> strategy = [ ("MyIndex", block.Index, makekey) ]
+    >>> records1 = [('A',5.5),('B',4.5),('C',5.25)]
+    >>> records2 = [('D',5.5),('E',4.5),('F',5.25)]
+    >>> sim.Indices(strategy, records1)
+    OrderedDict([('MyIndex', {4: [('B', 4.5)], 5: [('A', 5.5), ('C', 5.25)]})])
+    """
+
+    def __init__(self, strategy, records=[]):
+        super(Indices, self).__init__(
+            (name, idxtype(keyfunc, records)) 
+            for name, idxtype, keyfunc in strategy)
+            
+    def insert(self, record):
+        """Insert a record into each :class:`Index`."""
+        for index in self.itervalues():
+            index.insert(record)
+                        
+    def compare(self, simfunc, other=None):
+        """Compute similarities of indexed pairs of records.  
+        
+        :type simfunc: func(`R`, `R`) (`float`,...)
+        :param simfunc: takes a pair of records and returns a similarity vector.
+        
+        :type other: :class:`Indeces`
+        :param other: Compare records against another set of Indeces (default
+        is to compare records against themselves).
+        
+        :rtype: {(R,R):(float,...)}
+        :return: mapping from pairs of records similarity vectors.
+        """
+        comparisons = {}
+        if other is None or other is self:
+            for index in indices.itervalues():
+                index.compare(simfunc, None, comparisons)
+        else:
+            for index1, index2 in zip(self.itervalues(), other.itervalues()):
+                if type(index1) is not type(index2):
+                    raise TypeError(
+                        "Indeces of type %s and type %s are incompatible" % 
+                        (type(index1), type(index2)))
+                index1.compare(simfunc, index2, comparisons)
+        return comparisons
