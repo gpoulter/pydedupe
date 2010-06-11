@@ -61,19 +61,20 @@ def getany(record, field):
     else:
         raise TypeError("field: " + str(type(fieldspec)))
 
-def fallback(fields, test=bool, default=None):
+def fallback(fields, test=bool, default=""):
     """Build a getter that tries fields in order until one passes the test."""
+    if not callable(test):
+        raise TypeError("test: %s is not callable" % repr(test))
+    getters = [ getter(f) for f in fields ]
     def getfield(record):
         """Attempt to get field from record"""
-        for field in fields:
+        for get in getters:
             try:
-                val = getany(row, field)
+                val = get(record)
                 if test(val):
                     return val
             except AttributeError:
                 pass
-            else:
-                break
         return default
     return getfield
 
