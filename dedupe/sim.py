@@ -21,12 +21,12 @@ class Scale:
     `low` make stricter comparisons, and lower values of `high` make more\
     lenient comparisons.
     
-    @param similarity: A similarity function, takes two records and returns\
+    :param similarity: A similarity function, takes two records and returns\
     a float in the range 0.0 to 1.0.
-    @param low: Raw similarity values below `low` are scaled to 0.0.  
-    @param high: Raw similarity values above `high` are scaled to 1.0
-    @param missing: Return `missing` when `similarity` returns `None` (defaults to `None`).
-    @param test: Optional function to check for bad values.  If `a` and `b` pass\
+    :param low: Raw similarity values below `low` are scaled to 0.0.  
+    :param high: Raw similarity values above `high` are scaled to 1.0
+    :param missing: Return `missing` when `similarity` returns `None` (defaults to `None`).
+    :param test: Optional function to check for bad values.  If `a` and `b` pass\
     the test then return `similarity(a,b)`, otherwise return `missing`.
     
     >>> from dedupe import sim
@@ -77,12 +77,12 @@ class Field(object):
     :type field1: callable(`R`) -> `T1`
     :param field1: Gets field value from first record.
     :type encode1: callable(`T1`) `V`
-    :param encode1: Encodes field value from first record (default=`lambda x:x`)
+    :param encode1: Encodes field value from first record (default: `lambda x:x`)
     
     :type field2: callable(`R`) -> `T1`
-    :param field2: Gets field value from the second record (default=`field1`)
+    :param field2: Gets field value from the second record (default: `field1`)
     :type encode2: callable(`T1`) `V`
-    :param encode2: Encodes field value from the second record (default=`encode1`)
+    :param encode2: Encodes field value from the second record (default: `encode1`)
 
     >>> from dedupe import sim
     >>> from dedupe.get import item
@@ -121,17 +121,18 @@ class Average(Field):
     greatest similarity against the values in the other record. 
     If the shorter field is a subset of the longer field, 
     the similarity should be 1.0.
-    
+
     :type compare: callable(`V`, `V`) :class:`float`
     :param compare: Returns similarity of a pair of encoded field values.
-    :type field1: function(`R`) [`T1`,...]
-    :param field1: Iterates over multi-values of the field.
-    :type field2: function(`R`) [`T2`,...]
-    :param field2: Iterates over multi-values of the field (default=`field1`).
+    :type field1: callable(`R`) [`T1`,...]
+    :param field1: Returns a list of values for the field on first record.
+    :type field2: callable(`R`) [`T2`,...]
+    :param field2: Returns a list of values for the field on second record (default: `field1`).
     :type encode1: function(`T1`) `V`
-    :param encode1: Encode of field1 values.
+    :param encode1: Encodes each field1 value for comparison.
     :type encode2: function(`T2`) `V`
-    :param encode2: Encoder of field2 value (default=`encode1`).
+    :param encode2: Encodes each field2 value for comparison (default: `encode1`).
+    
     :rtype: callable(`R1`, `R2`) float
     :return: Computer of average similarity of records `R1` and `R2` for values of the field.
     
@@ -174,13 +175,13 @@ class Maximum(Field):
     :type compare: callable(`V`, `V`) :class:`float`
     :param compare: Returns similarity of a pair of encoded field values.
     :type field1: callable(`R`) [`T1`,...]
-    :param field1: Returns a list of values for the field.
+    :param field1: Returns a list of values for the field on first record.
     :type field2: callable(`R`) [`T2`,...]
-    :param field2: Returns a list of values for the field. (default=`field1`).
+    :param field2: Returns a list of values for the field on second record (default: `field1`).
     :type encode1: function(`T1`) `V`
     :param encode1: Encodes each field1 value for comparison.
     :type encode2: function(`T2`) `V`
-    :param encode2: Encodes each field1 value for comparison.(default=`encode1`).
+    :param encode2: Encodes each field2 value for comparison (default: `encode1`).
 
     >>> # define an exponential 'similarity of numbers' measure
     >>> similarity = lambda x,y: 2.0**(-abs(x-y))
