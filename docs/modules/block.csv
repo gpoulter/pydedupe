@@ -1,8 +1,8 @@
-=====================
-:mod:`dedupe.indexer`
-=====================
+===================
+:mod:`dedupe.block`
+===================
 
-.. automodule:: indexer
+.. automodule:: dedupe.block
    :synopsis: Make groups of records prior to comparison.
    :show-inheritance:
    :members:
