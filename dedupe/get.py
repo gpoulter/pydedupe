@@ -62,7 +62,19 @@ def getany(record, field):
         raise TypeError("field: " + str(type(fieldspec)))
 
 def fallback(fields, test=bool, default=""):
-    """Build a getter that tries fields in order until one passes the test."""
+    """Build a getter that tries fields in order until one passes the test.
+
+    >>> get = fallback((0,2))
+    >>> rec1 = ('a','b','c')
+    >>> rec2 = ('','b','c')
+    >>> rec3 = (None,'b',None)
+    >>> get(rec1)
+    'a'
+    >>> get(rec2)
+    'c'
+    >>> get(rec3)
+    ''
+    """
     if not callable(test):
         raise TypeError("test: %s is not callable" % repr(test))
     getters = [ getter(f) for f in fields ]
