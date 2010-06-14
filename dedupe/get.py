@@ -64,15 +64,15 @@ def getany(record, field):
 def fallback(fields, test=bool, default=""):
     """Build a getter that tries fields in order until one passes the test.
 
-    >>> get = fallback((0,2))
+    >>> getfield = fallback((0,2))
     >>> rec1 = ('a','b','c')
     >>> rec2 = ('','b','c')
     >>> rec3 = (None,'b',None)
-    >>> get(rec1)
+    >>> getfield(rec1)
     'a'
-    >>> get(rec2)
+    >>> getfield(rec2)
     'c'
-    >>> get(rec3)
+    >>> getfield(rec3)
     ''
     """
     if not callable(test):
@@ -115,16 +115,19 @@ def multivalue(sep, *fields):
     :return: The virtual-field values
 
     >>> from dedupe import get
-    >>> get.multivalue(";", 0)(('a;b;c',))
+    >>> rec1 = ('a;b;c',)
+    >>> rec2 = ('a;b','c;d')
+    >>> get.multivalue(";", 0)(rec1)
     ['a', 'b', 'c']
-    >>> get.multivalue(";", 0, 1)(('a;b','c;d'))
+    >>> get.multivalue(";", 0, 1)(rec2)
     ['a', 'b', 'c', 'd']
     """
+    getters = [ getter(f) for f in fields ]
     def splitcombine(record):
         """Get multi-valued from delimited fields %s using delimiter %s"""
         result = []
-        for field in fields:
-            value = getany(record, field)
+        for get in getters:
+            value = get(record)
             values = [value] if sep is None else value.split(sep)
             result += [s.strip() for s in values if s.strip()]
         return result
