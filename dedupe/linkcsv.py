@@ -6,7 +6,7 @@ Helpers for record linkage with CSV files for input and output
 """
 
 import logging, os
-import excel, indexstats, recordgroups, sim
+import csv, indexstats, group, sim
 
 def write_indices(indices, outdir, prefix):
     """Write indices in CSV format.
@@ -18,22 +18,22 @@ def write_indices(indices, outdir, prefix):
     :type prefix: :class:`str`
     :param prefix: prepend this to each output file name.
     
-    >>> from dedupe import linkcsv, excel, block, sim
+    >>> from dedupe import linkcsv, csv, block, sim
     >>> makekey = lambda r: [int(r[1])]
     >>> compare = lambda x,y: float(int(x[1])==int(y[1]))
     >>> records = [('A',5.5), ('C',5.25)]
     >>> indexstrategy = [ ("Idx", block.Index, makekey) ]
     >>> indices = sim.Indices(indexstrategy, records)
-    >>> streams = excel._fake_open(linkcsv)
+    >>> streams = csv._fake_open(linkcsv)
     >>> linkcsv.write_indices(indices, outdir="/tmp", prefix="foo-")
     >>> stream = streams["/tmp/foo-Idx.csv"]
     >>> stream.seek(0)
-    >>> list(excel.Reader(stream, fields='Idx V1 V2'))
+    >>> list(csv.Reader(stream, fields='Idx V1 V2'))
     [Row(Idx=u'5', V1=u'A', V2=u'5.5'), Row(Idx=u'5', V1=u'C', V2=u'5.25')]
     """
     def write_index(index, stream):
         """Write a single index in CSV format to a stream"""
-        writer = excel.Writer(stream)
+        writer = csv.Writer(stream)
         for indexkey, rows in index.iteritems():
             for row in rows:
                 writer.writerow([unicode(indexkey)] + [unicode(v) for v in row])
@@ -67,7 +67,7 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
     """
     if not comparisons: return # in case no comparisons were done
     # File for comparison statistics
-    writer = excel.Writer(ostream)
+    writer = csv.Writer(ostream)
     writer.writerow(["Score"] + indices1.keys() + comparator.keys())
     indices2 = indices2 if indices2 else indices1
     # File for original records
@@ -96,7 +96,7 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
         weightrow = [score] + idxmatch + list(weights)
         writer.writerow(str(x) for x in weightrow)
     if origstream is not None:
-        record_writer = excel.Writer(origstream)
+        record_writer = csv.Writer(origstream)
         if projection: 
             record_writer.writerow(projection.fields)
         else:
@@ -115,17 +115,17 @@ def filelog(path):
 
 def writecsv(path, rows, header=None):
     """Write the `header` and `rows` to csv file at `path`"""
-    import excel
+    from . import csv
     with open(path, 'wb') as out:
-        writer = excel.Writer(out)
+        writer = csv.Writer(out)
         if header: writer.writerow(header)
         writer.writerows(rows)
         
 def loadcsv(path):
     """Load records from csv at `path` as a list of :class:`namedtuple`"""
-    import excel
+    from . import csv
     with open(path, 'rb') as istream:
-        return list(excel.Reader(istream))
+        return list(csv.Reader(istream))
     
     
 class LinkCSV(object):
@@ -140,9 +140,8 @@ class LinkCSV(object):
     a FileHandler directs output to the output directory.
     
     :type indexstrategy: [ (`str`, `type`, `function`) ]    
-    :param indexstrategy: List of indexes to use, providing the index name,
-    the class for constructing the index, and the function for producing the
-    index key.
+    :param indexstrategy: List of indexes to use, providing the index name,\
+    the class for constructing the index, and the function for producing the index key.
     :type comparator: :class:`~sim.Record`
     :param comparator: takes a pair of records and returns a similarity vector.
     :type classifier: function({(`R`,`R`):[:class:`float`]}) [(`R`, `R`)], [(`R`, `R`)]
@@ -212,8 +211,8 @@ class LinkCSV(object):
     def projection(self):
         """Projection instance to convert input/master records into output records."""
         if self.fields1:
-            import excel
-            return excel.Projection.unionfields(self.fields2, self.fields1)
+            from . import csv
+            return csv.Projection.unionfields(self.fields2, self.fields1)
         else:
             return None
         
@@ -273,7 +272,7 @@ class LinkCSV(object):
     def write_groups(self, groups="groups.csv"):
         """Write out all records, with numbered groups of mutually linked records first."""
         with open(self.opath(groups),'wb') as ofile:
-            import recordgroups
-            recordgroups.write_csv(
+            import group
+            group.write_csv(
                 self.matches, self.records1+self.records2, ofile, self.projection)
 

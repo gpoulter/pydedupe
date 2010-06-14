@@ -38,7 +38,7 @@ def load(comparator, records, outdir=None):
     >>> from .. import sim 
     >>> numcomp = lambda x,y: 2**-abs(x-y)
     >>> comparator = sim.Record(("V", sim.Field(numcomp, lambda r:r[3], float)))
-    >>> from ..excel import _fake_open
+    >>> from ..csv import _fake_open
     >>> streams = _fake_open(examples) # redirect open to StringIO
     >>> t, f = examples.load(comparator, records, '/tmp')
     >>> sorted(t)

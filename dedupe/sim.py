@@ -17,16 +17,16 @@ class Scale:
     """Re-scale the return values of similarity function so that a sub-range 
     of its is mapped onto the 0.0 to 1.0 result.  
     
-    :note: The default `low`=0.0 and `high`=1.0 do nothing. Higher values of
-    `low` make stricter comparisons, and lower values of `high` make more
+    :note: The default `low` = 0.0 and `high` = 1.0 do nothing. Higher values of\
+    `low` make stricter comparisons, and lower values of `high` make more\
     lenient comparisons.
     
-    @ivar similarity: A similarity function, takes two records and returns 
+    @param similarity: A similarity function, takes two records and returns\
     a float in the range 0.0 to 1.0.
-    @ivar low: Raw similarity values below `low` are scaled to 0.0.  
-    @ivar high: Raw similarity values above `high` are scaled to 1.0
-    @ivar missing: Return `missing` when `similarity` returns `None` (defaults to `None`).
-    @ivar test: Optional function to check for bad values.  If `a` and `b` pass
+    @param low: Raw similarity values below `low` are scaled to 0.0.  
+    @param high: Raw similarity values above `high` are scaled to 1.0
+    @param missing: Return `missing` when `similarity` returns `None` (defaults to `None`).
+    @param test: Optional function to check for bad values.  If `a` and `b` pass\
     the test then return `similarity(a,b)`, otherwise return `missing`.
     
     >>> from dedupe import sim
@@ -213,10 +213,10 @@ class Record(_OrderedDict):
     """Returns a vector of field value similarities between two records.
 
     :type \*simfuncs: [(:class:`str`, :class:`Field`), ...]
-    :param \*simfuncs: Pairs of (field name, similarity function) used
+    :param \*simfuncs: Pairs of (field name, similarity function) used\
     to compute the tuple of similarities.
     
-    :ivar Similarity: namedtuple class for the similarity of a pair of records,
+    :ivar Similarity: namedtuple class for the similarity of a pair of records,\
     with field names corresponding to `simfuncs`.
     
     :rtype: function(`R`, `R`) :class:`Similarity` 
@@ -239,7 +239,7 @@ class Record(_OrderedDict):
 
     def __call__(self, A, B):
         return self.Similarity._make(
-            fieldsimilarity(A, B) for fieldsimilarity in self.itervalues())
+            simfunc(A, B) for simfunc in self.itervalues())
     
     
 class Indices(_OrderedDict):
@@ -249,9 +249,9 @@ class Indices(_OrderedDict):
     of the other indeces.
     
     :type strategy: [ (`str`, `type`, `function`), ... ]
-    :param strategy: List of indexing strategies, as 
-    (index name, index class, key function). The index class must support 
-    the `compare` method, and the key function takes a record and returns
+    :param strategy: List of indexing strategies, as\
+    (index name, index class, key function). The index class must support\
+    the `compare` method, and the key function takes a record and returns\
     a list of keys for indexing.
 
     :type records: [ `tuple`, ... ]
@@ -269,9 +269,23 @@ class Indices(_OrderedDict):
     """
 
     def __init__(self, strategy, records=[]):
+        for strat in strategy:
+            self.check_strategy(strat)
         super(Indices, self).__init__(
             (name, idxtype(keyfunc, records)) 
             for name, idxtype, keyfunc in strategy)
+        
+    @staticmethod
+    def check_strategy(strategy):
+        if len(strategy) != 3:
+            raise TypeError("%s: not a strategy triple." % repr(strategy))
+        name, idxtype, keyfunc = strategy
+        if not isinstance(name, basestring):
+            raise TypeError("%s: not a string." % repr(name))
+        if not hasattr(idxtype, "compare") and hasattr(idxtype, "insert"):
+            raise TypeError("%s: not an index type." % repr(idxtype))
+        if not callable(keyfunc):
+            raise TypeError("%s: not callable." % repr(keyfunc))
             
     def insert(self, record):
         """Insert a record into each :class:`Index`."""
@@ -284,9 +298,8 @@ class Indices(_OrderedDict):
         :type simfunc: func(`R`, `R`) (`float`,...)
         :param simfunc: takes a pair of records and returns a similarity vector.
         
-        :type other: :class:`Indeces`
-        :param other: Compare records against another set of Indeces (default
-        is to compare records against themselves).
+        :type other: :class:`Indices`
+        :param other: Another Indices to compare against.
         
         :rtype: {(R,R):(float,...)}
         :return: mapping from pairs of records similarity vectors.

@@ -10,7 +10,7 @@ placed at the top of the files.
 
 """
 
-import excel
+from dedupe import csv
 
 def adjacency_list(nodepairs):
     """Construct adjacency list from edge list provided as pairs of nodes.
@@ -22,9 +22,9 @@ def adjacency_list(nodepairs):
     :rtype: {T:[T,...], ...}
     :return: nodes adjacent to each node in the graph.
     
-    >>> from dedupe import recordgroups
+    >>> from dedupe import group
     >>> edges = [ (1,2), (2,3), (4,5), (1,5) ]
-    >>> dict(recordgroups.adjacency_list(edges))
+    >>> dict(group.adjacency_list(edges))
     {1: [2, 5], 2: [1, 3], 3: [2], 4: [5], 5: [4, 1]}
     """
     from collections import defaultdict
@@ -42,9 +42,9 @@ def components(adjlist):
     :rtype: [[T,...],...]
     :return: connected components as lists of nodes.
     
-    >>> from dedupe import recordgroups
+    >>> from dedupe import group
     >>> edges = [ (1,2), (2,3), (4,5), (5,6) ]
-    >>> recordgroups.components(recordgroups.adjacency_list(edges))
+    >>> group.components(group.adjacency_list(edges))
     [[1, 2, 3], [4, 5, 6]]
     """
     groups = [] # List of lists describing groups
@@ -76,8 +76,8 @@ def singles_and_groups(matches, allrecords):
     :rtype: [T,...],[[T,...],...]
     :return: single records (match nothing) and groups (of matching records)
     
-    >>> from dedupe import recordgroups
-    >>> recordgroups.singles_and_groups([(1,2),(2,3),(4,5)],[1,2,3,4,5,6,7])
+    >>> from dedupe import group
+    >>> group.singles_and_groups([(1,2),(2,3),(4,5)],[1,2,3,4,5,6,7])
     ([6, 7], [[1, 2, 3], [4, 5]])
     """
     adjlist = adjacency_list(matches) # Map from record to neighbours
@@ -99,7 +99,7 @@ def write_csv(matches, records, ostream, projection):
     :rtype: [T,...], [[T,...],...]
     :return: list of single rows (no matches) and groups (mutually matching)
     """
-    w = excel.Writer(ostream, dialect='excel')
+    w = csv.Writer(ostream)
     if projection is None:
         projection = lambda x:x
     else:
