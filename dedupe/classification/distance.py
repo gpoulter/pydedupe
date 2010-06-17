@@ -2,10 +2,15 @@
 Distances between similarity vectors
 ====================================
 
-These distance functions drop dimensions where one or both of the vectors have
-None instead of a numeric value.  We feel that lowering dimensionality in
-response to missing values is better than replacing the None with a default
-similarity value (such as 0.2).
+These distance functions drops any dimensions valued as `None` in either
+`vec1` or `vec2`.  The 
+
+An alternative to dropping `None`-valued dimensions is to replacing `None`
+values in a similarity with a default value, such as 0.2, in cases where a
+pair of records cannot be compared on a field due to missing data.  Replacing
+a missing similarity with 0.2 puts the similarity vector closer to a 
+non-match example in nearest-neighbour classification.  Dropping a missing
+similarity from the distance calculation excludes it from the decision.
 
 .. moduleauthor:: Graham Poulter
 """
@@ -14,9 +19,9 @@ import math
 
 def L2(vec1, vec2):
     """Return L2 Euclidian distance between two vectors. 
-    
-    .. note:: components with :keyword:`None` in one or both of the vectors
-       are ignored (reduced dimensionality of the comparison).
+
+    This distance function drops any dimensions valued as `None` in either
+    `vec1` or `vec2`.  
     
     :type vec1, vec2: [:class:`float` | :keyword:`None`,...]
     :param vec1, vec2: Nullable floating-point vectors of the same length.
@@ -43,27 +48,18 @@ def L2(vec1, vec2):
                          for a,b in zip(vec1, vec2) 
                          if a is not None and b is not None))
 
-
 def normL2(vec1, vec2, stdevs):
     """Normalised L2 distance, also called the Mahalanobis distance with a
     diagonal covariance matrix. 
     
-    .. note:: components with :keyword:`None` in one or both of the vectors
-       are ignored (reduced dimensionality of the comparison).
-
-    .. note:: the difference between any two components of the vector 
-       is divided by the standard deviation, thus normalising the per-component
-       distance measures.
+    This distance function drops any dimensions valued as `None` in either
+    `vec1` or `vec2`.  
     
-    The principle is that a point can be considered "close" to a cluster of
-    points if it is less than one standard deviation from the centroid of the
-    cluster defined by items known to be members. Setting stdev[0]=0.5, for
-    example, is equivalent to the first component range from 0.0 to 2.0
-    instead of from 0.0 to 1.0, and defines "close" as being "less than 0.5
-    away". If stdev has not been empirically estimated, the thumb-suck for
-    each component should be the absolute difference below which the values
-    should be considered "close".
-
+    For dimension i, the value |vec1[i]-vec2[i]| is divided by the standard
+    deviation stdevs[i].  Plain `L2` distance is `normL2` with 1.0 standard
+    deviation in all dimensions.  Larger standard deviation in a dimension
+    reduces that dimension's contribution to the total distance.
+    
     :type vec1, vec2: [:class:`float` | :keyword:`None`,...]
     :param vec1, vec2: Nullable floating-point vectors of the same length.
     :type stdevs: [:class:`float`,...]
@@ -82,3 +78,6 @@ def normL2(vec1, vec2, stdevs):
     return math.sqrt(sum(((a-b)/s)**2 
                          for a,b,s in zip(vec1, vec2, stdevs) 
                          if a is not None and b is not None))
+
+
+
