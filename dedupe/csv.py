@@ -68,6 +68,7 @@ class Reader:
         for field in fields:
             if len(field) == 0:
                 raise ValueError("Empty field name")
+        self.fields = tuple(fields)
         self.Row = namedtuple(typename, fields)
         
     def __iter__(self):
