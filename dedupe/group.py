@@ -99,12 +99,15 @@ def write_csv(matches, records, ostream, projection):
     :rtype: [T,...], [[T,...],...]
     :return: list of single rows (no matches) and groups (mutually matching)
     """
+    import logging
     w = csv.Writer(ostream)
     if projection is None:
         projection = lambda x:x
     else:
         w.writerow(["GroupID"] + projection.fields)
     singles, groups = singles_and_groups(matches, records)
+    logging.info("Grouping: %d groups and %d single records.", 
+                 len(groups), len(singles))
     # Write groups of similar records
     for groupid, group in enumerate(groups):
         for row in group:

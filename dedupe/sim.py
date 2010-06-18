@@ -12,8 +12,8 @@ try:
     from dedupe.compat import OrderedDict as _OrderedDict
 except:
     from ..compat import OrderedDict as _OrderedDict
-    
-    
+
+
 class Convert(object):
     """Gets a single-valued field and converts it to a comparable value.
     
@@ -42,7 +42,7 @@ class Convert(object):
 class ListConvert(Convert):
     """Gets a multi-valued field converts its values to comparable values.
     
-    :type field: `callable` or `str` or `int`
+    :type field: `callable`
     :param field: Specifies a field from the record record.
     :type converter: `callable`
     :param converter: Converts field value for comparison.
@@ -76,7 +76,6 @@ class Scale(object):
     
     >>> from dedupe import sim
     >>> simfunc = lambda a,b: 2**-abs(a-b) 
-    >>> isnum = lambda x: isinstance(x,int) or isinstance(x,float)
     >>> simfunc(1,2)
     0.5
     >>> sim.Scale(simfunc)(1,2)
@@ -87,6 +86,7 @@ class Scale(object):
     1.0
     >>> sim.Scale(simfunc, low=0.4, high=0.6)(1,2)
     0.5
+    >>> isnum = lambda x: isinstance(x,int) or isinstance(x,float)
     >>> print sim.Scale(simfunc, test=isnum)("blah",2)
     None
     """

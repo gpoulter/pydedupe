@@ -20,7 +20,7 @@ def indexstats(index, name):
     NumIdx: Records=3, Blocks=2, Largest Block=2, Avg Per Block=1.50.
     """
     if not index:
-        logging.warn("%s: index is empty." % name)
+        logging.warn("%s: 0 comparisons (empty index)." % name)
     else:
         records = sum(len(recs) for recs in index.itervalues())
         largest = max(len(recs) for recs in index.itervalues())
@@ -31,7 +31,7 @@ def indexstats(index, name):
 def within(indices):
     """Log the expected within-index comparisons."""
     for name, index in indices.iteritems():
-        logging.info("Index %s may require up to %d comparisons.", 
+        logging.info("%s: %d max index comparisons needed.", 
                      name, index.count())
         indexstats(index, name)
 
@@ -39,10 +39,10 @@ def between(indices1, indices2):
     """Log the expected between-index comparisons."""
     if indices2 is not None:
         for (n1, i1), (n2, i2) in zip(indices1.items(), indices2.items()): 
-            logging.info("Index %s to %s may require up to %d comparisons.",
+            logging.info("Index %s and %s: %d max comparisons required.",
                 n1, n2, i1.count(i2))
-            indexstats(i1, "Indeces1 " + n1)
-            indexstats(i2, "Indeces2 " + n2)
+            indexstats(i1, "Indeces1: " + n1)
+            indexstats(i2, "Indeces2: " + n2)
     else:
         within(indices1)
 
