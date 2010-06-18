@@ -12,8 +12,53 @@ try:
     from dedupe.compat import OrderedDict as _OrderedDict
 except:
     from ..compat import OrderedDict as _OrderedDict
+    
+    
+class Convert(object):
+    """Gets a single-valued field and converts it to a comparable value.
+    
+    :type field: `callable` or `str` or `int`
+    :param field: Specifies a field from the record record.
+    :type converter: `callable`
+    :param converter: Converts field value for comparison.
+    :return: Converted field value.
+    
+    >>> c = Convert(1, lambda x:x.lower())
+    >>> rec = ('A','B','C')
+    >>> c(rec)
+    'b'
+    """
+    
+    def __init__(self, field, converter):
+        from dedupe.get import getter
+        self.field = field
+        self.getter = getter(field)
+        self.converter = converter
+        
+    def __call__(self, record):
+        return self.converter(self.getter(record))
 
-class Scale:
+
+class ListConvert(Convert):
+    """Gets a multi-valued field converts its values to comparable values.
+    
+    :type field: `callable` or `str` or `int`
+    :param field: Specifies a field from the record record.
+    :type converter: `callable`
+    :param converter: Converts field value for comparison.
+    :return: List of converted field values.    
+
+    >>> c = ListConvert(lambda x:x[1].split(';'), lambda x:x.lower())
+    >>> rec = ('A','X;Y;Z','C')
+    >>> c(rec)
+    ['x', 'y', 'z']
+    """
+    
+    def __call__(self, record):
+        return [self.converter(v) for v in self.getter(record)]
+
+
+class Scale(object):
     """Re-scale the return values of similarity function so that a sub-range 
     of its is mapped onto the 0.0 to 1.0 result.  
     

@@ -23,12 +23,12 @@ def L2(vec1, vec2):
     This distance function drops any dimensions valued as `None` in either
     `vec1` or `vec2`.  
     
-    :type vec1, vec2: [:class:`float` | :keyword:`None`,...]
-    :param vec1, vec2: Nullable floating-point vectors of the same length.
+    :type vec1, vec2: tuple of `float`/`None`
+    :param vec1, vec2: Floating point vectors
     :rtype: :class:`float`
-    :return: Euclidian (pythagorean) distance between `vec1` and `vec2`
+    :return: Euclidian (Pythagorean) distance between `vec1` and `vec2`
     
-    >>> from dedupe.classification.distance import L2, normL2
+    >>> from dedupe.classification.distance import L2
     >>> import math
     >>> L2([2,None],[5,None])
     3.0
@@ -58,7 +58,9 @@ def normL2(vec1, vec2, stdevs):
     For dimension i, the value |vec1[i]-vec2[i]| is divided by the standard
     deviation stdevs[i].  Plain `L2` distance is `normL2` with 1.0 standard
     deviation in all dimensions.  Larger standard deviation in a dimension
-    reduces that dimension's contribution to the total distance.
+    reduces that dimension's contribution to the total distance.  Setting
+    stdev[i]=k is mathematically equivalent to scaling component i of the
+    similarity to range over (0,1/k) instead of (0,1).
     
     :type vec1, vec2: [:class:`float` | :keyword:`None`,...]
     :param vec1, vec2: Nullable floating-point vectors of the same length.
@@ -67,6 +69,8 @@ def normL2(vec1, vec2, stdevs):
     :rtype: :class:`float`
     :return: Euclidian (pythagorean) distance between `vec1` and `vec2`
     
+    >>> from dedupe.classification.distance import normL2
+    >>> import math
     >>> normL2([2,None],[5,1],[1,1])
     3.0
     >>> normL2([2,2],[3,3],[1,1]) == math.sqrt(2)
@@ -78,6 +82,3 @@ def normL2(vec1, vec2, stdevs):
     return math.sqrt(sum(((a-b)/s)**2 
                          for a,b,s in zip(vec1, vec2, stdevs) 
                          if a is not None and b is not None))
-
-
-
