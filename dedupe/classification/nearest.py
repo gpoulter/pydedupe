@@ -55,7 +55,7 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
     [(1, 2), (4, 5)]
     """
     import logging, math
-    logging.info("Nearest neighbour: %s match examples and %d non-match examples.", 
+    logging.debug("Nearest neighbour: %s match examples and %d non-match examples.", 
                  len(ex_matches), len(ex_nonmatches))
     matches, nonmatches = {}, {}
     for pair, comparison in comparisons.iteritems():
@@ -76,7 +76,7 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
             nonmatches[pair] = 0.0
         else:
             raise ValueError("rule returned %s (should be True/False/None)" % str(judge))
-    logging.info("Nearest neighbour: %d matches and %d non-matches",
+    logging.debug("Nearest neighbour: %d matches and %d non-matches",
                  len(matches), len(nonmatches))
     return matches, nonmatches
 

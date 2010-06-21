@@ -23,7 +23,7 @@ def classify_bool(rule, comparisons):
     """
     matches, nonmatches, uncertain = set(), set(), set()
     for pair, simvec in comparisons.iteritems():
-        ismatch = rule(simvec)
+        ismatch = rule(pair[0], pair[1], simvec)
         if ismatch is True:
             matches.add(pair)
         elif ismatch is False:

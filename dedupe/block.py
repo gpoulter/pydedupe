@@ -13,6 +13,8 @@ douple-metaphone.
 .. moduleauthor:: Graham Poulter
 """
 
+import logging
+
 class Index(dict):
     """Mapping from index key to records.
     
@@ -143,3 +145,24 @@ class Index(dict):
                             comparisons[pair] = compare(*pair)
         return comparisons
 
+    def log_size(self, name):
+        """Log statistics about block sizes for `index`, prefixing lines with `name`.
+        
+        >>> from dedupe import block
+        >>> makekey = lambda r: [int(r[1])]
+        >>> idx = block.Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
+        >>> def log(s,*a):
+        ...     print s % a
+        >>> logging.info = log
+        >>> idx.log_size("NumIdx")
+        NumIdx: Records=3, Blocks=2, Largest Block=2, Avg Per Block=1.50.
+        """
+        if self:
+            records = sum(len(recs) for recs in self.itervalues())
+            largest = max(len(recs) for recs in self.itervalues())
+            blocks = len(self)
+            logging.info("%s: Records=%d, Blocks=%d, Largest Block=%d, Avg Per Block=%.2f.",
+                name, records, blocks, largest, float(records)/blocks)
+        else:
+            logging.info("%s: Empty index." % name)
+    

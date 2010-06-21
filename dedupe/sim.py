@@ -5,6 +5,7 @@ Compare values, fields, and records for similarity
 .. moduleauthor:: Graham Poulter
 """
 
+import logging
 from dale import similarity as dale
 from levenshtein import similarity as levenshtein
 
@@ -362,3 +363,17 @@ class Indices(_OrderedDict):
                         (type(index1), type(index2)))
                 index1.compare(simfunc, index2, comparisons)
         return comparisons
+    
+    def log_comparisons(self, other):
+        """Log the expected between-index comparisons."""
+        if other is not None and other is not self:
+            for (n1, i1), (n2, i2) in zip(self.items(), other.items()): 
+                logging.info("Index %s and %s: %d max comparisons required.",
+                    n1, n2, i1.count(i2))
+                i1.log_size(n1)
+                i2.log_size(n2)
+        else:
+            for name, index in self.iteritems():
+                logging.info("%s: %d max index comparisons needed.", 
+                             name, index.count())
+                index.log_size(name)    

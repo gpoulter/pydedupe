@@ -6,7 +6,7 @@ Helpers for record linkage with CSV files for input and output
 """
 
 import logging, os
-import csv, indexstats, group, sim
+import csv, group, sim
 
 def write_indices(indices, outdir, prefix):
     """Write indices in CSV format.
@@ -180,8 +180,8 @@ class LinkCSV(object):
         self.indices2 = None
         if self.records2:
             self.indices2 = sim.Indices(self.indexstrategy, self.records2)
-        indexstats.between(self.indices1, self.indices2)
         # Compute the similarity vectors
+        self.indices1.log_comparisons(self.indices2)
         self.comparisons = self.indices1.compare(self.comparator, self.indices2)
         # Classify the similarity vectors
         self.matches, self.nonmatches = classifier(self.comparisons)
