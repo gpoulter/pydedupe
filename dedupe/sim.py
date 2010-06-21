@@ -60,19 +60,15 @@ class ListConvert(Convert):
 
 
 class Scale(object):
-    """Re-scale the return values of similarity function so that a sub-range 
-    of its is mapped onto the 0.0 to 1.0 result.  
+    """Map values of a similarity function onto the 0.0 to `rmax` range.
     
-    :note: The default `low` = 0.0 and `high` = 1.0 do nothing. Higher values of\
-    `low` make stricter comparisons, and lower values of `high` make more\
-    lenient comparisons.
-    
-    :param similarity: A similarity function, takes two records and returns\
-    a float in the range 0.0 to 1.0.
-    :param low: Raw similarity values below `low` are scaled to 0.0.  
-    :param high: Raw similarity values above `high` are scaled to 1.0
+    :param similarity: Callable of two records returning a similarity value.
+    :param low: Similarity values below `low` (default 0.0) are scaled to 0.0
+    :param high: Similarity values above `high` (default 1.0) are scaled to 1.0
+    :param rmax: Upper end of the result range (default 1.0).\
+    Lower `rmax` reduces contribution of the field to vector distance, downweighting it.
     :param missing: Return `missing` when `similarity` returns `None` (defaults to `None`).
-    :param test: Optional function to check for bad values.  If `a` and `b` pass\
+    :param test: Callable of record to test bad values.  If `a` and `b` pass\
     the test then return `similarity(a,b)`, otherwise return `missing`.
     
     >>> from dedupe import sim
@@ -87,31 +83,39 @@ class Scale(object):
     1.0
     >>> sim.Scale(simfunc, low=0.4, high=0.6)(1,2)
     0.5
+    >>> sim.Scale(simfunc, low=0.4, high=0.6, rmax=0.5)(1,2)
+    0.25
     >>> isnum = lambda x: isinstance(x,int) or isinstance(x,float)
     >>> print sim.Scale(simfunc, test=isnum)("blah",2)
     None
     """
     
-    def __init__(self, similarity, low=0.0, high=1.0, missing=None, test=None):
-        if not (0.0 <= low <= 1.0 and 0.0 <= high <= 1.0 and low < high):
+    def __init__(self, similarity, low=0.0, high=1.0, rmax=1.0, missing=None, test=None):
+        if not (0.0 <= low < high):
             raise ValueError("low: %s, high: %s" % (str(low),str(high)))
         self.similarity = similarity 
         self.low = low
         self.high = high
+        self.rmax = rmax
         self.missing = missing
         self.test = test
         
+    def scale(self, value):
+        """Scale a value from (low,high) range to (0,1) range."""
+        if value <= self.low:
+            return 0.0
+        if  value >= self.high:
+            return 1.0
+        return self.rmax * (value-self.low)/(self.high-self.low)
+        
     def __call__(self, a, b):
+        """Similarity of a and b, scaled to (0,1) range."""
         if self.test and not (self.test(a) and self.test(b)):
             return self.missing
         v = self.similarity(a,b)
         if v is None:
             return self.missing
-        if v <= self.low:
-            return 0.0
-        if  v >= self.high:
-            return 1.0
-        return (v-self.low)/(self.high-self.low)
+        return self.scale(v)
 
 
 class Field(object):

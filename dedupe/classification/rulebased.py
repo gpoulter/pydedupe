@@ -13,9 +13,9 @@ def classify_bool(rule, comparisons):
     """Use provided rule to classify similarity vectors as
     matches (True), non-matches (False) and uncertain (None).
     
-    :type rule: function([:keyword:`float`,...]) :keyword:`bool` | :keyword:`None`
-    :param rule: "is this similarity vector a match" - returns :keyword:`True`\
-      :keyword:`False` or :keyword:`None`
+    :type rule: function(record,record,[`float`,...]) :keyword:`bool` | :keyword:`None`
+    :param rule: Takes (rec1,rec2,similarity) and returns True/False/None\
+    as to whether the pair is a match. `None` is unknown.
     :type comparisons: {(`R`, `R`):[:class:`float`,...],...}
     :param comparisons: similarity vectors of compared record pairs.
     :rtype: {(`R`, `R`)...}, {(`R`, `R`)...}, {(`R`, `R`)...}

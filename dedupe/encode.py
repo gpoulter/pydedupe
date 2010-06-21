@@ -39,6 +39,14 @@ def lowstrip(text):
     """
     return normspace(text.lower())
 
+def alnumsp(text):
+    """Normalise space, strip punctuation.
+    
+    >>> alnumsp(" Joe (K) Ltd.  ")
+    u'joe k ltd'
+    """
+    return normspace(re.sub(ur"\W+", u" ", text.lower()))
+
 def digits(text):
     """Strip all except digits (for phone numbers).
     
