@@ -118,3 +118,39 @@ def wrap(*funcs):
         return text
     return _wrapper
 
+class Normaliser:
+    """Normalise terms in text using a dictionary mapping d[primary] == [aliases].
+    Generates a regex to match each list of aliases, and when normalise is 
+    called on a text, it converts the text to use the primary form.
+    
+    >>> expansions = {'parkway': ['parkwy', 'pky', 'pkway', 'prkwy', 'prkway', 'pkw', 'pkwy'],
+    ...  'street' : ['str', r'st$'],
+    ...  'promenade': ['prom'],
+    ...  'ridge': ['rdg', 'rdge']}
+    >>> norm = Normaliser(expansions)
+    >>> norm('something Rdg')
+    'something ridge'
+    >>> norm('foo str')
+    'foo street'
+    >>> norm('foo St')
+    'foo street'
+    >>> norm('St John Prom')
+    'St John promenade'
+    >>> norm('Liesbeeck Prkwy')
+    'Liesbeeck parkway'
+    """
+
+    def __init__(self, aliases):
+        import re
+        self.aliases = aliases
+        self.regexes = {}
+        for primary, shortforms in self.aliases.iteritems():
+            regex = r'\b' + r'|'.join(shortforms) + r'\b'
+            self.regexes[primary] = re.compile(regex, re.IGNORECASE)
+
+    def normalise(self, text):
+        """Convert aliases to primary form in the given text."""
+        for primary, regex in self.regexes.iteritems():
+            text = regex.sub(primary, text)
+        return text
+    __call__ = normalise
