@@ -3,6 +3,8 @@ Compare all pairs of records
 ============================
 """
 
+import logging
+
 def within(comparator, records):
     """Compute similarity vectors for all pairs of records in a list.  
     
@@ -90,3 +92,10 @@ class Index:
             return within(simfunc, self.records)
         else:
             return between(simfunc, self.records, other.records)
+
+    def log_size(self, name):
+        """Log statistics about size of the index.
+        >>> idx = Index()
+        >>> idx.log_size('MyIndex')
+        """
+        logging.info("{0}: Contains {1} records.".format(name, len(self.records)))
