@@ -5,7 +5,7 @@ Compare all pairs of records
 
 import logging
 
-def within(comparator, records):
+def within(comparator, records, comparisons=None):
     """Compute similarity vectors for all pairs of records in a list.  
     
     :type comparator: func(`R`, `R`) [:class:`float`,...]
@@ -23,7 +23,8 @@ def within(comparator, records):
     >>> allpairs.within(numcomp, records)
     {(('A', '1'), ('C', '3')): 0.25, (('B', '2'), ('C', '3')): 0.5, (('A', '1'), ('B', '2')): 0.5}
     """
-    comparisons = {}
+    if comparisons is None:
+        comparisons = {}
     records.sort()
     for i in range(len(records)):
         for j in range(i):
@@ -32,7 +33,7 @@ def within(comparator, records):
                 comparisons[pair] = comparator(*pair)
     return comparisons
 
-def between(comparator, records1, records2):
+def between(comparator, records1, records2, comparisons=None):
     """Compute similarity vectors for all pairs of records in two lists. Each record
     in the first list is compared against each record in the second list.
     
@@ -50,7 +51,8 @@ def between(comparator, records1, records2):
     >>> allpairs.between(numcomp, recs1, recs2)
     {(('A', '1'), ('C', '3')): 0.25, (('A', '1'), ('B', '2')): 0.5}
     """
-    comparisons = {}
+    if comparisons is None:
+        comparisons = {}
     for i in range(len(records1)):
         for j in range(len(records2)):
             rec1, rec2 = records1[i], records2[j]
@@ -86,12 +88,12 @@ class Index:
         """Add a record to the index"""
         self.records.append(record)
         
-    def compare(self, simfunc, other=None):
+    def compare(self, simfunc, other=None, comparisons=None):
         """Compute similarity vectors for all pairs of records."""
         if other is None or other is self:
-            return within(simfunc, self.records)
+            return within(simfunc, self.records, comparisons)
         else:
-            return between(simfunc, self.records, other.records)
+            return between(simfunc, self.records, other.records, comparisons)
 
     def log_size(self, name):
         """Log statistics about size of the index.
