@@ -92,7 +92,7 @@ class Scale(object):
     
     def __init__(self, similarity, low=0.0, high=1.0, rmax=1.0, missing=None, test=None):
         if not (0.0 <= low < high):
-            raise ValueError("low: %s, high: %s" % (str(low),str(high)))
+            raise ValueError("low: {0}, high: {1}".format(low,high))
         self.similarity = similarity 
         self.low = low
         self.high = high
@@ -317,6 +317,14 @@ class Indices(_OrderedDict):
     >>> records2 = [('D',5.5),('E',4.5),('F',5.25)]
     >>> sim.Indices(strategy, records1)
     OrderedDict([('MyIndex', {4: [('B', 4.5)], 5: [('A', 5.5), ('C', 5.25)]})])
+    >>> sim.Indices.check_strategy((1,2,3))
+    Traceback (most recent call last):
+        ...
+    TypeError: 1: not a string.
+    >>> sim.Indices.check_strategy([])
+    Traceback (most recent call last):
+        ...
+    TypeError: []: not a strategy triple.
     """
 
     def __init__(self, strategy, records=[]):
@@ -329,14 +337,14 @@ class Indices(_OrderedDict):
     @staticmethod
     def check_strategy(strategy):
         if len(strategy) != 3:
-            raise TypeError("%s: not a strategy triple." % repr(strategy))
+            raise TypeError("{0!r}: not a strategy triple.".format(strategy))
         name, idxtype, keyfunc = strategy
         if not isinstance(name, basestring):
-            raise TypeError("%s: not a string." % repr(name))
+            raise TypeError("{0!r}: not a string.".format(name))
         if not hasattr(idxtype, "compare") and hasattr(idxtype, "insert"):
-            raise TypeError("%s: not an index type." % repr(idxtype))
+            raise TypeError("{0!r}: not an index type.".format(idxtype))
         if not callable(keyfunc):
-            raise TypeError("%s: not callable." % repr(keyfunc))
+            raise TypeError("{0!r}: not callable.".format(keyfunc))
             
     def insert(self, record):
         """Insert a record into each :class:`Index`."""
@@ -363,7 +371,7 @@ class Indices(_OrderedDict):
             for index1, index2 in zip(self.itervalues(), other.itervalues()):
                 if type(index1) is not type(index2):
                     raise TypeError(
-                        "Indeces of type %s and type %s are incompatible" % 
+                        "Indeces of type {0} and type {1} are incompatible" % 
                         (type(index1), type(index2)))
                 index1.compare(simfunc, index2, comparisons)
         return comparisons
@@ -372,12 +380,12 @@ class Indices(_OrderedDict):
         """Log the expected between-index comparisons."""
         if other is not None and other is not self:
             for (n1, i1), (n2, i2) in zip(self.items(), other.items()): 
-                logging.info("Index %s and %s: %d max comparisons required.",
-                    n1, n2, i1.count(i2))
+                logging.info("Index {0} and {1}: {2} max comparisons required.".format(
+                    n1, n2, i1.count(i2)))
                 i1.log_size(n1)
                 i2.log_size(n2)
         else:
             for name, index in self.iteritems():
-                logging.info("%s: %d max index comparisons needed.", 
-                             name, index.count())
+                logging.info("{0}: {1} max index comparisons needed.".format(
+                             name, index.count()))
                 index.log_size(name)    

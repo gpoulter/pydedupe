@@ -31,10 +31,10 @@ def classify_bool(rule, comparisons):
         elif ismatch is None:
             uncertain.add(pair)
         else:
-            raise ValueError("rulebased classify: %s is not True/False/None" % repr(ismatch))
+            raise ValueError("rulebased classify: {0!r} is not True/False/None".format(ismatch))
     import logging
-    logging.debug("rulebased classifier on %d vectors: %d matches, %d non-matches, %d uncertain", 
-                  len(comparisons), len(matches), len(nonmatches), len(uncertain))
+    logging.debug("rulebased classifier on {0} vectors: {1} matches, {2} non-matches, {3} uncertain".format( 
+                  len(comparisons), len(matches), len(nonmatches), len(uncertain)))
     return matches, nonmatches, uncertain
 
 def classify(rule, comparisons):

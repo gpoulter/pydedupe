@@ -9,7 +9,7 @@ def suite():
     testmods = [ 'tests.' + re.match(r'(.+?)\.py$', f).group(1) 
                  for f in os.listdir(tests_dir)
                  if re.match(r'test_(.+?)\.py$', f) is not None ]
-    print "Testing Modules: %s" % ", ".join(testmods)
+    print "Testing Modules: ", ", ".join(testmods)
     return unittest.defaultTestLoader.loadTestsFromNames(testmods)
 
 if __name__ == "__main__":

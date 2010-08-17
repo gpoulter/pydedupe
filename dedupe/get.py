@@ -47,7 +47,7 @@ def fallback(fields, test=bool, default=""):
     ''
     """
     if not callable(test):
-        raise TypeError("test: %s is not callable" % repr(test))
+        raise TypeError("test: {0!r} is not callable".format(test))
     getters = [ getter(f) for f in fields ]
     def getfield(record):
         """Attempt to get field from record"""

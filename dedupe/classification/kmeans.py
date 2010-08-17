@@ -62,7 +62,7 @@ def classify(comparisons, distance, maxiter=10):
     vlen = len(v)
     vidx = range(vlen)
     comparisons[k] = v
-    logging.debug("KMeans: Dimension %d, maxiter %d",vlen,maxiter)
+    logging.debug("KMeans: Dimension {0}, maxiter {1}",vlen,maxiter)
     str_vector = lambda vector: "[" + ", ".join("%.4f" % v if v is not None else "None" for v in vector) + "]"
     safe_div = lambda n,d: n/d if d > 0 else None
     
@@ -71,8 +71,8 @@ def classify(comparisons, distance, maxiter=10):
                           if x[i] is not None) for i in vidx ]
     low_centroid = [ min(x[i] for x in comparisons.itervalues() 
                          if x[i] is not None) for i in vidx ]
-    logging.debug("  Initial match centroid: %s", str_vector(high_centroid))
-    logging.debug("  Initial non-match centroid: %s", str_vector(low_centroid))
+    logging.debug("  Initial match centroid: " + str_vector(high_centroid))
+    logging.debug("  Initial non-match centroid: " + str_vector(low_centroid))
     
     # Mapping key to (value, class assignment).
     # All items initially assigned to the "False" class (non-match).
@@ -117,9 +117,9 @@ def classify(comparisons, distance, maxiter=10):
         high_centroid = [ safe_div(high_total[i], high_count[i]) for i in vidx ]
         low_centroid = [ safe_div(low_total[i], low_count[i]) for i in vidx ]
             
-        logging.debug("  Iteration %d: %d vectors changed assignment.", iters, n_changed)
-        logging.debug("    Match centroid: %s", str_vector(high_centroid))
-        logging.debug("    Non-match centroid: %s", str_vector(low_centroid))
+        logging.debug("  Iteration {0}: {1} vectors changed assignment.".format(iters, n_changed))
+        logging.debug("    Match centroid: " + str_vector(high_centroid))
+        logging.debug("    Non-match centroid: " + str_vector(low_centroid))
     
     # Calculate a smoothed score as the log of the ratio of distances
     # of the similarity vector to each of the centroids.
@@ -127,6 +127,6 @@ def classify(comparisons, distance, maxiter=10):
     score = lambda v: math.log10( (distance(v,low_centroid)+0.1) / (distance(v,high_centroid)+0.1) )
     matches = dict( (k, score(v))  for k, (v,match) in assignments.iteritems() if match)
     nomatches = dict( (k, score(v)) for k, (v,match) in assignments.iteritems() if not match)
-    logging.debug("Classified %d similarity vectors, %d as matches and %d as non-matches.",
-                  len(comparisons), len(matches), len(nomatches))
+    logging.debug("Classified {0} similarity vectors, {1} as matches and {2} as non-matches.".format(
+                  len(comparisons), len(matches), len(nomatches)))
     return matches, nomatches
