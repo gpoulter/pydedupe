@@ -60,7 +60,7 @@ class Index(dict):
         keys = self.makekey(record)
         for key in keys:
             if key is None or key == "":
-                raise ValueError("Empty index key in %s" % repr(keys))
+                raise ValueError("Empty index key in %s for record %s" % (repr(keys),repr(record)))
             recordsforkey = self.setdefault(key, list())
             recordsforkey.append(record)
         return keys
