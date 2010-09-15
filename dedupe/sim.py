@@ -157,9 +157,12 @@ class Field(object):
 
     def __call__(self, record1, record2):
         """Returns the similarity of `record1` and `record2` on this field."""
-        return self.compare(
-            self.encode1(self.field1(record1)), 
-            self.encode2(self.field2(record2)))
+        v1 = self.field1(record1)
+        v2 = self.field2(record2)
+        if v1 is not None and v2 is not None:
+            return self.compare(self.encode1(v1), self.encode2(v2))
+        else:
+            return None
 
 
 class Average(Field):
