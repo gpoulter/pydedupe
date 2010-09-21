@@ -8,6 +8,14 @@ from operator import attrgetter as attr
 
 from operator import itemgetter as item
 
+def dictattr(fieldspec):
+    def get(row):
+        if isinstance(row, dict):
+            return row.get(fieldspec, None)
+        else:
+            return getattr(row, fieldspec)
+    return get
+
 def getter(fieldspec):
     """Build a getter for unknown `fieldspec`. Returns either 
     attrgetter(fieldspec) for string, itemgetter(fieldspec) for int, 
@@ -23,12 +31,13 @@ def getter(fieldspec):
     >>> get.getter(lambda r: r[0]+r[1])(('a','b','c'))
     'ab'
     """
-    if callable(fieldspec):
+    import collections
+    if isinstance(fieldspec, collections.Callable):
         return fieldspec
-    elif isinstance(fieldspec, str):
-        return attr(fieldspec)
     elif isinstance(fieldspec, int):
         return item(fieldspec)
+    elif isinstance(fieldspec, str):
+        return dictattr(fieldspec)
     else:
         raise TypeError("fieldspec: " + str(type(fieldspec)))
 
@@ -46,7 +55,8 @@ def fallback(fields, test=bool, default=""):
     >>> getfield(rec3)
     ''
     """
-    if not callable(test):
+    import collections
+    if not isinstance(test, collections.Callable):
         raise TypeError("test: {0!r} is not callable".format(test))
     getters = [ getter(f) for f in fields ]
     def getfield(record):
@@ -56,7 +66,7 @@ def fallback(fields, test=bool, default=""):
                 val = get(record)
                 if test(val):
                     return val
-            except AttributeError:
+            except (AttributeError, KeyError):
                 pass
         return default
     return getfield
