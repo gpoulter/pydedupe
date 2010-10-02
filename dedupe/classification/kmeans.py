@@ -14,6 +14,7 @@ is low when there are lots of dimensions or missing values.
 
 from __future__ import division
 
+
 def classify(comparisons, distance, maxiter=10):
     """Classify record pair similarity vectors as matches and non-matches
     using K-Means (K=2) clustering around match and non-match centroids.

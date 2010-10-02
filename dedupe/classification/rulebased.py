@@ -9,6 +9,7 @@ classification.
 .. moduleauthor:: Graham Poulter
 """
 
+
 def classify_bool(rule, comparisons):
     """Use provided rule to classify similarity vectors as
     matches (True), non-matches (False) and uncertain (None).
@@ -36,6 +37,7 @@ def classify_bool(rule, comparisons):
     logging.debug("rulebased classifier on {0} vectors: {1} matches, {2} non-matches, {3} uncertain".format(
                   len(comparisons), len(matches), len(nonmatches), len(uncertain)))
     return matches, nonmatches, uncertain
+
 
 def classify(rule, comparisons):
     """Uses a rule to classify matches/non-matches using scores of 0.0 and 1.0,

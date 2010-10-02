@@ -6,6 +6,7 @@ sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
 from dedupe import block, sim, linkcsv
 
+
 def classify(comparisons):
     """Returns match pairs and non-match pairs.
 
@@ -23,6 +24,7 @@ def classify(comparisons):
         else:
             nomatches[pair] = 0.0
     return matches, nomatches
+
 
 class FakeOpen:
 

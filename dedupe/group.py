@@ -12,6 +12,7 @@ placed at the top of the files.
 
 from dedupe import csv
 
+
 def adjacency_list(nodepairs):
     """Construct adjacency list from edge list provided as pairs of nodes.
     Nodes not listed in the edge list (thus not adjacent to anything) are
@@ -33,6 +34,7 @@ def adjacency_list(nodepairs):
         neighbours[node1].append(node2)
         neighbours[node2].append(node1)
     return neighbours
+
 
 def components(adjlist):
     """Construct of groups as graph components using breadth-first search.
@@ -65,6 +67,7 @@ def components(adjlist):
     # Return the list of groups
     return groups
 
+
 def singles_and_groups(matches, allrecords):
     """Given list of matched pairs, and all records, return the groups
     of similar records, and the singlets
@@ -84,6 +87,7 @@ def singles_and_groups(matches, allrecords):
     groups = components(adjlist) # List of lists of records
     singles = [rec for rec in allrecords if rec not in adjlist]
     return singles, groups
+
 
 def write_csv(matches, records, ostream, projection):
     """Write out the records, with grouping
@@ -116,4 +120,3 @@ def write_csv(matches, records, ostream, projection):
     for row in singles:
         w.writerow(("",) + projection(row))
     return singles, groups
-

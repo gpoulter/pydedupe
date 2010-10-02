@@ -163,6 +163,7 @@ def use_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
         if not no_fake:
             _create_fake_setuptools_pkg_info(to_dir)
 
+
 def download_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
                         to_dir=os.curdir, delay=15):
     """Download distribute from a specified location and return its filename
@@ -226,6 +227,7 @@ def _rename_path(path):
     log.warn('Renaming %s into %s', path, new_name)
     try:
         from setuptools.sandbox import DirectorySandbox
+
         def _violation(*args):
             pass
         DirectorySandbox._violation = _violation
@@ -274,6 +276,7 @@ def _after_install(dist):
     log.warn('After install bootstrap.')
     placeholder = dist.get_command_obj('install').install_purelib
     _create_fake_setuptools_pkg_info(placeholder)
+
 
 def _create_fake_setuptools_pkg_info(placeholder):
     if not placeholder or not os.path.exists(placeholder):

@@ -8,6 +8,7 @@ from operator import attrgetter as attr
 
 from operator import itemgetter as item
 
+
 def dictattr(fieldspec):
     def get(row):
         if isinstance(row, dict):
@@ -15,6 +16,7 @@ def dictattr(fieldspec):
         else:
             return getattr(row, fieldspec)
     return get
+
 
 def getter(fieldspec):
     """Build a getter for unknown `fieldspec`. Returns either
@@ -41,6 +43,7 @@ def getter(fieldspec):
     else:
         raise TypeError("fieldspec: " + str(type(fieldspec)))
 
+
 def fallback(fields, test=bool, default=""):
     """Build a getter that tries fields in order until one passes the test.
 
@@ -59,6 +62,7 @@ def fallback(fields, test=bool, default=""):
     if not isinstance(test, collections.Callable):
         raise TypeError("test: {0!r} is not callable".format(test))
     getters = [ getter(f) for f in fields ]
+
     def getfield(record):
         """Attempt to get field from record"""
         for get in getters:
@@ -70,6 +74,7 @@ def fallback(fields, test=bool, default=""):
                 pass
         return default
     return getfield
+
 
 def combine(*fields):
     """Build a getter that combines several fields into a list of strings.
@@ -84,6 +89,7 @@ def combine(*fields):
     ['A', 'C', 'D']
     """
     return multivalue(None, *fields)
+
 
 def multivalue(sep, *fields):
     """Build a getter to convert one or more separated-value fields
@@ -104,6 +110,7 @@ def multivalue(sep, *fields):
     ['a', 'b', 'c', 'd']
     """
     getters = [ getter(f) for f in fields ]
+
     def splitcombine(record):
         """Get multi-valued from delimited fields %s using delimiter %s"""
         result = []
@@ -114,4 +121,3 @@ def multivalue(sep, *fields):
         return result
     splitcombine.__doc__ %= ",".join([str(x) for x in fields]), sep
     return splitcombine
-

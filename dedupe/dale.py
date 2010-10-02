@@ -34,6 +34,7 @@ from __future__ import division
 
 __license__ = "MIT"
 
+
 def distance(seq1, seq2):
     """Return Damerau-Levenshtein distance between sequences.
 
@@ -77,6 +78,7 @@ def distance(seq1, seq2):
                 and seq1[x-1] == seq2[y] and seq1[x] != seq2[y]):
                 thisrow[y] = min(thisrow[y], twoago[y-2] + 1)
     return thisrow[len(seq2) - 1]
+
 
 def similarity(a, b):
     """Damerau-Levenshtein distance as similarity in the range 0.0 to 1.0.

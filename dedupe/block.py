@@ -15,6 +15,7 @@ douple-metaphone.
 
 import logging
 
+
 class Index(dict):
     """Mapping from index key to records.
 
@@ -166,4 +167,3 @@ class Index(dict):
                 name, records, blocks, largest, float(records)/blocks)
         else:
             logging.info("%s: Empty index." % name)
-

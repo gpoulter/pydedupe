@@ -11,6 +11,7 @@ code found here_.
 .. moduleauthor:: Graham Poulter
 """
 
+
 def distance(a, b):
     """Calculates the Levenshtein distance between a and b.
 
@@ -37,6 +38,7 @@ def distance(a, b):
                 change = change + 1
             current[j] = min(add, delete, change)
     return current[n]
+
 
 def similarity(a, b):
     """Levenshtein distance as similarity in the range 0.0 to 1.0.  Empty

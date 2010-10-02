@@ -9,11 +9,13 @@ Values can be encoded for indexing, or transformed prior to comparison.
 
 import re
 
+
 def dmetaphone(text):
     """Compute list of double-metaphone encodings of text.  See
     :mod:`dedupe.dmetaphone`."""
     import dmetaphone
     return dmetaphone.encode(text)
+
 
 def normspace(text):
     """Strip multiple and trailing spaces.
@@ -23,6 +25,7 @@ def normspace(text):
     """
     return re.sub(ur"\s+", u" ", text.strip())
 
+
 def nospace(text):
     """Strip all whitespace.
 
@@ -30,6 +33,7 @@ def nospace(text):
     u'ab'
     """
     return re.sub(ur"\s+", u"", text.strip())
+
 
 def lowstrip(text):
     """Lowcase and strip extra space.
@@ -39,6 +43,7 @@ def lowstrip(text):
     """
     return normspace(text.lower())
 
+
 def alnumsp(text):
     """Normalise space, strip punctuation.
 
@@ -46,6 +51,7 @@ def alnumsp(text):
     u'joe k ltd'
     """
     return normspace(re.sub(ur"\W+", u" ", text.lower()))
+
 
 def digits(text):
     """Strip all except digits (for phone numbers).
@@ -55,6 +61,7 @@ def digits(text):
     """
     return re.sub(ur"\D+", "", text.strip())
 
+
 def sorted_words(text):
     """Sort words.
 
@@ -63,6 +70,7 @@ def sorted_words(text):
     """
     return ' '.join(sorted(text.split(' ')))
 
+
 def reverse(text):
     """Reverse text.
 
@@ -70,6 +78,7 @@ def reverse(text):
     'cba'
     """
     return text[::-1]
+
 
 def urldomain(text):
     """Obtain the domain from the text of a URL.
@@ -89,6 +98,7 @@ def urldomain(text):
     if match is None: return text
     return match.group(1)
 
+
 def emaildomain(text):
     """Obtain the domain from the text of an email address.
 
@@ -100,6 +110,7 @@ def emaildomain(text):
     match = re.match(ur'([^@]+)@(.+)', text)
     if match is None: return text
     return match.group(2)
+
 
 def wrap(*funcs):
     """Create a composited function from a list of unitary functions.
@@ -117,6 +128,7 @@ def wrap(*funcs):
             text = func(text)
         return text
     return _wrapper
+
 
 class Normaliser:
     """Normalise terms in text using a dictionary mapping d[primary] == [aliases].

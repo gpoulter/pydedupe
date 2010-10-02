@@ -17,6 +17,7 @@ similarity from the distance calculation excludes it from the decision.
 
 import math
 
+
 def L2(vec1, vec2):
     """Return L2 Euclidian distance between two vectors.
 
@@ -47,6 +48,7 @@ def L2(vec1, vec2):
     return math.sqrt(sum((a-b)**2
                          for a, b in zip(vec1, vec2)
                          if a is not None and b is not None))
+
 
 def normL2(vec1, vec2, stdevs):
     """Normalised L2 distance, also called the Mahalanobis distance with a

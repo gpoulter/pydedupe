@@ -8,6 +8,7 @@ Helpers for record linkage with CSV files for input and output
 import logging, os
 import csv, group, sim
 
+
 def write_indices(indices, outdir, prefix):
     """Write indices in CSV format.
 
@@ -41,6 +42,7 @@ def write_indices(indices, outdir, prefix):
     for indexname, index in indices.iteritems():
         with open(join(outdir, prefix+indexname+'.csv'), 'wb') as stream:
             write_index(index, stream)
+
 
 def write_comparisons(ostream, comparator, comparisons, scores, indices1,
                       indices2=None, projection=None, origstream=None):
@@ -105,6 +107,7 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
             record_writer.writerow(projection(rec1))
             record_writer.writerow(projection(rec2))
 
+
 def filelog(path):
     """Add filehandler to main logger, writing to :file:`{path}`."""
     import logging
@@ -113,6 +116,7 @@ def filelog(path):
         '%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S'))
     logging.getLogger().addHandler(filehandler)
 
+
 def writecsv(path, rows, header=None):
     """Write the `header` and `rows` to csv file at `path`"""
     from . import csv
@@ -120,6 +124,7 @@ def writecsv(path, rows, header=None):
         writer = csv.Writer(out)
         if header: writer.writerow(header)
         writer.writerows(rows)
+
 
 def loadcsv(path):
     """Load records from csv at `path` as a list of :class:`namedtuple`"""
@@ -275,4 +280,3 @@ class LinkCSV(object):
             import group
             group.write_csv(
                 self.matches, self.records1+self.records2, ofile, self.projection)
-

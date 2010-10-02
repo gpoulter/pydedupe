@@ -5,6 +5,7 @@ Convert example pairs into training vectors
 .. moduleauthor:: Graham Poulter
 """
 
+
 def load(comparator, records, outdir=None):
     """Use example records to create match and non-match similarity vectors
     for training a classifier.
@@ -71,4 +72,3 @@ def load(comparator, records, outdir=None):
             write_comparisons(o_true, comparator, t_sims, t_scores, t_indices)
             write_comparisons(o_false, comparator, f_sims, f_scores, f_indices)
     return t_sims.values(), f_sims.values()
-

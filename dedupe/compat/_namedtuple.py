@@ -11,6 +11,7 @@ from operator import itemgetter as _itemgetter
 from keyword import iskeyword as _iskeyword
 import sys as _sys
 
+
 def namedtuple(typename, field_names, verbose=False):
     """Returns a new subclass of tuple with named fields.
 
@@ -117,9 +118,11 @@ if __name__ == '__main__':
 
     # test and demonstrate ability to override methods
     class Point(namedtuple('Point', 'x y')):
+
         @property
         def hypot(self):
             return (self.x ** 2 + self.y ** 2) ** 0.5
+
         def __str__(self):
             return 'Point: x=%6.3f y=%6.3f hypot=%6.3f' % (self.x, self.y, self.hypot)
 
@@ -129,6 +132,7 @@ if __name__ == '__main__':
     class Point(namedtuple('Point', 'x y')):
         'Point class with optimized _make() and _replace() without error-checking'
         _make = classmethod(tuple.__new__)
+
         def _replace(self, _map=map, **kwds):
             return self._make(_map(kwds.get, ('x', 'y'), self))
 

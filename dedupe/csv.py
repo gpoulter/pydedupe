@@ -20,6 +20,7 @@ from __future__ import absolute_import
 import csv as plaincsv
 from collections import namedtuple
 
+
 def _fake_open(module):
     """Patch module's `open` builtin so that it returns StringIOs instead of
     creating real files, which is useful for testing. Returns a dict that maps
@@ -27,6 +28,7 @@ def _fake_open(module):
     from contextlib import closing
     from StringIO import StringIO
     streams = {}
+
     def fakeopen(filename, mode):
         stream = StringIO()
         stream.close = lambda: None
@@ -34,6 +36,7 @@ def _fake_open(module):
         return closing(stream)
     module.open = fakeopen
     return streams
+
 
 class Reader:
     """An CSV reader (for CP1252 encoding by default) that parses a
@@ -151,4 +154,3 @@ class Projection:
         return self.Row._make(
             getattr(row, field) if field in row._fields else ""
                 for field in self.fields)
-

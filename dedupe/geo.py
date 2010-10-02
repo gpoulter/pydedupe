@@ -7,6 +7,7 @@ Geographic distance and similarity
 
 from __future__ import division
 
+
 def getter(latfield, lonfield):
     """Build a field getter for (latitude, longitude) coordinates.
 
@@ -25,6 +26,7 @@ def getter(latfield, lonfield):
     from dedupe.get import getter
     latget = getter(latfield)
     longet = getter(lonfield)
+
     def geoget(record):
         try:
             lat = float(latget(record))
@@ -33,6 +35,7 @@ def getter(latfield, lonfield):
             return None
         return (lat, lon)
     return geoget
+
 
 def valid(coords):
     """Check whether the argument constitutes valid geographic coordinates.
@@ -66,6 +69,7 @@ def valid(coords):
         return True
     return False
 
+
 def distance(loc1, loc2):
     """Compare to geographical coordinates by distance. If the distance
     is greater than max_distance, the similarity is 0.  Assumes that
@@ -96,6 +100,7 @@ def distance(loc1, loc2):
     if (distance <= 0.003):
         distance = 0
     return distance
+
 
 class Similarity:
     """Compare two (lat, lon) coordinates. Similarity is 1.0 for identical
@@ -140,4 +145,3 @@ class Similarity:
             return 0.0
         else:
             return 1.0 - (dist-self.near)/(self.far-self.near)
-

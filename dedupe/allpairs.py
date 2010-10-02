@@ -5,6 +5,7 @@ Compare all pairs of records
 
 import logging
 
+
 def within(comparator, records, comparisons=None):
     """Compute similarity vectors for all pairs of records in a list.
 
@@ -32,6 +33,7 @@ def within(comparator, records, comparisons=None):
             if pair not in comparisons:
                 comparisons[pair] = comparator(*pair)
     return comparisons
+
 
 def between(comparator, records1, records2, comparisons=None):
     """Compute similarity vectors for all pairs of records in two lists. Each record
@@ -61,6 +63,7 @@ def between(comparator, records1, records2, comparisons=None):
                 comparisons[pair] = comparator(rec1, rec2)
     return comparisons
 
+
 class Index:
     """An "Index" that compares all pairs of records.  The `makekey`
     parameter is ignored.
@@ -80,7 +83,7 @@ class Index:
         """Compute number of comparisons required."""
         if other is None or other is self:
             N = len(self.records)
-            return N*(N+1)/2
+            return N*(N + 1)/2
         else:
             return len(self.records) * len(other.records)
 

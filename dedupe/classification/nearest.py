@@ -10,6 +10,7 @@ example vector is a match or a non-match.
 .. moduleauthor:: Graham Poulter
 """
 
+
 def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
     """Nearest-neighbour classification of comparisons vectors.
 
@@ -79,4 +80,3 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
     logging.debug("Nearest neighbour: {0} matches and {1} non-matches".format(
                  len(matches), len(nonmatches)))
     return matches, nonmatches
-

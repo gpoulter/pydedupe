@@ -17,6 +17,7 @@ Double Metaphone phonetic encoding
 .. moduleauthor:: Andrew Collins
 """
 
+
 def encode(st) :
     """Returns the double metaphone codes for given string - always a tuple.
     The input input string must be a single word: no spaces or other characters.
@@ -460,4 +461,3 @@ def encode(st) :
         return (pri.strip(), None)
     else :
         return (pri.strip(), sec.strip())
-
