@@ -17,8 +17,8 @@ def dictattr(fieldspec):
     return get
 
 def getter(fieldspec):
-    """Build a getter for unknown `fieldspec`. Returns either 
-    attrgetter(fieldspec) for string, itemgetter(fieldspec) for int, 
+    """Build a getter for unknown `fieldspec`. Returns either
+    attrgetter(fieldspec) for string, itemgetter(fieldspec) for int,
     or fieldspec unchanged if it is already a function.
 
     >>> from collections import namedtuple
@@ -44,10 +44,10 @@ def getter(fieldspec):
 def fallback(fields, test=bool, default=""):
     """Build a getter that tries fields in order until one passes the test.
 
-    >>> getfield = fallback((0,2))
-    >>> rec1 = ('a','b','c')
-    >>> rec2 = ('','b','c')
-    >>> rec3 = (None,'b',None)
+    >>> getfield = fallback((0, 2))
+    >>> rec1 = ('a', 'b', 'c')
+    >>> rec2 = ('', 'b', 'c')
+    >>> rec3 = (None, 'b', None)
     >>> getfield(rec1)
     'a'
     >>> getfield(rec2)
@@ -83,11 +83,11 @@ def combine(*fields):
     >>> combiner(('A','B','C','D','E'))
     ['A', 'C', 'D']
     """
-    return multivalue(None, *fields)    
+    return multivalue(None, *fields)
 
 def multivalue(sep, *fields):
-    """Build a getter to convert one or more separated-value fields 
-    into a list of strings.  For example 
+    """Build a getter to convert one or more separated-value fields
+    into a list of strings.  For example
 
     :type sep: :class:`str`
     :param sep: Optional delimiter to split fields into multiple values

@@ -16,14 +16,14 @@ def adjacency_list(nodepairs):
     """Construct adjacency list from edge list provided as pairs of nodes.
     Nodes not listed in the edge list (thus not adjacent to anything) are
     absent from the adjacency list.
-    
-    :type nodepairs: [(T,T), ...]
+
+    :type nodepairs: [(T, T), ...]
     :param nodepairs: connections between nodes (pairs that match).
-    :rtype: {T:[T,...], ...}
+    :rtype: {T: [T, ...], ...}
     :return: nodes adjacent to each node in the graph.
-    
+
     >>> from dedupe import group
-    >>> edges = [ (1,2), (2,3), (4,5), (1,5) ]
+    >>> edges = [ (1, 2), (2, 3), (4, 5), (1, 5) ]
     >>> dict(group.adjacency_list(edges))
     {1: [2, 5], 2: [1, 3], 3: [2], 4: [5], 5: [4, 1]}
     """
@@ -36,14 +36,14 @@ def adjacency_list(nodepairs):
 
 def components(adjlist):
     """Construct of groups as graph components using breadth-first search.
-    
-    :type adjlist: {T:[T,...],...}
+
+    :type adjlist: {T: [T, ...], ...}
     :param adjlist: nodes adjacent to each node in the graph.
-    :rtype: [[T,...],...]
+    :rtype: [[T, ...], ...]
     :return: connected components as lists of nodes.
-    
+
     >>> from dedupe import group
-    >>> edges = [ (1,2), (2,3), (4,5), (5,6) ]
+    >>> edges = [ (1, 2), (2, 3), (4, 5), (5, 6) ]
     >>> group.components(group.adjacency_list(edges))
     [[1, 2, 3], [4, 5, 6]]
     """
@@ -68,16 +68,16 @@ def components(adjlist):
 def singles_and_groups(matches, allrecords):
     """Given list of matched pairs, and all records, return the groups
     of similar records, and the singlets
-    
-    :type matches: [(T,T),...]
+
+    :type matches: [(T, T), ...]
     :param matches: Matching pairs of records.
-    :type allrecords: :keyword:`iter` [T,...]
+    :type allrecords: :keyword:`iter` [T, ...]
     :param allrecords: All records (with and without matches)
-    :rtype: [T,...],[[T,...],...]
+    :rtype: [T, ...], [[T, ...], ...]
     :return: single records (match nothing) and groups (of matching records)
-    
+
     >>> from dedupe import group
-    >>> group.singles_and_groups([(1,2),(2,3),(4,5)],[1,2,3,4,5,6,7])
+    >>> group.singles_and_groups([(1, 2), (2, 3), (4, 5)], [1, 2, 3, 4, 5, 6, 7])
     ([6, 7], [[1, 2, 3], [4, 5]])
     """
     adjlist = adjacency_list(matches) # Map from record to neighbours
@@ -86,27 +86,27 @@ def singles_and_groups(matches, allrecords):
     return singles, groups
 
 def write_csv(matches, records, ostream, projection):
-    """Write out the records, with grouping 
+    """Write out the records, with grouping
 
-    :type matches: [(T,T),...]
+    :type matches: [(T, T), ...]
     :param matches: List of pairs of matching records.
-    :type records: :keyword:`iter` [T,...]
+    :type records: :keyword:`iter` [T, ...]
     :param records: Iteration over records.
     :type ostream: binary writer
     :param ostream: where to write the CSV for the records
     :type projection: :class:`Projection`
     :param projection: Projection from input fields onto output fields.
-    :rtype: [T,...], [[T,...],...]
+    :rtype: [T, ...], [[T, ...], ...]
     :return: list of single rows (no matches) and groups (mutually matching)
     """
     import logging
     w = csv.Writer(ostream)
     if projection is None:
-        projection = lambda x:x
+        projection = lambda x: x
     else:
         w.writerow(["GroupID"] + projection.fields)
     singles, groups = singles_and_groups(matches, records)
-    logging.info("Grouping: %d groups and %d single records.", 
+    logging.info("Grouping: %d groups and %d single records.",
                  len(groups), len(singles))
     # Write groups of similar records
     for groupid, group in enumerate(groups):

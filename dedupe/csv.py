@@ -27,7 +27,7 @@ def _fake_open(module):
     from contextlib import closing
     from StringIO import StringIO
     streams = {}
-    def fakeopen(filename,mode):
+    def fakeopen(filename, mode):
         stream = StringIO()
         stream.close = lambda: None
         streams[filename] = stream
@@ -39,10 +39,10 @@ class Reader:
     """An CSV reader (for CP1252 encoding by default) that parses a
     file-like iteration of byte-strings and yields namedtuples where the
     field strings have been decoded to unicode.
-    
+
     :ivar Row: class of the returned rows
-    :type Row: namedtuple 
-    
+    :type Row: namedtuple
+
     >>> from dedupe import csv
     >>> from StringIO import StringIO
     >>> infile = StringIO("\\n".join(["A,B","a,b\xc3\xa9","c,d"]))
@@ -50,8 +50,8 @@ class Reader:
     >>> reader.next()
     Row(A=u'a', B=u'b\\xe9')
     """
-    
-    def __init__(self, iterable, dialect=plaincsv.excel, encoding='cp1252', 
+
+    def __init__(self, iterable, dialect=plaincsv.excel, encoding='cp1252',
                  typename='Row', fields=None):
         """Initialise namedtuple reader.
         :param iterable: File or other iteration of byte-string lines.
@@ -60,7 +60,7 @@ class Reader:
         :param fields: namedtuple of fields, or None to use the CSV header line.
         """
         if isinstance(iterable, basestring):
-            iterable = open(iterable) 
+            iterable = open(iterable)
         self.encoding = encoding
         self.reader = plaincsv.reader(iterable, dialect)
         if not fields:
@@ -70,10 +70,10 @@ class Reader:
                 raise ValueError("Empty field name")
         self.fields = tuple(fields)
         self.Row = namedtuple(typename, fields)
-        
+
     def __iter__(self):
         return self
-        
+
     def next(self):
         try:
             row = [unicode(s, self.encoding) for s in self.reader.next()]
@@ -84,11 +84,11 @@ class Reader:
 
 class Writer:
     """Writes CSV files.
-    
+
     Accepts rows of unicode strings and encodes them before writing encoded to
     the output stream, by default with Windows CP1252 encoding. This class
     cannot write encodings such as utf-16 that include null bytes.
-    
+
     >>> from dedupe import csv
     >>> from StringIO import StringIO
     >>> out = StringIO()
@@ -111,17 +111,17 @@ class Writer:
 
 
 class Projection:
-    """Convert rows from two different schemas onto a common output row 
+    """Convert rows from two different schemas onto a common output row
     format that includes the fields from both, allowing rows from two
     inputs with different schemas to be written to the same output file.
-    
+
     :param fields: Ordered list of fields for all projected rows.
 
     >>> from collections import namedtuple
     >>> A = namedtuple('A', 'a b x y')
     >>> B = namedtuple('B', 'a y c x z')
-    >>> a = A(1,2,3,4)
-    >>> b = B(1,2,3,4,5)
+    >>> a = A(1, 2, 3, 4)
+    >>> b = B(1, 2, 3, 4, 5)
     >>> P = Projection.unionfields(A._fields, B._fields)
     >>> P(a)
     Row(a=1, b=2, x=3, y=4, c='', z='')
@@ -149,6 +149,6 @@ class Projection:
         """Return a row with output columns, given an input row with any
         columns.  Drops any input columns not listed in outfields."""
         return self.Row._make(
-            getattr(row, field) if field in row._fields else "" 
+            getattr(row, field) if field in row._fields else ""
                 for field in self.fields)
 

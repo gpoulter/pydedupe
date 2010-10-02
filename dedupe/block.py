@@ -17,54 +17,55 @@ import logging
 
 class Index(dict):
     """Mapping from index key to records.
-    
-    :type makekey: function(`R`) [`K`,...]
+
+    :type makekey: function(`R`) [`K`, ...]
     :param makekey: Generates the index keys for the record.
-    
-    :type records: [`R`,...]
+
+    :type records: [`R`, ...]
     :param records: Initial records to load into the index.
-    
+
     >>> makekey = lambda r: [int(r[1])]
-    >>> makekey(('A',3.5))
+    >>> makekey(('A', 3.5))
     [3]
-    >>> compare = lambda x,y: 2**-abs(float(x[1])-float(y[1]))
-    >>> compare(('A','5.5'),('B','4.5'))
+    >>> compare = lambda x, y: 2**-abs(float(x[1])-float(y[1]))
+    >>> compare(('A', '5.5'), ('B', '4.5'))
     0.5
     >>> from dedupe import block
-    >>> a = block.Index(makekey, [('A',5.5),('B',4.5),('C',5.0)])
+    >>> a = block.Index(makekey, [('A', 5.5), ('B', 4.5), ('C', 5.0)])
     >>> a.count()
     1
     >>> a.compare(compare)
     {(('A', 5.5), ('C', 5.0)): 0.70710678118654757}
-    >>> b = block.Index(makekey, [('D',5.5),('E',4.5)])
+    >>> b = block.Index(makekey, [('D', 5.5), ('E', 4.5)])
     >>> a.count(b)
     3
     >>> a.compare(compare, b)
     {(('C', 5.0), ('D', 5.5)): 0.70710678118654757, (('A', 5.5), ('D', 5.5)): 1.0, (('B', 4.5), ('E', 4.5)): 1.0}
     """
-    
+
     def __init__(self, makekey, records=[]):
         super(Index, self).__init__()
         self.makekey = makekey
         for record in records:
             self.insert(record)
-        
+
     def insert(self, record):
         """Insert a record into the index.
 
         :type record: :class:`namedtuple` or other record.
         :param record: The record object to index.
-        :rtype: [`K`,...]
+        :rtype: [`K`, ...]
         :return: Keys under which the record was inserted.
         """
         keys = self.makekey(record)
         for key in keys:
             if key is None or key == "":
-                raise ValueError("Empty index key in %s for record %s" % (repr(keys),repr(record)))
+                raise ValueError("Empty index key in %s for record %s" % (
+                    repr(keys), repr(record)))
             recordsforkey = self.setdefault(key, list())
             recordsforkey.append(record)
         return keys
-    
+
     def count(self, other=None):
         """Return upper bound on the number of comparisons required by this
         index. The actual number of comparison function calls will be lower
@@ -85,7 +86,7 @@ class Index(dict):
                 if key in other:
                     comparisons += len(self[key]) * len(other[key])
         return comparisons
-    
+
     def search(self, record):
         """Returns a list of records that are indexed under the same keys as
         the provided record."""
@@ -93,29 +94,29 @@ class Index(dict):
         for key in self.makekey(record):
             result.extend(self.get(key), [])
         return result
-    
+
     def compare(self, compare, other=None, comparisons=None):
         """Perform comparisons based on the index groups.  By default
         against itself, and optionally against another index.
-        
-        :type compare: function(`R1`, `R2`) [`float`,...]
+
+        :type compare: function(`R1`, `R2`) [`float`, ...]
         :param compare: Function for comparing a pair of records.
-        
+
         :type other: :class:`Index`
         :param other: Optional second index to compare against.
 
-        :type comparisons: {(`R1`, `R2`):[`float`,...]} 
+        :type comparisons: {(`R1`, `R2`):[`float`, ...]}
         :param comparisons: Dict mapping pairs of records to comparisons. For
         single-index we must have `R1` < `R2`, while with two indeces `R1` is
         from `self` while `R2` is from `other`.
-        
+
         :return: Updated comparisons dict.
         """
         if other is None or other is self:
             return self._compare_self(compare, comparisons)
         else:
             return self._compare_other(compare, other, comparisons)
-    
+
     def _compare_self(self, compare, comparisons=None):
         if comparisons is None:
             comparisons = {}
@@ -124,15 +125,15 @@ class Index(dict):
             for j in range(len(records)):
                 for i in range(j):
                     # i < j, and sorting means record[i] <= record[j]
-                    a,b = records[i], records[j] 
+                    a, b = records[i], records[j]
                     # same record indexed under multiple keys!
-                    if a is b: 
+                    if a is b:
                         continue
                     # now compare a and b, keeping a <= b
-                    if (a,b) not in comparisons:
-                        comparisons[(a,b)] = compare(a,b)
+                    if (a, b) not in comparisons:
+                        comparisons[(a, b)] = compare(a, b)
         return comparisons
-                        
+
     def _compare_other(self, compare, other, comparisons=None):
         if comparisons is None:
             comparisons = {}
@@ -147,11 +148,11 @@ class Index(dict):
 
     def log_size(self, name):
         """Log statistics about block sizes for `index`, prefixing lines with `name`.
-        
+
         >>> from dedupe import block
         >>> makekey = lambda r: [int(r[1])]
-        >>> idx = block.Index(makekey, [('A',5.5),('B',4.5),('C',5.25)])
-        >>> def log(s,*a):
+        >>> idx = block.Index(makekey, [('A', 5.5), ('B', 4.5), ('C', 5.25)])
+        >>> def log(s, *a):
         ...     print s % a
         >>> logging.info = log
         >>> idx.log_size("NumIdx")
@@ -165,4 +166,4 @@ class Index(dict):
                 name, records, blocks, largest, float(records)/blocks)
         else:
             logging.info("%s: Empty index." % name)
-    
+

@@ -6,7 +6,7 @@ Damerau-Levenshtein distance algorithm by `mwh.geek.nz`_::
 
    The Damerau-Levenshtein distance between two strings is the number of
    additions, deletions, substitutions, and transpositions needed to transform
-   one into the other. It's an extension of the Levenshtein distance, 
+   one into the other. It's an extension of the Levenshtein distance,
    by incorporating transpositions into the set of operations.
 
    I had a need to use it in a program recently, but I couldn't find any Python
@@ -44,16 +44,16 @@ def distance(seq1, seq2):
 
     This implementation is O(N*M) time and O(M) space, for N and M the
     lengths of the two sequences.
-    
+
     :param seq1, seq2: sequences to compare
     :type seq1, seq2: any sequence type
 
     >>> from dedupe import dale
-    >>> dale.distance("abcd","ab")
+    >>> dale.distance("abcd", "ab")
     2
-    >>> dale.distance("abcd","abdc")
+    >>> dale.distance("abcd", "abdc")
     1
-    >>> dale.distance("dbca","abcd")
+    >>> dale.distance("dbca", "abcd")
     2
     """
     # codesnippet:D0DE4716-B6E6-4161-9219-2903BF8F547F
@@ -78,24 +78,24 @@ def distance(seq1, seq2):
                 thisrow[y] = min(thisrow[y], twoago[y-2] + 1)
     return thisrow[len(seq2) - 1]
 
-def similarity(a,b):
+def similarity(a, b):
     """Damerau-Levenshtein distance as similarity in the range 0.0 to 1.0.
-    
+
     >>> from dedupe import dale
-    >>> dale.similarity("abcd","abcd")
+    >>> dale.similarity("abcd", "abcd")
     1.0
-    >>> dale.similarity("abcd","abdc")
+    >>> dale.similarity("abcd", "abdc")
     0.75
-    >>> dale.similarity("abcdef","abcd")
+    >>> dale.similarity("abcdef", "abcd")
     0.66666666666666674
-    >>> print dale.similarity("abcd","")
+    >>> print dale.similarity("abcd", "")
     None
     """
     if not a or not b:
         return None
     else:
-        return 1.0 - float(distance(a,b)) / max(len(a),len(b))
-    
+        return 1.0 - float(distance(a, b)) / max(len(a), len(b))
+
 if __name__=="__main__":
     import sys
-    print distance(sys.argv[1],sys.argv[2])
+    print distance(sys.argv[1], sys.argv[2])

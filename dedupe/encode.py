@@ -17,7 +17,7 @@ def dmetaphone(text):
 
 def normspace(text):
     """Strip multiple and trailing spaces.
-    
+
     >>> normspace(' a  b  ')
     u'a b'
     """
@@ -25,7 +25,7 @@ def normspace(text):
 
 def nospace(text):
     """Strip all whitespace.
-    
+
     >>> nospace(" a  b  ")
     u'ab'
     """
@@ -33,7 +33,7 @@ def nospace(text):
 
 def lowstrip(text):
     """Lowcase and strip extra space.
-    
+
     >>> lowstrip(" A  b  ")
     u'a b'
     """
@@ -41,7 +41,7 @@ def lowstrip(text):
 
 def alnumsp(text):
     """Normalise space, strip punctuation.
-    
+
     >>> alnumsp(" Joe (K) Ltd.  ")
     u'joe k ltd'
     """
@@ -49,7 +49,7 @@ def alnumsp(text):
 
 def digits(text):
     """Strip all except digits (for phone numbers).
-    
+
     >>> digits("+27 (21) 1234567")
     '27211234567'
     """
@@ -57,7 +57,7 @@ def digits(text):
 
 def sorted_words(text):
     """Sort words.
-    
+
     >>> sorted_words('c a b')
     'a b c'
     """
@@ -65,7 +65,7 @@ def sorted_words(text):
 
 def reverse(text):
     """Reverse text.
-    
+
     >>> reverse('abc')
     'cba'
     """
@@ -73,7 +73,7 @@ def reverse(text):
 
 def urldomain(text):
     """Obtain the domain from the text of a URL.
-    
+
     >>> urldomain("http://www.google.com")
     'google.com'
     >>> urldomain("www.google.com")
@@ -91,7 +91,7 @@ def urldomain(text):
 
 def emaildomain(text):
     """Obtain the domain from the text of an email address.
-    
+
     >>> emaildomain("srtar@arst.com")
     'arst.com'
     >>> emaildomain("abc")
@@ -104,10 +104,10 @@ def emaildomain(text):
 def wrap(*funcs):
     """Create a composited function from a list of unitary functions.
     For example, wrap(f1, f2, f3)(text) == f1(f2(f3(text)))
-    
+
     :type funcs: function(U) V
     :param funcs: transformations to compose
-    
+
     >>> wrap(sorted_words, reverse)("world hello")
     'dlrow olleh'
     """
@@ -120,9 +120,9 @@ def wrap(*funcs):
 
 class Normaliser:
     """Normalise terms in text using a dictionary mapping d[primary] == [aliases].
-    Generates a regex to match each list of aliases, and when normalise is 
+    Generates a regex to match each list of aliases, and when normalise is
     called on a text, it converts the text to use the primary form.
-    
+
     >>> expansions = {'parkway': ['parkwy', 'pky', 'pkway'],
     ...  '' : ['co', 'company'],
     ...  'street' : ['str', r'st$'],
@@ -139,7 +139,7 @@ class Normaliser:
     >>> norm('Liesbeeck Pky pkWay')
     'Liesbeeck parkway parkway'
     """
-    
+
     def __init__(self, aliases):
         import re
         self.aliases = aliases
@@ -147,7 +147,7 @@ class Normaliser:
         for primary, shortforms in self.aliases.iteritems():
             regex = r'\b(' + r'|'.join(shortforms) + r')\b'
             self.regexes[primary] = re.compile(regex, re.IGNORECASE)
-    
+
     def normalise(self, text):
         """Convert aliases to primary form in the given text."""
         for primary, regex in self.regexes.iteritems():

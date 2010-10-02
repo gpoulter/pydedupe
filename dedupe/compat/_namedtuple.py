@@ -123,7 +123,7 @@ if __name__ == '__main__':
         def __str__(self):
             return 'Point: x=%6.3f y=%6.3f hypot=%6.3f' % (self.x, self.y, self.hypot)
 
-    for p in Point(3,4), Point(14,5), Point(9./7,6):
+    for p in Point(3, 4), Point(14, 5), Point(9./7, 6):
         print p
 
     class Point(namedtuple('Point', 'x y')):
