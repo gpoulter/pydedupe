@@ -45,7 +45,7 @@ def L2(vec1, vec2):
     True
     """
     assert len(vec1) == len(vec2)
-    return math.sqrt(sum((a-b)**2
+    return math.sqrt(sum((a - b) ** 2
                          for a, b in zip(vec1, vec2)
                          if a is not None and b is not None))
 
@@ -81,6 +81,6 @@ def normL2(vec1, vec2, stdevs):
     True
     """
     assert len(vec1) == len(vec2) == len(stdevs)
-    return math.sqrt(sum(((a-b)/s)**2
+    return math.sqrt(sum(((a - b) / s) ** 2
                          for a, b, s in zip(vec1, vec2, stdevs)
                          if a is not None and b is not None))

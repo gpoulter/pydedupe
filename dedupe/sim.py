@@ -106,7 +106,7 @@ class Scale(object):
             return 0.0
         if  value >= self.high:
             return 1.0
-        return self.rmax * (value-self.low)/(self.high-self.low)
+        return self.rmax * (value - self.low) / (self.high - self.low)
 
     def __call__(self, a, b):
         """Similarity of a and b, scaled to (0, 1) range."""

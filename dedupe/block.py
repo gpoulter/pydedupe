@@ -80,7 +80,7 @@ class Index(dict):
             # Count up comparisons to be made within this set of records.
             for recs in self.itervalues():
                 if len(recs) > 1:
-                    comparisons += len(recs)*(len(recs)-1)//2
+                    comparisons += len(recs) * (len(recs) - 1) // 2
         else:
             # Count up comparisons to be made to another set of records.
             for key in self:
@@ -164,6 +164,6 @@ class Index(dict):
             largest = max(len(recs) for recs in self.itervalues())
             blocks = len(self)
             logging.info("%s: Records=%d, Blocks=%d, Largest Block=%d, Avg Per Block=%.2f.",
-                name, records, blocks, largest, float(records)/blocks)
+                name, records, blocks, largest, float(records) / blocks)
         else:
             logging.info("%s: Empty index." % name)

@@ -74,9 +74,9 @@ def distance(seq1, seq2):
             subcost = oneago[y - 1] + (seq1[x] != seq2[y])
             thisrow[y] = min(delcost, addcost, subcost)
             # This block deals with transpositions
-            if (x > 0 and y > 0 and seq1[x] == seq2[y-1]
-                and seq1[x-1] == seq2[y] and seq1[x] != seq2[y]):
-                thisrow[y] = min(thisrow[y], twoago[y-2] + 1)
+            if (x > 0 and y > 0 and seq1[x] == seq2[y - 1]
+                and seq1[x - 1] == seq2[y] and seq1[x] != seq2[y]):
+                thisrow[y] = min(thisrow[y], twoago[y - 2] + 1)
     return thisrow[len(seq2) - 1]
 
 
@@ -98,6 +98,6 @@ def similarity(a, b):
     else:
         return 1.0 - float(distance(a, b)) / max(len(a), len(b))
 
-if __name__=="__main__":
+if __name__ == "__main__":
     import sys
     print distance(sys.argv[1], sys.argv[2])

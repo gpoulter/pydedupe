@@ -83,7 +83,7 @@ class Index:
         """Compute number of comparisons required."""
         if other is None or other is self:
             N = len(self.records)
-            return N*(N + 1)/2
+            return N * (N + 1) / 2
         else:
             return len(self.records) * len(other.records)
 

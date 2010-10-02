@@ -44,7 +44,7 @@ def write_indices(indices, outdir, prefix):
                 writer.writerow([unicode(indexkey)] + [unicode(v) for v in row])
     from os.path import join
     for indexname, index in indices.iteritems():
-        with open(join(outdir, prefix+indexname+'.csv'), 'wb') as stream:
+        with open(join(outdir, prefix + indexname + '.csv'), 'wb') as stream:
             write_index(index, stream)
 
 
@@ -285,4 +285,4 @@ class LinkCSV(object):
         with open(self.opath(groups), 'wb') as ofile:
             import group
             group.write_csv(
-                self.matches, self.records1+self.records2, ofile, self.projection)
+                self.matches, self.records1 + self.records2, ofile, self.projection)

@@ -42,7 +42,7 @@ def namedtuple(typename, field_names, verbose=False):
         field_names = field_names.replace(',', ' ').split()  # names separated by whitespace and/or commas
     field_names = tuple(map(str, field_names))
     for name in (typename,) + field_names:
-        if not min(c.isalnum() or c=='_' for c in name):
+        if not min(c.isalnum() or c == '_' for c in name):
             raise ValueError('Type names and field names can only contain alphanumeric characters and underscores: %r' % name)
         if _iskeyword(name):
             raise ValueError('Type names and field names cannot be a keyword: %r' % name)
@@ -126,7 +126,7 @@ if __name__ == '__main__':
         def __str__(self):
             return 'Point: x=%6.3f y=%6.3f hypot=%6.3f' % (self.x, self.y, self.hypot)
 
-    for p in Point(3, 4), Point(14, 5), Point(9./7, 6):
+    for p in Point(3, 4), Point(14, 5), Point(9. / 7, 6):
         print p
 
     class Point(namedtuple('Point', 'x y')):

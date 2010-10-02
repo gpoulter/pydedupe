@@ -65,7 +65,7 @@ def classify(comparisons, distance, maxiter=10):
     comparisons[k] = v
     logging.debug("KMeans: Dimension {0}, maxiter {1}", vlen, maxiter)
     str_vector = lambda vector: "[" + ", ".join("%.4f" % v if v is not None else "None" for v in vector) + "]"
-    safe_div = lambda n, d: n/d if d > 0 else None
+    safe_div = lambda n, d: n / d if d > 0 else None
 
     # Get initial centroids
     high_centroid = [max(x[i] for x in comparisons.itervalues()
@@ -125,7 +125,7 @@ def classify(comparisons, distance, maxiter=10):
     # Calculate a smoothed score as the log of the ratio of distances
     # of the similarity vector to each of the centroids.
     import math
-    score = lambda v: math.log10((distance(v, low_centroid)+0.1) / (distance(v, high_centroid)+0.1))
+    score = lambda v: math.log10((distance(v, low_centroid) + 0.1) / (distance(v, high_centroid) + 0.1))
     matches = dict((k, score(v))  for k, (v, match) in assignments.iteritems() if match)
     nomatches = dict((k, score(v)) for k, (v, match) in assignments.iteritems() if not match)
     logging.debug("Classified {0} similarity vectors, {1} as matches and {2} as non-matches.".format(
