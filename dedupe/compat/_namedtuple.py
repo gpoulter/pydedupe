@@ -39,7 +39,7 @@ def namedtuple(typename, field_names, verbose=False):
     # Parse and validate the field names.  Validation serves two purposes,
     # generating informative error messages and preventing template injection attacks.
     if isinstance(field_names, basestring):
-        field_names = field_names.replace(',', ' ').split() # names separated by whitespace and/or commas
+        field_names = field_names.replace(',', ' ').split()  # names separated by whitespace and/or commas
     field_names = tuple(map(str, field_names))
     for name in (typename,) + field_names:
         if not min(c.isalnum() or c=='_' for c in name):
@@ -58,7 +58,7 @@ def namedtuple(typename, field_names, verbose=False):
 
     # Create and fill-in the class template
     numfields = len(field_names)
-    argtxt = repr(field_names).replace("'", "")[1:-1]   # tuple repr without parens or quotes
+    argtxt = repr(field_names).replace("'", "")[1:-1]  # tuple repr without parens or quotes
     reprtxt = ', '.join('%s=%%r' % name for name in field_names)
     dicttxt = ', '.join('%r: t[%d]' % (name, pos) for pos, name in enumerate(field_names))
     template = '''class %(typename)s(tuple):

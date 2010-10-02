@@ -52,8 +52,8 @@ def load(comparator, records, outdir=None):
     ['Score,Key,V', ',1,8', ',1,3', '1.0,True,0.03125', ',1,7', ',1,3', '1.0,True,0.0625', ',1,8', ',1,7', '1.0,True,0.5', ',2,3', ',2,5', '1.0,True,0.25']
     """
     from .. import block, sim
-    t_rows = [r for r in records if r[0] in ['TRUE', 'T', 'YES', 'Y', '1', 1, True] ]
-    f_rows = [r for r in records if r[0] in ['FALSE', 'F', 'NO', 'N', '0', 0, False] ]
+    t_rows = [r for r in records if r[0] in ['TRUE', 'T', 'YES', 'Y', '1', 1, True]]
+    f_rows = [r for r in records if r[0] in ['FALSE', 'F', 'NO', 'N', '0', 0, False]]
     # Index on second column and self-compare within blocks
     t_indices = sim.Indices([("Key", block.Index, lambda r: [r[1]])], t_rows)
     f_indices = sim.Indices([("Key", block.Index, lambda r: [r[1]])], f_rows)

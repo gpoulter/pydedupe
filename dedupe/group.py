@@ -49,20 +49,20 @@ def components(adjlist):
     >>> group.components(group.adjacency_list(edges))
     [[1, 2, 3], [4, 5, 6]]
     """
-    groups = [] # List of lists describing groups
-    visited = set() # Has node been visited?
+    groups = []  # List of lists describing groups
+    visited = set()  # Has node been visited?
     # Perform BFS to label groups
     for node in adjlist.iterkeys():
         if node not in visited:
-            newgroup = [] # Start the group
-            queue = [node] # Initialise queue
+            newgroup = []  # Start the group
+            queue = [node]  # Initialise queue
             while len(queue) > 0:
                 node = queue.pop(0)
                 if node not in visited:
                     newgroup.append(node)
                     visited.add(node)
                     queue.extend(adjlist[node])
-            newgroup.sort() # group sorted in natural order
+            newgroup.sort()  # group sorted in natural order
             groups.append(newgroup)
     # Return the list of groups
     return groups
@@ -83,8 +83,8 @@ def singles_and_groups(matches, allrecords):
     >>> group.singles_and_groups([(1, 2), (2, 3), (4, 5)], [1, 2, 3, 4, 5, 6, 7])
     ([6, 7], [[1, 2, 3], [4, 5]])
     """
-    adjlist = adjacency_list(matches) # Map from record to neighbours
-    groups = components(adjlist) # List of lists of records
+    adjlist = adjacency_list(matches)  # Map from record to neighbours
+    groups = components(adjlist)  # List of lists of records
     singles = [rec for rec in allrecords if rec not in adjlist]
     return singles, groups
 

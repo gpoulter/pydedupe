@@ -58,33 +58,33 @@ def encode(st):
     """
     vowels = ['A', 'E', 'I', 'O', 'U', 'Y']
     #st = st.decode('ascii', 'ignore') (assume unicode)
-    st = st.upper() # st is short for string. I usually prefer descriptive over short, but this var is used a lot!
+    st = st.upper()  # st is short for string. I usually prefer descriptive over short, but this var is used a lot!
     is_slavo_germanic = (st.find('W') > -1 or st.find('K') > -1 or st.find('CZ') > -1 or st.find('WITZ') > -1)
     length = len(st)
     first = 2
     st = '-' * first + st + '------'  # so we can index beyond the begining and end of the input string
     last = first + length -1
-    pos = first # pos is short for position
-    pri = sec = '' # primary and secondary metaphone codes
+    pos = first  # pos is short for position
+    pri = sec = ''  # primary and secondary metaphone codes
     #skip these silent letters when at start of word
     if st[first:first+2] in ['GN', 'KN', 'PN', 'WR', 'PS']:
         pos += 1
     # Initial 'X' is pronounced 'Z' e.g. 'Xavier'
     if st[first] == 'X':
-        pri = sec = 'S' #'Z' maps to 'S'
+        pri = sec = 'S'  # 'Z' maps to 'S'
         pos += 1
     # main loop through chars in st
     while pos <= last:
         #print str(pos) + '\t' + st[pos]
-        ch = st[pos] # ch is short for character
+        ch = st[pos]  # ch is short for character
         # nxt (short for next characters in metaphone code) is set to  a tuple of the next characters in
         # the primary and secondary codes and how many characters to move forward in the string.
         # the secondary code letter is given only when it is different than the primary.
         # This is just a trick to make the code easier to write and read.
-        nxt = (None, 1) # default action is to add nothing and move to next char
+        nxt = (None, 1)  # default action is to add nothing and move to next char
         if ch in vowels:
             nxt = (None, 1)
-            if pos == first: # all init vowels now map to 'A'
+            if pos == first:  # all init vowels now map to 'A'
                 nxt = ('A', 1)
         elif ch == 'B':
             #'-mb', e.g', 'dumb', already skipped over... see 'M' below
@@ -100,7 +100,7 @@ def encode(st):
             # special case 'CAESAR'
             elif pos == first and st[first:first+6] == 'CAESAR':
                 nxt = ('S', 2)
-            elif st[pos:pos+4] == 'CHIA': #italian 'chianti'
+            elif st[pos:pos+4] == 'CHIA':  # italian 'chianti'
                 nxt = ('K', 2)
             elif st[pos:pos+2] == 'CH':
                 # find 'michael'
@@ -158,13 +158,13 @@ def encode(st):
                 else:
                     if st[pos+1] in ['C', 'K', 'Q'] and st[pos+1:pos+3] not in ['CE', 'CI']:
                         nxt = ('K', 2)
-                    else: # default for 'C'
+                    else:  # default for 'C'
                         nxt = ('K', 1)
-        elif ch == u'Ç': # will never get here with st.encode('ascii', 'replace') above
+        elif ch == u'Ç':  # will never get here with st.encode('ascii', 'replace') above
             nxt = ('S', 1)
         elif ch == 'D':
             if st[pos:pos+2] == 'DG':
-                if st[pos+2] in ['I', 'E', 'Y']: #e.g. 'edge'
+                if st[pos+2] in ['I', 'E', 'Y']:  # e.g. 'edge'
                     nxt = ('J', 3)
                 else:
                     nxt = ('TK', 2)
@@ -182,15 +182,15 @@ def encode(st):
                 if pos > first and st[pos-1] not in vowels:
                     nxt = ('K', 2)
                 elif pos < (first + 3):
-                    if pos == first: #'ghislane', ghiradelli
+                    if pos == first:  # 'ghislane', ghiradelli
                         if st[pos+2] == 'I':
                             nxt = ('J', 2)
                         else:
                             nxt = ('K', 2)
                 #Parker's rule (with some further refinements) - e.g., 'hugh'
-                elif (pos > (first + 1) and st[pos-2] in ['B', 'H', 'D'] ) \
-                     or (pos > (first + 2) and st[pos-3] in ['B', 'H', 'D'] ) \
-                     or (pos > (first + 3) and st[pos-3] in ['B', 'H'] ):
+                elif (pos > (first + 1) and st[pos-2] in ['B', 'H', 'D']) \
+                     or (pos > (first + 2) and st[pos-3] in ['B', 'H', 'D']) \
+                     or (pos > (first + 3) and st[pos-3] in ['B', 'H']):
                     nxt = (None, 2)
                 else:
                     # e.g., 'laugh', 'McLaughlin', 'cough', 'gough', 'rough', 'tough'
@@ -241,7 +241,7 @@ def encode(st):
             # only keep if first & before vowel or btw. 2 vowels
             if (pos == first or st[pos-1] in vowels) and st[pos+1] in vowels:
                 nxt = ('H', 2)
-            else: # (also takes care of 'HH')
+            else:  # (also takes care of 'HH')
                 nxt = (None, 1)
         elif ch == 'J':
             # obvious spanish, 'jose', 'san jacinto'
@@ -251,7 +251,7 @@ def encode(st):
                 else:
                     nxt = ('J', 'H')
             elif pos == first and st[pos:pos+4] != 'JOSE':
-                nxt = ('J', 'A') # Yankelovich/Jankelowicz
+                nxt = ('J', 'A')  # Yankelovich/Jankelowicz
             else:
                 # spanish pron. of e.g. 'bajador'
                 if st[pos-1] in vowels and not is_slavo_germanic \
@@ -303,7 +303,7 @@ def encode(st):
         elif ch == 'P':
             if st[pos+1] == 'H':
                 nxt = ('F', 2)
-            elif st[pos+1] in ['P', 'B']: # also account for 'campbell', 'raspberry'
+            elif st[pos+1] in ['P', 'B']:  # also account for 'campbell', 'raspberry'
                 nxt = ('P', 2)
             else:
                 nxt = ('P', 1)
@@ -417,7 +417,7 @@ def encode(st):
             # polish e.g. 'filipowicz'
             elif st[pos:pos+4] in ['WICZ', 'WITZ']:
                 nxt = ('TS', 'FX', 4)
-            else: # default is to skip it
+            else:  # default is to skip it
                 nxt = (None, 1)
         elif ch == 'X':
             # french e.g. breaux

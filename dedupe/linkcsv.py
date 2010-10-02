@@ -5,8 +5,12 @@ Helpers for record linkage with CSV files for input and output
 .. moduleauthor:: Graham Poulter
 """
 
-import logging, os
-import csv, group, sim
+import logging
+import os
+
+import csv
+import group
+import sim
 
 
 def write_indices(indices, outdir, prefix):
@@ -67,7 +71,8 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
     :type origstream: binary writer
     :param origstream: where to write CSV for pairs of compared original records.
     """
-    if not comparisons: return # in case no comparisons were done
+    if not comparisons:
+        return  # in case no comparisons were done
     # File for comparison statistics
     writer = csv.Writer(ostream)
     writer.writerow(["Score"] + indices1.keys() + comparator.keys())
@@ -75,26 +80,26 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
     # File for original records
     record_writer = None
     # Obtain field-getter for each value comparator
-    field1 = [ vcomp.field1 for vcomp in comparator.itervalues() ]
-    field2 = [ vcomp.field2 for vcomp in comparator.itervalues() ]
+    field1 = [vcomp.field1 for vcomp in comparator.itervalues()]
+    field2 = [vcomp.field2 for vcomp in comparator.itervalues()]
     # Use dummy classifier scores if None were provided
     if scores is None:
         scores = dict((k, 0) for k in comparisons.iterkeys())
     # wrtie the similarity vectors
     for (rec1, rec2), score in scores.iteritems():
-        weights = comparisons[(rec1, rec2)] # look up comparison vector
-        keys1 = [ idx.makekey(rec1) for idx in indices1.itervalues() ]
-        keys2 = [ idx.makekey(rec2) for idx in indices2.itervalues() ]
+        weights = comparisons[(rec1, rec2)]  # look up comparison vector
+        keys1 = [idx.makekey(rec1) for idx in indices1.itervalues()]
+        keys2 = [idx.makekey(rec2) for idx in indices2.itervalues()]
         writer.writerow([u""] +
             [u";".join(unicode(k) for k in kl) for kl in keys1] +
-            [ unicode(f(rec1)) for f in field1 ])
+            [unicode(f(rec1)) for f in field1])
         writer.writerow([u""] +
             [u";".join(unicode(k) for k in kl) for kl in keys2] +
-            [ unicode(f(rec2)) for f in field2 ])
+            [unicode(f(rec2)) for f in field2])
         # Tuple of booleans indicating whether index keys are equal
-        idxmatch = [ bool(set(k1).intersection(set(k2))) if
+        idxmatch = [bool(set(k1).intersection(set(k2))) if
                      (k1 is not None and k2 is not None) else ""
-                     for k1, k2 in zip(keys1, keys2) ]
+                     for k1, k2 in zip(keys1, keys2)]
         weightrow = [score] + idxmatch + list(weights)
         writer.writerow(str(x) for x in weightrow)
     if origstream is not None:
@@ -102,7 +107,7 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
         if projection:
             record_writer.writerow(projection.fields)
         else:
-            projection = lambda x: x # no transformation
+            projection = lambda x: x  # no transformation
         for (rec1, rec2), score in scores.iteritems():
             record_writer.writerow(projection(rec1))
             record_writer.writerow(projection(rec2))
@@ -122,7 +127,8 @@ def writecsv(path, rows, header=None):
     from . import csv
     with open(path, 'wb') as out:
         writer = csv.Writer(out)
-        if header: writer.writerow(header)
+        if header:
+            writer.writerow(header)
         writer.writerows(rows)
 
 

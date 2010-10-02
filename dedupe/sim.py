@@ -207,7 +207,7 @@ class Average(Field):
         this multi-valued field"""
         f1 = set(self.encode1(v1) for v1 in self.field1(record1))
         f2 = set(self.encode2(v2) for v2 in self.field2(record2))
-        f1, f2 = sorted([f1, f2], key=len) # short set, long set
+        f1, f2 = sorted([f1, f2], key=len)  # short set, long set
         # Missing value check
         if len(f1) == 0 or len(f2) == 0:
             return self.compare(None, None)
@@ -217,7 +217,7 @@ class Average(Field):
             for v2 in f2:
                 comp = self.compare(v1, v2)
                 best = max(best, comp)
-            total += best # score of most similar item in the long set
+            total += best  # score of most similar item in the long set
         return total / len(f1)
 
 

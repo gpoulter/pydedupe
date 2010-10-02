@@ -67,7 +67,7 @@ class Reader:
         self.encoding = encoding
         self.reader = plaincsv.reader(iterable, dialect)
         if not fields:
-            fields = [ f.strip() for f in self.reader.next() ]
+            fields = [f.strip() for f in self.reader.next()]
         for field in fields:
             if len(field) == 0:
                 raise ValueError("Empty field name")

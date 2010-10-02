@@ -68,16 +68,16 @@ def classify(comparisons, distance, maxiter=10):
     safe_div = lambda n, d: n/d if d > 0 else None
 
     # Get initial centroids
-    high_centroid = [ max(x[i] for x in comparisons.itervalues()
-                          if x[i] is not None) for i in vidx ]
-    low_centroid = [ min(x[i] for x in comparisons.itervalues()
-                         if x[i] is not None) for i in vidx ]
+    high_centroid = [max(x[i] for x in comparisons.itervalues()
+                          if x[i] is not None) for i in vidx]
+    low_centroid = [min(x[i] for x in comparisons.itervalues()
+                         if x[i] is not None) for i in vidx]
     logging.debug("  Initial match centroid: " + str_vector(high_centroid))
     logging.debug("  Initial non-match centroid: " + str_vector(low_centroid))
 
     # Mapping key to (value, class assignment).
     # All items initially assigned to the "False" class (non-match).
-    assignments = dict( (k, [v, False]) for k, v in comparisons.iteritems() )
+    assignments = dict((k, [v, False]) for k, v in comparisons.iteritems())
     # Number of items that changed class
     n_changed = 1
     # Number of classifier iterations
@@ -101,7 +101,7 @@ def classify(comparisons, distance, maxiter=10):
             if dist_high < dist_low:
                 if not match:
                     n_changed += 1
-                assignments[k][1] = True # Set match to True
+                assignments[k][1] = True  # Set match to True
                 for i in vidx:
                     if v[i] is not None:
                         high_total[i] += v[i]
@@ -109,14 +109,14 @@ def classify(comparisons, distance, maxiter=10):
             else:
                 if match:
                     n_changed += 1
-                assignments[k][1] = False # Set match to False
+                assignments[k][1] = False  # Set match to False
                 for i in vidx:
                     if v[i] is not None:
                         low_total[i] += v[i]
                         low_count[i] += 1
 
-        high_centroid = [ safe_div(high_total[i], high_count[i]) for i in vidx ]
-        low_centroid = [ safe_div(low_total[i], low_count[i]) for i in vidx ]
+        high_centroid = [safe_div(high_total[i], high_count[i]) for i in vidx]
+        low_centroid = [safe_div(low_total[i], low_count[i]) for i in vidx]
 
         logging.debug("  Iteration {0}: {1} vectors changed assignment.".format(iters, n_changed))
         logging.debug("    Match centroid: " + str_vector(high_centroid))
@@ -125,9 +125,9 @@ def classify(comparisons, distance, maxiter=10):
     # Calculate a smoothed score as the log of the ratio of distances
     # of the similarity vector to each of the centroids.
     import math
-    score = lambda v: math.log10( (distance(v, low_centroid)+0.1) / (distance(v, high_centroid)+0.1) )
-    matches = dict( (k, score(v))  for k, (v, match) in assignments.iteritems() if match)
-    nomatches = dict( (k, score(v)) for k, (v, match) in assignments.iteritems() if not match)
+    score = lambda v: math.log10((distance(v, low_centroid)+0.1) / (distance(v, high_centroid)+0.1))
+    matches = dict((k, score(v))  for k, (v, match) in assignments.iteritems() if match)
+    nomatches = dict((k, score(v)) for k, (v, match) in assignments.iteritems() if not match)
     logging.debug("Classified {0} similarity vectors, {1} as matches and {2} as non-matches.".format(
                   len(comparisons), len(matches), len(nomatches)))
     return matches, nomatches

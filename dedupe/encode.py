@@ -95,7 +95,8 @@ def urldomain(text):
     'google.com'
     """
     match = re.match(ur'(?:http://)?(?:www\.)?([^/]+)(?:/.*)?', text)
-    if match is None: return text
+    if match is None:
+        return text
     return match.group(1)
 
 
@@ -108,7 +109,8 @@ def emaildomain(text):
     'abc'
     """
     match = re.match(ur'([^@]+)@(.+)', text)
-    if match is None: return text
+    if match is None:
+        return text
     return match.group(2)
 
 

@@ -122,7 +122,7 @@ class Index(dict):
         if comparisons is None:
             comparisons = {}
         for indexkey, records in self.iteritems():
-            records.sort() # sort the group to ensure a < b
+            records.sort()  # sort the group to ensure a < b
             for j in range(len(records)):
                 for i in range(j):
                     # i < j, and sorting means record[i] <= record[j]

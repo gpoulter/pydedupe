@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-import logging, sys, unittest
+import logging
+import sys
+import unittest
 from os.path import dirname, join
 sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
@@ -55,7 +57,7 @@ class TestLinkCSV(unittest.TestCase):
         records = [("A", "5.5"), ("B", "3.5"), ("C", "5.25")]
         makekey = lambda r: [int(float(r[1]))]
         vcompare = lambda x, y: float(int(x) == int(y))
-        indexing = [ ("Idx", block.Index, makekey) ]
+        indexing = [("Idx", block.Index, makekey)]
         comparator = sim.Record(
             ("Compare", sim.Field(vcompare, 1, float)),
         )

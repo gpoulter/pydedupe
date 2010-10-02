@@ -61,7 +61,7 @@ def fallback(fields, test=bool, default=""):
     import collections
     if not isinstance(test, collections.Callable):
         raise TypeError("test: {0!r} is not callable".format(test))
-    getters = [ getter(f) for f in fields ]
+    getters = [getter(f) for f in fields]
 
     def getfield(record):
         """Attempt to get field from record"""
@@ -109,7 +109,7 @@ def multivalue(sep, *fields):
     >>> get.multivalue(";", 0, 1)(rec2)
     ['a', 'b', 'c', 'd']
     """
-    getters = [ getter(f) for f in fields ]
+    getters = [getter(f) for f in fields]
 
     def splitcombine(record):
         """Get multi-valued from delimited fields %s using delimiter %s"""
