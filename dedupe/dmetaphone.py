@@ -14,17 +14,17 @@ Double Metaphone phonetic encoding
 
    .. _`blog post`: http://atomboy.isa-geek.com:8080/plone/Members/acoil/programing/double-metaphone
 
-.. moduleauthor:: Andrew Collins 
+.. moduleauthor:: Andrew Collins
 """
 
 def encode(st) :
     """Returns the double metaphone codes for given string - always a tuple.
     The input input string must be a single word: no spaces or other characters.
-    
+
     :type st: :class:`str`
     :param st: Text to encode.
     :rtype: (:class:`str`, :class:`str`) or (:class:`str`, :keyword:`None`)
-    
+
     >>> names = ('maurice aubrey cambrillo heidi catherine katherine ' +
     ... 'richard bob eric geoff dave ray steven bryce randy bryan brian ' +
     ... 'otto auto maisey zhang solilijs')
@@ -33,7 +33,7 @@ def encode(st) :
     ...     print n, a, b
     maurice MRS None
     aubrey APR None
-    cambrillo KMPRL KMPR 
+    cambrillo KMPRL KMPR
     heidi HT None
     catherine K0RN KTRN
     katherine K0RN KTRN
@@ -149,7 +149,7 @@ def encode(st) :
                     nxt = ('S', 'X', 2)
                 else :
                     nxt = ('S', 2)
-            else : 
+            else :
                 #name sent in 'mac caffrey', 'mac gregor
                 if st[pos+1:pos+3] in [" C", " Q", " G"] :
                     nxt = ('K', 3)
@@ -190,7 +190,7 @@ def encode(st) :
                      or (pos > (first + 2) and st[pos-3] in ['B', 'H', 'D'] ) \
                      or (pos > (first + 3) and st[pos-3] in ['B', 'H'] ) :
                     nxt = (None, 2)
-                else : 
+                else :
                     # e.g., 'laugh', 'McLaughlin', 'cough', 'gough', 'rough', 'tough'
                     if pos > (first + 2) and st[pos-1] == 'U' \
                        and st[pos-3] in ["C", "G", "L", "R", "T"] :
@@ -210,7 +210,7 @@ def encode(st) :
             # 'tagliaro'
             elif st[pos+1:pos+3] == 'LI' and not is_slavo_germanic :
                 nxt = ('KL', 'L', 2)
-            # -ges-,-gep-,-gel-, -gie- at beginning
+            # -ges-, -gep-, -gel-, -gie- at beginning
             elif pos == first and (st[pos+1] == 'Y' \
                                    or st[pos+1:pos+3] in ["ES", "EP", "EB", "EL", "EY", "IB", "IL", "IN", "IE", "EI", "ER"]) :
                 nxt = ('K', 'J', 2)
@@ -459,4 +459,4 @@ def encode(st) :
         return (pri, None)
     else :
         return (pri, sec)
-    
+
