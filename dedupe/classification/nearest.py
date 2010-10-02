@@ -49,7 +49,8 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
 
     >>> ## Test 2D vectors with some null components
     >>> matches, nomatches = nearest.classify(
-    ...  comparisons= {(1, 2):[0.5, None], (2, 3):[0.8, 0.7], (3, 4):[0.9, 0.5], (4, 5):[0.0, 0.5]},
+    ...  comparisons= {(1, 2):[0.5, None], (2, 3):[0.8, 0.7],
+    ...                (3, 4):[0.9, 0.5], (4, 5):[0.0, 0.5]},
     ...  ex_matches = [[1.0, 0.8], [1.0, None]],
     ...  ex_nonmatches = [[0.3, 0.3]],
     ...  distance = L2)
@@ -58,14 +59,16 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
     >>> sorted(nomatches.keys())
     [(1, 2), (4, 5)]
     """
-    logging.debug("Nearest neighbour: {0} match examples and {1} non-match examples.".format(
-                 len(ex_matches), len(ex_nonmatches)))
+    logging.debug("Nearest neighbour example: {0} match, {1} non-match."\
+                  .format(len(ex_matches), len(ex_nonmatches)))
     matches, nonmatches = {}, {}
     for pair, comparison in comparisons.iteritems():
         judge = rule(pair[0], pair[1], comparison) if rule else None
         if judge is None:
-            match_dist = min(distance(comparison, example) for example in ex_matches)
-            nonmatch_dist = min(distance(comparison, example) for example in ex_nonmatches)
+            match_dist = min(distance(comparison, example)
+                             for example in ex_matches)
+            nonmatch_dist = min(distance(comparison, example)
+                                for example in ex_nonmatches)
             # Calculate a smoothed score as the log of the ratio of distances
             # of the similarity vector to the nearest match and non-match.
             score = math.log10((nonmatch_dist + 0.1) / (match_dist + 0.1))
@@ -78,7 +81,8 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
         elif judge is False:
             nonmatches[pair] = 0.0
         else:
-            raise ValueError("rule returned {0!s} (should be True/False/None)".format(judge))
+            raise ValueError(
+                "rule returned {0!s}: should be True/False/None".format(judge))
     logging.debug("Nearest neighbour: {0} matches and {1} non-matches".format(
                  len(matches), len(nonmatches)))
     return matches, nonmatches

@@ -60,7 +60,7 @@ class Reader:
         :param iterable: File or other iteration of byte-string lines.
         :param dialect: Dialect of the CSV file (see csv module)
         :param typename: Name for the created namedtuple class.
-        :param fields: namedtuple of fields, or None to use the CSV header line.
+        :param fields: namedtuple of fields, or None to use CSV header line.
         """
         if isinstance(iterable, basestring):
             iterable = open(iterable)
@@ -101,7 +101,8 @@ class Writer:
     'a,b\\xc3\\xa9\\r\\n'
     """
 
-    def __init__(self, stream, dialect=plaincsv.excel, encoding='cp1252', **kwds):
+    def __init__(self, stream, dialect=plaincsv.excel,
+                 encoding='cp1252', **kwds):
         self.encoding = encoding
         self.writer = plaincsv.writer(stream, dialect=dialect, **kwds)
 

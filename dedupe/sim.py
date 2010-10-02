@@ -66,8 +66,8 @@ class Scale(object):
     :param low: Similarity values below `low` (default 0.0) are scaled to 0.0
     :param high: Similarity values above `high` (default 1.0) are scaled to 1.0
     :param rmax: Upper end of the result range (default 1.0).\
-    Lower `rmax` reduces contribution of the field to vector distance, downweighting it.
-    :param missing: Return `missing` when `similarity` returns `None` (defaults to `None`).
+    Lower `rmax` reduces contribution to vector distance, downweighting it.
+    :param missing: Return `missing` when `similarity` returns `None`.
     :param test: Callable of record to test bad values.  If `a` and `b` pass\
     the test then return `similarity(a, b)`, otherwise return `missing`.
 
@@ -90,7 +90,8 @@ class Scale(object):
     None
     """
 
-    def __init__(self, similarity, low=0.0, high=1.0, rmax=1.0, missing=None, test=None):
+    def __init__(self, similarity,
+                 low=0.0, high=1.0, rmax=1.0, missing=None, test=None):
         if not (0.0 <= low < high):
             raise ValueError("low: {0}, high: {1}".format(low, high))
         self.similarity = similarity
@@ -127,12 +128,12 @@ class Field(object):
     :type field1: callable(`R`) -> `T1`
     :param field1: Gets field value from first record.
     :type encode1: callable(`T1`) `V`
-    :param encode1: Encodes field value from first record (default: `lambda x:x`)
+    :param encode1: Encodes field value from first record (`lambda x:x`)
 
     :type field2: callable(`R`) -> `T1`
-    :param field2: Gets field value from the second record (default: `field1`)
+    :param field2: Gets field value from the second record (`field1`)
     :type encode2: callable(`T1`) `V`
-    :param encode2: Encodes field value from the second record (default: `encode1`)
+    :param encode2: Encodes field value from the second record (`encode1`)
 
     >>> from dedupe import sim
     >>> from dedupe.get import item
@@ -142,7 +143,8 @@ class Field(object):
     0.5
     >>> Field(similarity, item(1), float)(('A', '1'), ('B', '2'))
     0.5
-    >>> fsim = Field(similarity, field1=item(0), encode1=lambda x:x, field2=item(1), encode2=float)
+    >>> fsim = Field(similarity, field1=item(0), encode1=lambda x:x,
+    ...              field2=item(1), encode2=float)
     >>> fsim((1, 'A'), ('B', '2'))
     0.5
     """
@@ -180,14 +182,16 @@ class Average(Field):
     :type field1: callable(`R`) [`T1`, ...]
     :param field1: Returns a list of values for the field on first record.
     :type field2: callable(`R`) [`T2`, ...]
-    :param field2: Returns a list of values for the field on second record (default: `field1`).
+    :param field2: Returns a list of values for the field on second record \
+    (default: `field1`).
     :type encode1: function(`T1`) `V`
     :param encode1: Encodes each field1 value for comparison.
     :type encode2: function(`T2`) `V`
-    :param encode2: Encodes each field2 value for comparison (default: `encode1`).
+    :param encode2: Encodes each field2 value for comparison (`encode1`).
 
     :rtype: callable(`R1`, `R2`) float
-    :return: Computer of average similarity of records `R1` and `R2` for values of the field.
+    :return: Computer of average similarity of records `R1` and `R2`\
+    for values of the field.
 
     >>> # define an exponential 'similarity of numbers' measure
     >>> similarity = lambda x, y: 2.0**(-abs(x-y))
@@ -230,11 +234,13 @@ class Maximum(Field):
     :type field1: callable(`R`) [`T1`, ...]
     :param field1: Returns a list of values for the field on first record.
     :type field2: callable(`R`) [`T2`, ...]
-    :param field2: Returns a list of values for the field on second record (default: `field1`).
+    :param field2: Returns a list of values for the field on second record\
+    (default: `field1`).
     :type encode1: function(`T1`) `V`
     :param encode1: Encodes each field1 value for comparison.
     :type encode2: function(`T2`) `V`
-    :param encode2: Encodes each field2 value for comparison (default: `encode1`).
+    :param encode2: Encodes each field2 value for comparison\
+    (default: `encode1`).
 
     >>> # define an exponential 'similarity of numbers' measure
     >>> similarity = lambda x, y: 2.0**(-abs(x-y))
@@ -358,7 +364,7 @@ class Indices(_OrderedDict):
         """Compute similarities of indexed pairs of records.
 
         :type simfunc: func(`R`, `R`) (`float`, ...)
-        :param simfunc: takes a pair of records and returns a similarity vector.
+        :param simfunc: takes pair of records and returns a similarity vector.
 
         :type other: :class:`Indices`
         :param other: Another Indices to compare against.
@@ -383,7 +389,8 @@ class Indices(_OrderedDict):
         """Log the expected between-index comparisons."""
         if other is not None and other is not self:
             for (n1, i1), (n2, i2) in zip(self.items(), other.items()):
-                logging.info("Index {0} and {1}: {2} max comparisons required.".format(
+                logging.info(
+                    "Index {0} and {1}: {2} max comparisons required.".format(
                     n1, n2, i1.count(i2)))
                 i1.log_size(n1)
                 i2.log_size(n2)

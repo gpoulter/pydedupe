@@ -6,14 +6,14 @@ Damerau-Levenshtein distance algorithm by `mwh.geek.nz`_::
 
    The Damerau-Levenshtein distance between two strings is the number of
    additions, deletions, substitutions, and transpositions needed to transform
-   one into the other. It's an extension of the Levenshtein distance,
-   by incorporating transpositions into the set of operations.
+   one into the other. It's an extension of the Levenshtein distance, by
+   incorporating transpositions into the set of operations.
 
-   I had a need to use it in a program recently, but I couldn't find any Python
-   implementation around that wasn't trivially buggy or horrendously
+   I had a need to use it in a program recently, but I couldn't find any
+   Python implementation around that wasn't trivially buggy or horrendously
    inefficient (strictly, you can implement it neatly by recursion, and it's
-   instructive for examining the algorithm, but it takes an age to run when you
-   do). I've put one together myself from the algorithmic definition that
+   instructive for examining the algorithm, but it takes an age to run when
+   you do). I've put one together myself from the algorithmic definition that
    I've tested to work correctly and reasonably efficiently.
 
    The algorithm is inherently O(N*M) in time, and the naive version is in
@@ -21,9 +21,10 @@ Damerau-Levenshtein distance algorithm by `mwh.geek.nz`_::
    rows of the matrix are stored.
 
    The code is available under the MIT licence, in the hope that it will be
-   useful, but without warranty of any kind. I have also included a codesnippet
-   GUID in line with the linked post, as a sort of experiment. Please leave that
-   comment intact if you're posting a derivative somewhere, and add your own.
+   useful, but without warranty of any kind. I have also included a
+   codesnippet GUID in line with the linked post, as a sort of experiment.
+   Please leave that comment intact if you're posting a derivative somewhere,
+   and add your own.
 
 .. _`mwh.geek.nz`: http://mwh.geek.nz/2009/04/26/python-damerau-levenshtein-distance/
 

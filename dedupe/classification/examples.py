@@ -21,7 +21,7 @@ def load(comparator, records, outdir=None):
     :type comparator: function(`R`, `R`) [:class:`float`, ...]
     :param comparator: gets similarity vectors for pairs of records.
     :type records: [('TRUE'|'FALSE', `key`, `value`, ...), ...]
-    :param records: training records with match & key metadata in first two fields.
+    :param records: training records with match & key in first two fields.
     :type outdir: :class:`str`
     :param outdir: optional debug para to, write comparisons as CSV to\
        :file:`{outdir}/{foo}_true.csv` and :file:`{outdir}/{foo}_false.csv`.
@@ -32,7 +32,8 @@ def load(comparator, records, outdir=None):
     >>> from ..compat import namedtuple
     >>> R = namedtuple('Record', 'Match ID Name Age')
     >>> records = [
-    ...  R('TRUE', '1', 'Joe1', 8), R('TRUE', '1', 'Joe2', 7), R('TRUE', '1', 'Joe3', 3),
+    ...  R('TRUE', '1', 'Joe1', 8), R('TRUE', '1', 'Joe2', 7),
+    ...  R('TRUE', '1', 'Joe3', 3),
     ...  R('TRUE', '2', 'Abe1', 3), R('TRUE', '2', 'Abe2', 5),
     ...  R('FALSE', '3', 'Zip1', 9), R('FALSE', '3', 'Zip2', 1),
     ...  R('FALSE', '4', 'Nobody', 1)]
@@ -52,8 +53,10 @@ def load(comparator, records, outdir=None):
     ['Score,Key,V', ',1,8', ',1,3', '1.0,True,0.03125', ',1,7', ',1,3', '1.0,True,0.0625', ',1,8', ',1,7', '1.0,True,0.5', ',2,3', ',2,5', '1.0,True,0.25']
     """
     from .. import block, sim
-    t_rows = [r for r in records if r[0] in ['TRUE', 'T', 'YES', 'Y', '1', 1, True]]
-    f_rows = [r for r in records if r[0] in ['FALSE', 'F', 'NO', 'N', '0', 0, False]]
+    t_rows = [r for r in records if r[0] in
+              ['TRUE', 'T', 'YES', 'Y', '1', 1, True]]
+    f_rows = [r for r in records if r[0] in
+              ['FALSE', 'F', 'NO', 'N', '0', 0, False]]
     # Index on second column and self-compare within blocks
     t_indices = sim.Indices([("Key", block.Index, lambda r: [r[1]])], t_rows)
     f_indices = sim.Indices([("Key", block.Index, lambda r: [r[1]])], f_rows)

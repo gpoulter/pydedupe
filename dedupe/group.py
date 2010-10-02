@@ -80,7 +80,8 @@ def singles_and_groups(matches, allrecords):
     :return: single records (match nothing) and groups (of matching records)
 
     >>> from dedupe import group
-    >>> group.singles_and_groups([(1, 2), (2, 3), (4, 5)], [1, 2, 3, 4, 5, 6, 7])
+    >>> group.singles_and_groups([(1, 2), (2, 3), (4, 5)],
+    ...                          [1, 2, 3, 4, 5, 6, 7])
     ([6, 7], [[1, 2, 3], [4, 5]])
     """
     adjlist = adjacency_list(matches)  # Map from record to neighbours

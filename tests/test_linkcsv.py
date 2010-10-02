@@ -62,10 +62,12 @@ class TestLinkCSV(unittest.TestCase):
             ("Compare", sim.Field(vcompare, 1, float)),
         )
         # link and print the output
-        linker = linkcsv.LinkCSV("/single", indexing, comparator, classify, records)
+        linker = linkcsv.LinkCSV(
+            "/single", indexing, comparator, classify, records)
         linker.write_all()
         # link against master and print the output
-        linker = linkcsv.LinkCSV("/master", indexing, comparator, classify, records, master=records)
+        linker = linkcsv.LinkCSV(
+            "/master", indexing, comparator, classify, records, master=records)
         linker.write_all()
 
 if __name__ == "__main__":

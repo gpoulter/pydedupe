@@ -48,7 +48,8 @@ def classify(comparisons, distance, maxiter=10):
 
     >>> ## cluster 2D vectors with some nulled components
     >>> matches, nomatches = kmeans.classify(
-    ...  comparisons= {(1, 2):[0.5, None], (2, 3):[0.8, 0.7], (3, 4):[0.9, 0.5], (4, 5):[0.0, 0.5]},
+    ...  comparisons= {(1, 2):[0.5, None], (2, 3):[0.8, 0.7],
+    ...                (3, 4):[0.9, 0.5], (4, 5):[0.0, 0.5]},
     ...  distance = L2)
     >>> sorted(matches.keys())
     [(1, 2), (2, 3), (3, 4)]
@@ -64,7 +65,8 @@ def classify(comparisons, distance, maxiter=10):
     vidx = range(vlen)
     comparisons[k] = v
     logging.debug("KMeans: Dimension {0}, maxiter {1}", vlen, maxiter)
-    str_vector = lambda vector: "[" + ", ".join("%.4f" % v if v is not None else "None" for v in vector) + "]"
+    str_vector = lambda vector: "[" + ", ".join(
+        "%.4f" % v if v is not None else "None" for v in vector) + "]"
     safe_div = lambda n, d: n / d if d > 0 else None
 
     # Get initial centroids
@@ -118,16 +120,20 @@ def classify(comparisons, distance, maxiter=10):
         high_centroid = [safe_div(high_total[i], high_count[i]) for i in vidx]
         low_centroid = [safe_div(low_total[i], low_count[i]) for i in vidx]
 
-        logging.debug("  Iteration {0}: {1} vectors changed assignment.".format(iters, n_changed))
+        logging.debug("  Iteration {0}: {1} vectors changed assignment.".\
+                      format(iters, n_changed))
         logging.debug("    Match centroid: " + str_vector(high_centroid))
         logging.debug("    Non-match centroid: " + str_vector(low_centroid))
 
     # Calculate a smoothed score as the log of the ratio of distances
     # of the similarity vector to each of the centroids.
     import math
-    score = lambda v: math.log10((distance(v, low_centroid) + 0.1) / (distance(v, high_centroid) + 0.1))
-    matches = dict((k, score(v))  for k, (v, match) in assignments.iteritems() if match)
-    nomatches = dict((k, score(v)) for k, (v, match) in assignments.iteritems() if not match)
-    logging.debug("Classified {0} similarity vectors, {1} as matches and {2} as non-matches.".format(
-                  len(comparisons), len(matches), len(nomatches)))
+    score = lambda v: math.log10((distance(v, low_centroid) + 0.1)
+                                  / (distance(v, high_centroid) + 0.1))
+    matches = dict((k, score(v))  for k, (v, match)
+                   in assignments.iteritems() if match)
+    nomatches = dict((k, score(v)) for k, (v, match)
+                     in assignments.iteritems() if not match)
+    logging.debug("Classified {0}: {1} as matches and {2} as non-matches."\
+                  .format(len(comparisons), len(matches), len(nomatches)))
     return matches, nomatches

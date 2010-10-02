@@ -36,8 +36,9 @@ def within(comparator, records, comparisons=None):
 
 
 def between(comparator, records1, records2, comparisons=None):
-    """Compute similarity vectors for all pairs of records in two lists. Each record
-    in the first list is compared against each record in the second list.
+    """Compute similarity vectors for all pairs of records in two lists. Each
+    record in the first list is compared against each record in the second
+    list.
 
     :type comparator: func(`R`, `R`) [:class:`float`, ...]
     :param comparator: takes a pair of records and returns a similarity vector.
@@ -103,4 +104,5 @@ class Index:
         >>> idx = Index()
         >>> idx.log_size('MyIndex')
         """
-        logging.info("{0}: Contains {1} records.".format(name, len(self.records)))
+        logging.info("{0}: Contains {1} records.".format(
+            name, len(self.records)))

@@ -133,9 +133,10 @@ def wrap(*funcs):
 
 
 class Normaliser:
-    """Normalise terms in text using a dictionary mapping d[primary] == [aliases].
-    Generates a regex to match each list of aliases, and when normalise is
-    called on a text, it converts the text to use the primary form.
+    """Normalise terms in text using a dictionary mapping d[primary] ==
+    [aliases]. Generates a regex to match each list of aliases, and when
+    normalise is called on a text, it converts the text to use the primary
+    form.
 
     >>> expansions = {'parkway': ['parkwy', 'pky', 'pkway'],
     ...  '' : ['co', 'company'],

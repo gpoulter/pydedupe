@@ -90,8 +90,9 @@ def distance(loc1, loc2):
     deg2rad = math.pi / 180.0
     long1, lat1 = loc1[0] * deg2rad, loc1[1] * deg2rad
     long2, lat2 = loc2[0] * deg2rad, loc2[1] * deg2rad
-    cosine_distance = (math.cos(long1 - long2) * math.cos(lat1) * math.cos(lat2) +
-                       math.sin(lat1) * math.sin(lat2))
+    cosine_distance = (math.cos(long1 - long2)
+                       * math.cos(lat1) * math.cos(lat2)
+                       + math.sin(lat1) * math.sin(lat2))
     #print loc1, loc2, cosine_distance
     if cosine_distance >= 1.0:
         distance = 0
