@@ -28,31 +28,32 @@ def encode(st) :
     >>> names = ('maurice aubrey cambrillo heidi catherine katherine ' +
     ... 'richard bob eric geoff dave ray steven bryce randy bryan brian ' +
     ... 'otto auto maisey zhang solilijs')
-    >>> for n in names.split():
+    >>> import sys
+    >>> for n in sorted(names.split()):
     ...     a, b = encode(n)
-    ...     print n, a, b
-    maurice MRS None
+    ...     sys.stdout.write('{0} {1} {2}\\n'.format(n, a, b))
     aubrey APR None
-    cambrillo KMPRL KMPR
-    heidi HT None
-    catherine K0RN KTRN
-    katherine K0RN KTRN
-    richard RXRT None
+    auto AT None
     bob PP None
+    brian PRN None
+    bryan PRN None
+    bryce PRS None
+    cambrillo KMPRL KMPR
+    catherine K0RN KTRN
+    dave TF None
     eric ARK None
     geoff JF KF
-    dave TF None
-    ray R None
-    steven STFN None
-    bryce PRS None
-    randy RNT None
-    bryan PRN None
-    brian PRN None
-    otto AT None
-    auto AT None
+    heidi HT None
+    katherine K0RN KTRN
     maisey MS None
-    zhang JNK None
+    maurice MRS None
+    otto AT None
+    randy RNT None
+    ray R None
+    richard RXRT None
     solilijs SLLS None
+    steven STFN None
+    zhang JNK None
     """
     vowels = ['A', 'E', 'I', 'O', 'U', 'Y']
     #st = st.decode('ascii', 'ignore') (assume unicode)
@@ -65,7 +66,7 @@ def encode(st) :
     pos = first # pos is short for position
     pri = sec = '' # primary and secondary metaphone codes
     #skip these silent letters when at start of word
-    if st[first:first+2] in ["GN", "KN", "PN", "WR", "PS"] :
+    if st[first:first+2] in ['GN', 'KN', 'PN', 'WR', 'PS'] :
         pos += 1
     # Initial 'X' is pronounced 'Z' e.g. 'Xavier'
     if st[first] == 'X' :
@@ -85,7 +86,7 @@ def encode(st) :
             if pos == first : # all init vowels now map to 'A'
                 nxt = ('A', 1)
         elif ch == 'B' :
-            #"-mb", e.g", "dumb", already skipped over... see 'M' below
+            #'-mb', e.g', 'dumb', already skipped over... see 'M' below
             if st[pos+1] == 'B' :
                 nxt = ('P', 2)
             else :
@@ -105,14 +106,14 @@ def encode(st) :
                 if pos > first and st[pos:pos+4] == 'CHAE' :
                     nxt = ('K', 'X', 2)
                 elif pos == first and (st[pos+1:pos+6] in ['HARAC', 'HARIS'] or \
-                                       st[pos+1:pos+4] in ["HOR", "HYM", "HIA", "HEM"]) and st[first:first+5] != 'CHORE' :
+                                       st[pos+1:pos+4] in ['HOR', 'HYM', 'HIA', 'HEM']) and st[first:first+5] != 'CHORE' :
                     nxt = ('K', 2)
                 #germanic, greek, or otherwise 'ch' for 'kh' sound
                 elif st[first:first+4] in ['VAN ', 'VON '] or st[first:first+3] == 'SCH' \
-                     or st[pos-2:pos+4] in ["ORCHES", "ARCHIT", "ORCHID"] \
+                     or st[pos-2:pos+4] in ['ORCHES', 'ARCHIT', 'ORCHID'] \
                      or st[pos+2] in ['T', 'S'] \
-                     or ((st[pos-1] in ["A", "O", "U", "E"] or pos == first) \
-                         and st[pos+2] in ["L", "R", "N", "M", "B", "H", "F", "V", "W"]) :
+                     or ((st[pos-1] in ['A', 'O', 'U', 'E'] or pos == first) \
+                         and st[pos+2] in ['L', 'R', 'N', 'M', 'B', 'H', 'F', 'V', 'W']) :
                     nxt = ('K', 1)
                 else :
                     if pos == first :
@@ -131,7 +132,7 @@ def encode(st) :
             #double 'C', but not if e.g. 'McClellan'
             elif st[pos:pos+2] == 'CC' and not (pos == (first +1) and st[first] == 'M') :
                 #'bellocchio' but not 'bacchus'
-                if st[pos+2] in ["I", "E", "H"] and st[pos+2:pos+4] != 'HU' :
+                if st[pos+2] in ['I', 'E', 'H'] and st[pos+2:pos+4] != 'HU' :
                     #'accident', 'accede' 'succeed'
                     if (pos == (first +1) and st[first] == 'A') or \
                        st[pos-1:pos+4] in ['UCCEE', 'UCCES'] :
@@ -141,20 +142,20 @@ def encode(st) :
                         nxt = ('X', 3)
                 else :
                     nxt = ('K', 2)
-            elif st[pos:pos+2] in ["CK", "CG", "CQ"] :
+            elif st[pos:pos+2] in ['CK', 'CG', 'CQ'] :
                 nxt = ('K', 'K', 2)
-            elif st[pos:pos+2] in ["CI", "CE", "CY"] :
+            elif st[pos:pos+2] in ['CI', 'CE', 'CY'] :
                 #italian vs. english
-                if st[pos:pos+3] in ["CIO", "CIE", "CIA"] :
+                if st[pos:pos+3] in ['CIO', 'CIE', 'CIA'] :
                     nxt = ('S', 'X', 2)
                 else :
                     nxt = ('S', 2)
             else :
                 #name sent in 'mac caffrey', 'mac gregor
-                if st[pos+1:pos+3] in [" C", " Q", " G"] :
+                if st[pos+1:pos+3] in [' C', ' Q', ' G'] :
                     nxt = ('K', 3)
                 else :
-                    if st[pos+1] in ["C", "K", "Q"] and st[pos+1:pos+3] not in ["CE", "CI"] :
+                    if st[pos+1] in ['C', 'K', 'Q'] and st[pos+1:pos+3] not in ['CE', 'CI'] :
                         nxt = ('K', 2)
                     else : # default for 'C'
                         nxt = ('K', 1)
@@ -193,7 +194,7 @@ def encode(st) :
                 else :
                     # e.g., 'laugh', 'McLaughlin', 'cough', 'gough', 'rough', 'tough'
                     if pos > (first + 2) and st[pos-1] == 'U' \
-                       and st[pos-3] in ["C", "G", "L", "R", "T"] :
+                       and st[pos-3] in ['C', 'G', 'L', 'R', 'T'] :
                         nxt = ('F', 2)
                     else :
                         if pos > first and st[pos-1] != 'I' :
@@ -212,15 +213,15 @@ def encode(st) :
                 nxt = ('KL', 'L', 2)
             # -ges-, -gep-, -gel-, -gie- at beginning
             elif pos == first and (st[pos+1] == 'Y' \
-                                   or st[pos+1:pos+3] in ["ES", "EP", "EB", "EL", "EY", "IB", "IL", "IN", "IE", "EI", "ER"]) :
+                                   or st[pos+1:pos+3] in ['ES', 'EP', 'EB', 'EL', 'EY', 'IB', 'IL', 'IN', 'IE', 'EI', 'ER']) :
                 nxt = ('K', 'J', 2)
             # -ger-,  -gy-
             elif (st[pos+1:pos+2] == 'ER' or st[pos+1] == 'Y') \
-                 and st[first:first+6] not in ["DANGER", "RANGER", "MANGER"] \
+                 and st[first:first+6] not in ['DANGER', 'RANGER', 'MANGER'] \
                  and st[pos-1] not in ['E', 'I'] and st[pos-1:pos+2] not in ['RGY', 'OGY'] :
                 nxt = ('K', 'J', 2)
             # italian e.g, 'biaggi'
-            elif st[pos+1] in ['E', 'I', 'Y'] or st[pos-1:pos+3] in ["AGGI", "OGGI"] :
+            elif st[pos+1] in ['E', 'I', 'Y'] or st[pos-1:pos+3] in ['AGGI', 'OGGI'] :
                 # obvious germanic
                 if st[first:first+4] in ['VON ', 'VAN '] or st[first:first+3] == 'SCH' \
                    or st[pos+1:pos+3] == 'ET' :
@@ -259,8 +260,8 @@ def encode(st) :
                     if pos == last :
                         nxt = ('J', ' ')
                     else :
-                        if st[pos+1] not in ["L", "T", "K", "S", "N", "M", "B", "Z"] \
-                           and st[pos-1] not in ["S", "K", "L"] :
+                        if st[pos+1] not in ['L', 'T', 'K', 'S', 'N', 'M', 'B', 'Z'] \
+                           and st[pos-1] not in ['S', 'K', 'L'] :
                             nxt = ('J',)
                         else :
                             nxt = (None, )
@@ -276,8 +277,8 @@ def encode(st) :
         elif ch == 'L' :
             if st[pos+1] == 'L' :
                 # spanish e.g. 'cabrillo', 'gallegos'
-                if (pos == (last - 2) and st[pos-1:pos+3] in ["ILLO", "ILLA", "ALLE"]) \
-                   or (st[last-1:last+1] in ["AS", "OS"] or st[last] in ["A", "O"] \
+                if (pos == (last - 2) and st[pos-1:pos+3] in ['ILLO', 'ILLA', 'ALLE']) \
+                   or (st[last-1:last+1] in ['AS', 'OS'] or st[last] in ['A', 'O'] \
                        and st[pos-1:pos+3] == 'ALLE') :
                     nxt = ('L', ' ', 2)
                 else :
@@ -301,7 +302,7 @@ def encode(st) :
         elif ch == 'P' :
             if st[pos+1] == 'H' :
                 nxt = ('F', 2)
-            elif st[pos+1] in ['P', 'B'] : # also account for "campbell", "raspberry"
+            elif st[pos+1] in ['P', 'B'] : # also account for 'campbell', 'raspberry'
                 nxt = ('P', 2)
             else :
                 nxt = ('P', 1)
@@ -330,19 +331,19 @@ def encode(st) :
                 nxt =('X', 'S', 1)
             elif st[pos:pos+2] == 'SH' :
                 # germanic
-                if st[pos+1:pos+5] in ["HEIM", "HOEK", "HOLM", "HOLZ"] :
+                if st[pos+1:pos+5] in ['HEIM', 'HOEK', 'HOLM', 'HOLZ'] :
                     nxt = ('S', 2)
                 else :
                     nxt = ('X', 2)
             # italian & armenian
-            elif st[pos:pos+3] in ["SIO", "SIA"] or st[pos:pos+4] == 'SIAN' :
+            elif st[pos:pos+3] in ['SIO', 'SIA'] or st[pos:pos+4] == 'SIAN' :
                 if not is_slavo_germanic :
                     nxt = ('S', 'X', 3)
                 else :
                     nxt = ('S', 3)
             # german & anglicisations, e.g. 'smith' match 'schmidt', 'snider' match 'schneider'
             # also, -sz- in slavic language altho in hungarian it is pronounced 's'
-            elif (pos == first and st[pos+1] in ["M", "N", "L", "W"]) or st[pos+1] == 'Z' :
+            elif (pos == first and st[pos+1] in ['M', 'N', 'L', 'W']) or st[pos+1] == 'Z' :
                 nxt = ('S', 'X')
                 if st[pos+1] == 'Z' :
                     nxt = nxt + (2,)
@@ -352,7 +353,7 @@ def encode(st) :
                 # Schlesinger's rule
                 if st[pos+2] == 'H' :
                     # dutch origin, e.g. 'school', 'schooner'
-                    if st[pos+3:pos+5] in ["OO", "ER", "EN", "UY", "ED", "EM"] :
+                    if st[pos+3:pos+5] in ['OO', 'ER', 'EN', 'UY', 'ED', 'EM'] :
                         # 'schermerhorn', 'schenker'
                         if st[pos+3:pos+5] in ['ER', 'EN'] :
                             nxt = ('X', 'SK', 3)
@@ -409,18 +410,18 @@ def encode(st) :
                     nxt = ('A', 1)
             # Arnow should match Arnoff
             elif (pos == last and st[pos-1] in vowels) \
-                 or st[pos-1:pos+5] in ["EWSKI", "EWSKY", "OWSKI", "OWSKY"] \
+                 or st[pos-1:pos+5] in ['EWSKI', 'EWSKY', 'OWSKI', 'OWSKY'] \
                  or st[first:first+3] == 'SCH' :
                 nxt = ('', 'F', 1)
             # polish e.g. 'filipowicz'
-            elif st[pos:pos+4] in ["WICZ", "WITZ"] :
+            elif st[pos:pos+4] in ['WICZ', 'WITZ'] :
                 nxt = ('TS', 'FX', 4)
             else : # default is to skip it
                 nxt = (None, 1)
         elif ch == 'X' :
             # french e.g. breaux
             nxt = (None,)
-            if not(pos == last and (st[pos-3:pos] in ["IAU", "EAU"] \
+            if not(pos == last and (st[pos-3:pos] in ['IAU', 'EAU'] \
                                     or st[pos-2:pos] in ['AU', 'OU'])):
                 nxt = ('KS',)
             if st[pos+1] in ['C', 'X'] :
@@ -431,7 +432,7 @@ def encode(st) :
             # chinese pinyin e.g. 'zhao'
             if st[pos+1] == 'H' :
                 nxt = ('J',)
-            elif st[pos+1:pos+3] in ["ZO", "ZI", "ZA"] \
+            elif st[pos+1:pos+3] in ['ZO', 'ZI', 'ZA'] \
                  or (is_slavo_germanic and pos > first and st[pos-1] != 'T') :
                 nxt = ('S', 'TS')
             else :
@@ -456,7 +457,7 @@ def encode(st) :
                 sec += nxt[1]
             pos += nxt[2]
     if pri == sec :
-        return (pri, None)
+        return (pri.strip(), None)
     else :
-        return (pri, sec)
+        return (pri.strip(), sec.strip())
 
