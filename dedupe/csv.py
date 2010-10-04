@@ -30,6 +30,7 @@ def _fake_open(module):
     streams = {}
 
     def fakeopen(filename, mode):
+        """Return context-managed StringIO object."""
         stream = StringIO()
         stream.close = lambda: None
         streams[filename] = stream
@@ -78,6 +79,7 @@ class Reader:
         return self
 
     def next(self):
+        """Read next line"""
         try:
             row = [unicode(s, self.encoding) for s in self.reader.next()]
             return self.Row._make(row)
@@ -107,9 +109,11 @@ class Writer:
         self.writer = plaincsv.writer(stream, dialect=dialect, **kwds)
 
     def writerow(self, row):
+        """Write tuple to file"""
         self.writer.writerow([s.encode(self.encoding) for s in row])
 
     def writerows(self, rows):
+        """Write iteration of tuples to file"""
         for row in rows:
             self.writerow(row)
 
@@ -134,7 +138,6 @@ class Projection:
     """
 
     def __init__(self, fields):
-        from collections import namedtuple
         self.fields = fields
         self.Row = namedtuple('Row', fields)
 

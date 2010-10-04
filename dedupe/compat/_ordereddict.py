@@ -10,6 +10,8 @@ performance is poor: only use it for small collections.
 
 .. moduleauthor:: Raymond Hettinger (2007)
 """
+# pylint: disable=E0611,C0111,W0141
+
 from itertools import izip, imap
 from copy import deepcopy
 

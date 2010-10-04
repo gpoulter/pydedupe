@@ -23,11 +23,12 @@ def getter(latfield, lonfield):
     >>> getter(rec)
     (20.0, 10.0)
     """
-    from dedupe.get import getter
-    latget = getter(latfield)
-    longet = getter(lonfield)
+    import dedupe.get as get
+    latget = get.getter(latfield)
+    longet = get.getter(lonfield)
 
     def geoget(record):
+        """Get (lat,lon) from a record"""
         try:
             lat = float(latget(record))
             lon = float(longet(record))

@@ -53,5 +53,5 @@ def classify(rule, comparisons):
     :rtype: {(`R`, `R`)::class:`float`}, {(`R`, `R`)::class:`float`}
     :return: classifier scores for match pairs (1.0) and non-match pairs (0.0)
     """
-    match, nomatch, unknown = classify_bool(rule, comparisons)
+    match, nomatch, uncertain = classify_bool(rule, comparisons)
     return dict((x, 1.0) for x in match), dict((x, 0.0) for x in nomatch)

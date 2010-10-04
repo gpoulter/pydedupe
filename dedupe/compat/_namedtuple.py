@@ -6,6 +6,7 @@ Source code from http://code.activestate.com/recipes/500261/
 
 .. moduleauthor:: Raymond Hettinger (2007)
 """
+# pylint: disable=C0301,W0141,W0122,W0212,W0612,C0111,E1101,W0232,R0903,E0102,W0232,W0142
 
 from operator import itemgetter as _itemgetter
 from keyword import iskeyword as _iskeyword

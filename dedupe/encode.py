@@ -9,12 +9,7 @@ Values can be encoded for indexing, or transformed prior to comparison.
 
 import re
 
-
-def dmetaphone(text):
-    """Compute list of double-metaphone encodings of text.  See
-    :mod:`dedupe.dmetaphone`."""
-    import dmetaphone
-    return dmetaphone.encode(text)
+from dedupe.dmetaphone import encode as dmetaphone
 
 
 def normspace(text):
@@ -156,7 +151,6 @@ class Normaliser:
     """
 
     def __init__(self, aliases):
-        import re
         self.aliases = aliases
         self.regexes = {}
         for primary, shortforms in self.aliases.iteritems():

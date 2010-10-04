@@ -58,7 +58,8 @@ def load(comparator, records, outdir=None):
  ',1,8', ',1,7', '1.0,True,0.5',\
  ',2,3', ',2,5', '1.0,True,0.25']
     """
-    from .. import block, sim
+    import dedupe.block as block
+    import dedupe.sim as sim
     t_rows = [r for r in records if r[0] in
               ['TRUE', 'T', 'YES', 'Y', '1', 1, True]]
     f_rows = [r for r in records if r[0] in

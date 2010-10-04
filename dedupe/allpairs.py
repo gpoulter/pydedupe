@@ -32,7 +32,7 @@ def within(comparator, records, comparisons=None):
         for j in range(i):
             pair = records[j], records[i]
             if pair not in comparisons:
-                comparisons[pair] = comparator(*pair)
+                comparisons[pair] = comparator(pair[0], pair[1])
     return comparisons
 
 
@@ -78,8 +78,9 @@ class Index:
     {('B', 'C'): 0, ('A', 'B'): 0, ('A', 'A'): 1, ('A', 'C'): 0}
     """
 
-    def __init__(self, makekey=None, records=[]):
-        self.records = records
+    def __init__(self, makekey=None, records=None):
+        # pylint: disable=W0613
+        self.records = records if records else []
 
     def count(self, other=None):
         """Compute number of comparisons required."""

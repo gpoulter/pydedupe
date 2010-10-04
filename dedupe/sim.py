@@ -6,13 +6,10 @@ Compare values, fields, and records for similarity
 """
 
 import logging
-from dale import similarity as dale
-from levenshtein import similarity as levenshtein
 
-try:
-    from dedupe.compat import OrderedDict as _OrderedDict
-except:
-    from ..compat import OrderedDict as _OrderedDict
+from dedupe.dale import similarity as dale
+from dedupe.levenshtein import similarity as levenshtein
+from dedupe.compat import OrderedDict as _OrderedDict
 
 
 class Convert(object):
@@ -135,16 +132,14 @@ class Field(object):
     :type encode2: callable(`T1`) `V`
     :param encode2: Encodes field value from the second record (`encode1`)
 
-    >>> from dedupe import sim
-    >>> from dedupe.get import item
     >>> # define some 'similarity of numbers' measure
     >>> similarity = lambda x, y: 2**-abs(x-y)
     >>> similarity(1, 2)
     0.5
-    >>> Field(similarity, item(1), float)(('A', '1'), ('B', '2'))
+    >>> Field(similarity, lambda r:r[1], float)(('A', '1'), ('B', '2'))
     0.5
-    >>> fsim = Field(similarity, field1=item(0), encode1=lambda x:x,
-    ...              field2=item(1), encode2=float)
+    >>> fsim = Field(similarity, field1=lambda r:r[0], encode1=lambda x:x,
+    ...              field2=lambda r:r[1], encode2=float)
     >>> fsim((1, 'A'), ('B', '2'))
     0.5
     """
@@ -347,6 +342,7 @@ class Indices(_OrderedDict):
 
     @staticmethod
     def check_strategy(strategy):
+        """Raise TypeError if strategy tuple is wrong in some way."""
         if len(strategy) != 3:
             raise TypeError("{0!r}: not a strategy triple.".format(strategy))
         name, idxtype, keyfunc = strategy
@@ -382,8 +378,8 @@ class Indices(_OrderedDict):
             for index1, index2 in zip(self.itervalues(), other.itervalues()):
                 if type(index1) is not type(index2):
                     raise TypeError(
-                        "Indeces of type {0} and type {1} are incompatible" %
-                        (type(index1), type(index2)))
+                        "Indeces of type {0} and type {1} are incompatible"\
+                        .format(type(index1), type(index2)))
                 index1.compare(simfunc, index2, comparisons)
         return comparisons
 

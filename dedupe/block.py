@@ -45,11 +45,12 @@ class Index(dict):
  (('A', 5.5), ('D', 5.5)): 1.0, (('B', 4.5), ('E', 4.5)): 1.0}
     """
 
-    def __init__(self, makekey, records=[]):
+    def __init__(self, makekey, records=None):
         super(Index, self).__init__()
         self.makekey = makekey
-        for record in records:
-            self.insert(record)
+        if records:
+            for record in records:
+                self.insert(record)
 
     def insert(self, record):
         """Insert a record into the index.
@@ -120,9 +121,10 @@ class Index(dict):
             return self._compare_other(compare, other, comparisons)
 
     def _compare_self(self, compare, comparisons=None):
+        """Perform within-index comparisons."""
         if comparisons is None:
             comparisons = {}
-        for indexkey, records in self.iteritems():
+        for records in self.itervalues():
             records.sort()  # sort the group to ensure a < b
             for j in range(len(records)):
                 for i in range(j):
@@ -137,6 +139,7 @@ class Index(dict):
         return comparisons
 
     def _compare_other(self, compare, other, comparisons=None):
+        """Perform comparisons against another index."""
         if comparisons is None:
             comparisons = {}
         for indexkey in self.iterkeys():
@@ -145,7 +148,7 @@ class Index(dict):
                     for rec2 in other[indexkey]:
                         pair = (rec1, rec2)
                         if pair not in comparisons:
-                            comparisons[pair] = compare(*pair)
+                            comparisons[pair] = compare(pair[0], pair[1])
         return comparisons
 
     def log_size(self, name):
@@ -167,4 +170,4 @@ class Index(dict):
             logging.info("%s: Records=%d, Blocks=%d, Largest=%d, Avg=%.2f.",
                 name, records, blocks, largest, float(records) / blocks)
         else:
-            logging.info("%s: Empty index." % name)
+            logging.info("%s: Empty index.",  name)

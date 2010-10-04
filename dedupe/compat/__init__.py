@@ -10,9 +10,9 @@ Provides namedtuple and OrderdDict.
 try:
     from collections import namedtuple
 except ImportError:
-    from _namedtuple import namedtuple
+    from dedupe.compat._namedtuple import namedtuple
 
 try:
-    from collections import OrderedDict
+    from collections import OrderedDict  # pylint: disable=E0611
 except ImportError:
-    from _ordereddict import OrderedDict
+    from dedupe.compat._ordereddict import OrderedDict

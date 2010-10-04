@@ -1,16 +1,13 @@
 """
 Getters: functions to obtain a field values from a record
 =========================================================
-
 """
-
-from operator import attrgetter as attr
-
-from operator import itemgetter as item
 
 
 def dictattr(fieldspec):
+    """Build getter that attempt dictionary lookup before getattr"""
     def get(row):
+        """Attempt dictionary lookup before getattr"""
         if isinstance(row, dict):
             return row.get(fieldspec, None)
         else:
@@ -34,10 +31,11 @@ def getter(fieldspec):
     'ab'
     """
     import collections
+    import operator
     if isinstance(fieldspec, collections.Callable):
         return fieldspec
     elif isinstance(fieldspec, int):
-        return item(fieldspec)
+        return operator.itemgetter(fieldspec)
     elif isinstance(fieldspec, str):
         return dictattr(fieldspec)
     else:

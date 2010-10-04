@@ -5,12 +5,13 @@ Helpers for record linkage with CSV files for input and output
 .. moduleauthor:: Graham Poulter
 """
 
+import contextlib as ctx
 import logging
 import os
 
-import csv
-import group
-import sim
+import dedupe.csv as csv
+import dedupe.group as  group
+import dedupe.sim as sim
 
 
 def write_indices(indices, outdir, prefix):
@@ -116,7 +117,6 @@ def write_comparisons(ostream, comparator, comparisons, scores, indices1,
 
 def filelog(path):
     """Add filehandler to main logger, writing to :file:`{path}`."""
-    import logging
     filehandler = logging.FileHandler(path)
     filehandler.setFormatter(logging.Formatter(
         '%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S'))
@@ -125,7 +125,6 @@ def filelog(path):
 
 def writecsv(path, rows, header=None):
     """Write the `header` and `rows` to csv file at `path`"""
-    from . import csv
     with open(path, 'wb') as out:
         writer = csv.Writer(out)
         if header:
@@ -135,7 +134,6 @@ def writecsv(path, rows, header=None):
 
 def loadcsv(path):
     """Load records from csv at `path` as a list of :class:`namedtuple`"""
-    from . import csv
     with open(path, 'rb') as istream:
         return list(csv.Reader(istream))
 
@@ -201,7 +199,6 @@ class LinkCSV(object):
 
     def opath(self, name):
         """Path for a file `name` in the :attr:`odir`."""
-        import os
         return os.path.join(self.outdir, name)
 
     @property
@@ -209,7 +206,7 @@ class LinkCSV(object):
         """Field names on input records."""
         try:
             return self.records1[0]._fields
-        except (IndexError, AttributeError) as e:
+        except (IndexError, AttributeError):
             return []
 
     @property
@@ -217,14 +214,13 @@ class LinkCSV(object):
         """Field names on master records."""
         try:
             return self.records2[0]._fields
-        except (IndexError, AttributeError) as e:
+        except (IndexError, AttributeError):
             return []
 
     @property
     def projection(self):
         """Convert input/master records into output records."""
         if self.fields1:
-            from . import csv
             return csv.Projection.unionfields(self.fields2, self.fields1)
         else:
             return None
@@ -272,9 +268,8 @@ class LinkCSV(object):
         """For matched pairs, write the record comparisons and original record
         pairs."""
         _ = self
-        from contextlib import nested
-        with nested(open(_.opath(comps), 'wb'),
-                    open(_.opath(pairs), 'wb')) as (o_comps, o_pairs):
+        with ctx.nested(open(_.opath(comps), 'wb'),
+                        open(_.opath(pairs), 'wb')) as (o_comps, o_pairs):
             write_comparisons(o_comps, _.comparator, _.comparisons, _.matches,
                               _.indices1, _.indices2, self.projection, o_pairs)
 
@@ -283,9 +278,8 @@ class LinkCSV(object):
         """For non-matched pairs, write the record comparisons and original
         record pairs."""
         _ = self
-        from contextlib import nested
-        with nested(open(_.opath(comps), 'wb'),
-                    open(_.opath(pairs), 'wb')) as (o_comps, o_pairs):
+        with ctx.nested(open(_.opath(comps), 'wb'),
+                        open(_.opath(pairs), 'wb')) as (o_comps, o_pairs):
             write_comparisons(
                 o_comps, _.comparator, _.comparisons, _.nonmatches,
                 _.indices1, _.indices2, self.projection, o_pairs)
@@ -294,7 +288,6 @@ class LinkCSV(object):
         """Write out all records, with numbered groups of mutually linked
         records first."""
         with open(self.opath(groups), 'wb') as ofile:
-            import group
             group.write_csv(
                 self.matches, self.records1 + self.records2,
                 ofile, self.projection)
