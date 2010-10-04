@@ -22,7 +22,8 @@ def within(comparator, records, comparisons=None):
     >>> numcomp = lambda x, y: 2**-abs(float(x[1])-float(y[1]))
     >>> records = [('A', '1'), ('B', '2'), ('C', '3')]
     >>> allpairs.within(numcomp, records)
-    {(('A', '1'), ('C', '3')): 0.25, (('B', '2'), ('C', '3')): 0.5, (('A', '1'), ('B', '2')): 0.5}
+    {(('A', '1'), ('C', '3')): 0.25, (('B', '2'), ('C', '3')): 0.5,\
+ (('A', '1'), ('B', '2')): 0.5}
     """
     if comparisons is None:
         comparisons = {}

@@ -36,8 +36,9 @@ def classify_bool(rule, comparisons):
                 "rule classify: {0!r} is not True/False/None".format(ismatch))
     import logging
     logging.debug(
-        "rule classy on {0} vectors: {1} match, {2} non-match, {3} uncertain"\
-        .format(len(comparisons), len(matches), len(nonmatches), len(uncertain)))
+        "rule on {0} vectors: {1} match, {2} non-match, {3} uncertain"\
+        .format(len(comparisons), len(matches),
+                len(nonmatches), len(uncertain)))
     return matches, nonmatches, uncertain
 
 

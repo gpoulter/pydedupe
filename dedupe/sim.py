@@ -149,7 +149,8 @@ class Field(object):
     0.5
     """
 
-    def __init__(self, compare, field1, encode1=None, field2=None, encode2=None):
+    def __init__(
+        self, compare, field1, encode1=None, field2=None, encode2=None):
         from dedupe.get import getter
         self.compare = compare
         self.field1 = getter(field1)
@@ -202,7 +203,8 @@ class Average(Field):
     >>> field = lambda r: set(r[1].split(';'))
     >>> sim.Average(similarity, field, float)(('A', '0;1'), ('B', '1;2'))
     0.75
-    >>> sim.Average(similarity, field, float)(('A', '0;1;2'), ('B', '0;1;2;3;4'))
+    >>> sim.Average(similarity, field, float)(
+    ...             ('A', '0;1;2'), ('B', '0;1;2;3;4'))
     1.0
     """
 

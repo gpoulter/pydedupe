@@ -38,8 +38,9 @@ class OrderedDict(dict):
     Keep in mind that when updating from dict-literals the order is not
     preserved as these dicts are unsorted!
 
-    You can copy an OrderedDict like a dict by using the constructor, `copy.copy`
-    or the `copy` method and make deep copies with `copy.deepcopy`:
+    You can copy an OrderedDict like a dict by using the constructor,
+    `copy.copy` or the `copy` method and make deep copies with
+    `copy.deepcopy`:
 
     >>> from copy import copy, deepcopy
     >>> copy(d)

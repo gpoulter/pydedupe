@@ -28,18 +28,18 @@ def classify(comparisons, distance, maxiter=10):
 
     :type comparisons: {(`R`, `R`):[:class:`float`, ...], ...}
     :param comparisons: similarity vectors of compared record pairs.
-    :type distance: function([:class:`float`, ...], [:class:`float`, ...]) :class:`float`
+    :type distance: function([`float`, ...], [`float`, ...]) `float`
     :param distance: calculates distance between similarity vectors.
     :type maxiter: :class:`int`
     :param maxiter: maximum number of loops to adjust the centroid
-    :rtype: {(`R`, `R`)::class:`float`}, {(`R`, `R`)::class:`float`}
+    :rtype: {(`R`, `R`): `float`}, {(`R`, `R`): `float`}
     :return: classifier scores for match pairs and non-match pairs
 
     >>> ## simple test of clustering 1D vectors
     >>> from dedupe.classification.distance import L2
     >>> from dedupe.classification import kmeans
     >>> matches, nomatches = kmeans.classify(
-    ...   comparisons = {(1, 2):[0.5], (2, 3):[0.8], (3, 4):[0.9], (4, 5):[0.0]},
+    ...   comparisons={(1, 2):[0.5], (2, 3):[0.8], (3, 4):[0.9], (4, 5):[0.0]},
     ...   distance = L2)
     >>> sorted(matches.keys())
     [(1, 2), (2, 3), (3, 4)]

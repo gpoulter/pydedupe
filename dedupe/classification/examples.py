@@ -29,28 +29,34 @@ def load(comparator, records, outdir=None):
     :return: similarity vectors of the true comparisons and false comparisons.
 
     >>> from dedupe.classification import examples
-    >>> from ..compat import namedtuple
-    >>> R = namedtuple('Record', 'Match ID Name Age')
+    >>> import dedupe.compat as comp
+    >>> R = comp.namedtuple('Record', 'Match ID Name Age')
     >>> records = [
     ...  R('TRUE', '1', 'Joe1', 8), R('TRUE', '1', 'Joe2', 7),
     ...  R('TRUE', '1', 'Joe3', 3),
     ...  R('TRUE', '2', 'Abe1', 3), R('TRUE', '2', 'Abe2', 5),
     ...  R('FALSE', '3', 'Zip1', 9), R('FALSE', '3', 'Zip2', 1),
     ...  R('FALSE', '4', 'Nobody', 1)]
-    >>> from .. import sim
+    >>> import dedupe.sim as sim
     >>> numcomp = lambda x, y: 2**-abs(x-y)
-    >>> comparator = sim.Record(("V", sim.Field(numcomp, lambda r:r[3], float)))
-    >>> from ..csv import _fake_open
-    >>> streams = _fake_open(examples) # redirect open to StringIO
+    >>> comparator = sim.Record(
+    ...                  ("V", sim.Field(numcomp, lambda r:r[3], float)))
+    >>> import dedupe.csv as csv
+    >>> streams = csv._fake_open(examples) # redirect open to StringIO
     >>> t, f = examples.load(comparator, records, '/tmp')
     >>> sorted(t)
-    [Similarity(V=0.03125), Similarity(V=0.0625), Similarity(V=0.25), Similarity(V=0.5)]
+    [Similarity(V=0.03125), Similarity(V=0.0625),\
+ Similarity(V=0.25), Similarity(V=0.5)]
     >>> sorted(f)
     [Similarity(V=0.00390625)]
     >>> streams['/tmp/examples_false.csv'].getvalue().split()
     ['Score,Key,V', ',3,9', ',3,1', '0.0,True,0.00390625']
     >>> streams['/tmp/examples_true.csv'].getvalue().split()
-    ['Score,Key,V', ',1,8', ',1,3', '1.0,True,0.03125', ',1,7', ',1,3', '1.0,True,0.0625', ',1,8', ',1,7', '1.0,True,0.5', ',2,3', ',2,5', '1.0,True,0.25']
+    ['Score,Key,V',\
+ ',1,8', ',1,3', '1.0,True,0.03125',\
+ ',1,7', ',1,3', '1.0,True,0.0625',\
+ ',1,8', ',1,7', '1.0,True,0.5',\
+ ',2,3', ',2,5', '1.0,True,0.25']
     """
     from .. import block, sim
     t_rows = [r for r in records if r[0] in

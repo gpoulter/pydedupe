@@ -17,19 +17,19 @@ import math
 def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
     """Nearest-neighbour classification of comparisons vectors.
 
-    :type comparisons: {(`R`, `R`):[:class:`float`, ...], ...}
+    :type comparisons: {(`R`, `R`):[`float`, ...], ...}
     :param comparisons: similarity vectors of compared record pairs.
-    :type ex_matches: [[:class:`float`, ...], ...]
+    :type ex_matches: [[`float`, ...], ...]
     :param ex_matches: List of examples of matching similarity vectors.
-    :type ex_matches: [[:class:`float`, ...], ...]
+    :type ex_matches: [[`float`, ...], ...]
     :param ex_nonmatches: List examples of non-matching similarity vectors.
-    :type distance: function([:class:`float`, ...], [:class:`float`, ...]) :class:`float`
+    :type distance: function([`float`, ...], [`float`, ...]) `float`
     :param distance: calculates distance between similarity vectors.
-    :type rule: function(`R`, `R`, [:class:`float`, ...]) -> :class:`bool` or :keyword:`None`
+    :type rule: function(`R`, `R`, [`float`, ...]) -> `bool` or :keyword:`None`
     :param rule: optional rule-based override that returns a boolean for\
-    record pairs and similarities that definitely match/non-match, and :keyword:`None`\
+    record pairs and similarities that definitely match/non-match, and `None`\
     to fall back to nearest neighbour algorithm.
-    :rtype: {(`R`, `R`)::class:`float`}, {(`R`, `R`)::class:`float`}
+    :rtype: {(`R`, `R`): `float`}, {(`R`, `R`): `float`}
     :return: classifier scores for match pairs and non-match pairs
 
     >>> ## Test 1D vectors

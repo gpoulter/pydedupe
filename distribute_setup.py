@@ -355,11 +355,12 @@ def _fake_setuptools():
         return
     ws = pkg_resources.working_set
     try:
-        setuptools_dist = ws.find(pkg_resources.Requirement.parse('setuptools',
-                                  replacement=False))
+        setuptools_dist = ws.find(
+            pkg_resources.Requirement.parse('setuptools', replacement=False))
     except TypeError:
         # old distribute API
-        setuptools_dist = ws.find(pkg_resources.Requirement.parse('setuptools'))
+        setuptools_dist = ws.find(
+            pkg_resources.Requirement.parse('setuptools'))
 
     if setuptools_dist is None:
         log.warn('No setuptools distribution found')

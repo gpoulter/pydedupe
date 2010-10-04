@@ -156,7 +156,7 @@ class LinkCSV(object):
     class for constructing the index, and function for producing the index key.
     :type comparator: :class:`~sim.Record`
     :param comparator: takes a pair of records and returns a similarity vector.
-    :type classifier: function({(`R`, `R`):[:class:`float`]}) [(`R`, `R`)], [(`R`, `R`)]
+    :type classifier: function({(`R`, `R`):[float]}) [(`R`, `R`)], [(`R`, `R`)]
     :param classifier: separate record comparisons into matching/non-matching.
     :type records: [`R`, ...]
     :param records: input records for linkage analysis
