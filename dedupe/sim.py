@@ -5,6 +5,7 @@ Compare values, fields, and records for similarity
 .. moduleauthor:: Graham Poulter
 """
 
+import collections
 import logging
 
 from dedupe.dale import similarity as dale
@@ -291,8 +292,7 @@ class Record(_OrderedDict):
 
     def __init__(self, *simfuncs):
         super(Record, self).__init__(simfuncs)
-        import dedupe.compat as c
-        self.Similarity = c.namedtuple("Similarity", self.keys())
+        self.Similarity = collections.namedtuple("Similarity", self.keys())
 
     def __call__(self, A, B):
         return self.Similarity._make(

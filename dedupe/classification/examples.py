@@ -29,8 +29,8 @@ def load(comparator, records, outdir=None):
     :return: similarity vectors of the true comparisons and false comparisons.
 
     >>> from dedupe.classification import examples
-    >>> import dedupe.compat as comp
-    >>> R = comp.namedtuple('Record', 'Match ID Name Age')
+    >>> import collections
+    >>> R = collections.namedtuple('Record', 'Match ID Name Age')
     >>> records = [
     ...  R('TRUE', '1', 'Joe1', 8), R('TRUE', '1', 'Joe2', 7),
     ...  R('TRUE', '1', 'Joe3', 3),

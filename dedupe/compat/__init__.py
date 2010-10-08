@@ -1,16 +1,11 @@
 """
-Compatibility layer for Python 2.x
-==================================
+Compatibility for Python 2.6
+============================
 
-Provides namedtuple and OrderdDict.
+Provides OrderdDict.
 
 .. moduleauthor: Graham Poulter
 """
-
-try:
-    from collections import namedtuple
-except ImportError:
-    from dedupe.compat._namedtuple import namedtuple
 
 try:
     from collections import OrderedDict  # pylint: disable=E0611
