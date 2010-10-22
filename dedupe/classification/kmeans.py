@@ -18,6 +18,7 @@ import logging
 
 LOG = logging.getLogger(__name__)
 
+
 def classify(comparisons, distance, maxiter=10):
     """Classify record pair similarity vectors as matches and non-matches
     using K-Means (K=2) clustering around match and non-match centroids.
@@ -66,7 +67,7 @@ def classify(comparisons, distance, maxiter=10):
     vlen = len(v)
     vidx = range(vlen)
     comparisons[k] = v
-    LOG.debug("KMeans: Dimension {0}, maxiter {1}", vlen, maxiter)
+    LOG.debug("KMeans:[dimension=%r, maxiter=%r]", vlen, maxiter)
     str_vector = lambda vector: "[" + ", ".join(
         "%.4f" % v if v is not None else "None" for v in vector) + "]"
     safe_div = lambda n, d: n / d if d > 0 else None
@@ -76,8 +77,8 @@ def classify(comparisons, distance, maxiter=10):
                           if x[i] is not None) for i in vidx]
     low_centroid = [min(x[i] for x in comparisons.itervalues()
                          if x[i] is not None) for i in vidx]
-    LOG.debug("  Initial match centroid: " + str_vector(high_centroid))
-    LOG.debug("  Initial non-match centroid: " + str_vector(low_centroid))
+    LOG.debug("InitialMatch:[centroid=%s]", str_vector(high_centroid))
+    LOG.debug("InitialNonMatch:[centroid=%s]", str_vector(low_centroid))
 
     # Mapping key to (value, class assignment).
     # All items initially assigned to the "False" class (non-match).
@@ -122,10 +123,9 @@ def classify(comparisons, distance, maxiter=10):
         high_centroid = [safe_div(high_total[i], high_count[i]) for i in vidx]
         low_centroid = [safe_div(low_total[i], low_count[i]) for i in vidx]
 
-        LOG.debug("Iteration {0}: {1} vectors changed assignment.".\
-                      format(iters, n_changed))
-        LOG.debug(" Match centroid: " + str_vector(high_centroid))
-        LOG.debug("Non-match centroid: " + str_vector(low_centroid))
+        LOG.debug("Iteration:[iters=%r, changed=%r, match=%s, nonmatch=%s]",
+                  iters, n_changed, str_vector(high_centroid),
+                  str_vector(low_centroid))
 
     # Calculate a smoothed score as the log of the ratio of distances
     # of the similarity vector to each of the centroids.
@@ -136,6 +136,6 @@ def classify(comparisons, distance, maxiter=10):
                    in assignments.iteritems() if match)
     nomatches = dict((k, score(v)) for k, (v, match)
                      in assignments.iteritems() if not match)
-    LOG.debug("Classified {0}: {1} as matches and {2} as non-matches."\
-                  .format(len(comparisons), len(matches), len(nomatches)))
+    LOG.debug("KMeansFinished:[comparisons=%r, matches=%r, nonmatches=%r]",
+              len(comparisons), len(matches), len(nomatches))
     return matches, nomatches

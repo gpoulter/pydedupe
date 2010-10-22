@@ -15,6 +15,7 @@ import dedupe.sim as sim
 
 LOG = logging.getLogger(__name__)
 
+
 def write_indices(indices, outdir, prefix):
     """Write indices in CSV format.
 

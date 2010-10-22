@@ -16,6 +16,7 @@ import logging
 
 LOG = logging.getLogger(__name__)
 
+
 def adjacency_list(nodepairs):
     """Construct adjacency list from edge list provided as pairs of nodes.
     Nodes not listed in the edge list (thus not adjacent to anything) are
@@ -113,8 +114,7 @@ def write_csv(matches, records, ostream, projection):
     else:
         w.writerow(["GroupID"] + projection.fields)
     singles, groups = singles_and_groups(matches, records)
-    LOG.info("Grouping: %d groups and %d single records.",
-                 len(groups), len(singles))
+    LOG.info("Grouping:[groups=%r, singles=%r]", len(groups), len(singles))
     # Write groups of similar records
     for groupid, group in enumerate(groups):
         for row in group:

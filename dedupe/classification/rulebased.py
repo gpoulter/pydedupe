@@ -12,6 +12,7 @@ import logging
 
 LOG = logging.getLogger(__name__)
 
+
 def classify_bool(rule, comparisons):
     """Use provided rule to classify similarity vectors as
     matches (True), non-matches (False) and uncertain (None).
@@ -36,10 +37,8 @@ def classify_bool(rule, comparisons):
         else:
             raise ValueError(
                 "rule classify: {0!r} is not True/False/None".format(ismatch))
-    LOG.debug(
-        "rule on {0} vectors: {1} match, {2} non-match, {3} uncertain"\
-        .format(len(comparisons), len(matches),
-                len(nonmatches), len(uncertain)))
+    LOG.debug("ClassifyRule:[comps=%r, matches=%r, nonmatch=%r, uncertain=%r]",
+              len(comparisons), len(matches), len(nonmatches), len(uncertain))
     return matches, nonmatches, uncertain
 
 

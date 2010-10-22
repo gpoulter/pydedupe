@@ -108,5 +108,4 @@ class Index:
         >>> idx = Index()
         >>> idx.log_size('MyIndex')
         """
-        LOG.info("{0}: Contains {1} records.".format(
-            name, len(self.records)))
+        LOG.info("IndexSize:[name=%r, length=%r]", name, len(self.records))

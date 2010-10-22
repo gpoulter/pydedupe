@@ -163,13 +163,13 @@ class Index(dict):
         ...     print s % a
         >>> LOG.info = log
         >>> idx.log_size("NumIdx")
-        NumIdx: Records=3, Blocks=2, Largest=2, Avg=1.50.
+        Size:[name='NumIdx', recs=3, blocks=2, max=2, avg=1.50]
         """
         if self:
             records = sum(len(recs) for recs in self.itervalues())
             largest = max(len(recs) for recs in self.itervalues())
             blocks = len(self)
-            LOG.info("%s: Records=%d, Blocks=%d, Largest=%d, Avg=%.2f.",
-                name, records, blocks, largest, float(records) / blocks)
+            LOG.info("Size:[name=%r, recs=%r, blocks=%r, max=%r, avg=%.2f]",
+                     name, records, blocks, largest, float(records) / blocks)
         else:
-            LOG.info("%s: Empty index.",  name)
+            LOG.info("EmptyIndex:[name=%r]",  name)
