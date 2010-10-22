@@ -18,5 +18,8 @@ def suite():
     return unittest.defaultTestLoader.loadTestsFromNames(testmods)
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(
+        level=logging.DEBUG,
+        datefmt='%Y-%m-%dT%H:%M:%S',
+        format='%(asctime)s %(levelname)s - %(name)s - %(message)s')
     unittest.TextTestRunner(verbosity=2).run(suite())

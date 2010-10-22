@@ -15,6 +15,8 @@ douple-metaphone.
 
 import logging
 
+LOG = logging.getLogger(__name__)
+
 
 class Index(dict):
     """Mapping from index key to records.
@@ -159,7 +161,7 @@ class Index(dict):
         >>> idx = block.Index(makekey, [('A', 5.5), ('B', 4.5), ('C', 5.25)])
         >>> def log(s, *a):
         ...     print s % a
-        >>> logging.info = log
+        >>> LOG.info = log
         >>> idx.log_size("NumIdx")
         NumIdx: Records=3, Blocks=2, Largest=2, Avg=1.50.
         """
@@ -167,7 +169,7 @@ class Index(dict):
             records = sum(len(recs) for recs in self.itervalues())
             largest = max(len(recs) for recs in self.itervalues())
             blocks = len(self)
-            logging.info("%s: Records=%d, Blocks=%d, Largest=%d, Avg=%.2f.",
+            LOG.info("%s: Records=%d, Blocks=%d, Largest=%d, Avg=%.2f.",
                 name, records, blocks, largest, float(records) / blocks)
         else:
-            logging.info("%s: Empty index.",  name)
+            LOG.info("%s: Empty index.",  name)

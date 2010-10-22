@@ -149,8 +149,8 @@ def encode(st):
                 if (st[pos + 2] in ['I', 'E', 'H']
                     and st[pos + 2:pos + 4] != 'HU'):
                     #'accident', 'accede' 'succeed'
-                    if (pos == (first + 1) and st[first] == 'A') or \
-                       st[pos - 1:pos + 4] in ['UCCEE', 'UCCES']:
+                    if ((pos == (first + 1) and st[first] == 'A') or
+                       st[pos - 1:pos + 4] in ['UCCEE', 'UCCES']):
                         nxt = ('KS', 3)
                     #'bacci', 'bertucci', other italian
                     else:
@@ -210,8 +210,8 @@ def encode(st):
                     nxt = (None, 2)
                 else:
                     # e.g., 'laugh', 'McLaughlin', 'cough', 'rough', 'tough'
-                    if pos > (first + 2) and st[pos - 1] == 'U' \
-                       and st[pos - 3] in ['C', 'G', 'L', 'R', 'T']:
+                    if (pos > (first + 2) and st[pos - 1] == 'U'
+                        and st[pos - 3] in ['C', 'G', 'L', 'R', 'T']):
                         nxt = ('F', 2)
                     else:
                         if pos > first and st[pos - 1] != 'I':
@@ -279,8 +279,8 @@ def encode(st):
                 nxt = ('J', 'A')  # Yankelovich/Jankelowicz
             else:
                 # spanish pron. of e.g. 'bajador'
-                if st[pos - 1] in vowels and not is_slavo_germanic \
-                   and st[pos + 1] in ['A', 'O']:
+                if (st[pos - 1] in vowels and not is_slavo_germanic
+                   and st[pos + 1] in ['A', 'O']):
                     nxt = ('J', 'H')
                 else:
                     if pos == last:
@@ -471,8 +471,8 @@ def encode(st):
             # chinese pinyin e.g. 'zhao'
             if st[pos + 1] == 'H':
                 nxt = ('J',)
-            elif st[pos + 1:pos + 3] in ['ZO', 'ZI', 'ZA'] \
-                 or (is_slavo_germanic and pos > first and st[pos - 1] != 'T'):
+            elif (st[pos + 1:pos + 3] in ['ZO', 'ZI', 'ZA'] or
+                  (is_slavo_germanic and pos > first and st[pos - 1] != 'T')):
                 nxt = ('S', 'TS')
             else:
                 nxt = ('S',)

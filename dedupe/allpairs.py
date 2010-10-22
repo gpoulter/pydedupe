@@ -5,6 +5,8 @@ Compare all pairs of records
 
 import logging
 
+LOG = logging.getLogger(__name__)
+
 
 def within(comparator, records, comparisons=None):
     """Compute similarity vectors for all pairs of records in a list.
@@ -106,5 +108,5 @@ class Index:
         >>> idx = Index()
         >>> idx.log_size('MyIndex')
         """
-        logging.info("{0}: Contains {1} records.".format(
+        LOG.info("{0}: Contains {1} records.".format(
             name, len(self.records)))

@@ -13,6 +13,7 @@ import dedupe.csv as csv
 import dedupe.group as  group
 import dedupe.sim as sim
 
+LOG = logging.getLogger(__name__)
 
 def write_indices(indices, outdir, prefix):
     """Write indices in CSV format.
@@ -119,7 +120,8 @@ def filelog(path):
     """Add filehandler to main logger, writing to :file:`{path}`."""
     filehandler = logging.FileHandler(path)
     filehandler.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S'))
+        '%(asctime)s %(levelname)s - %(name)s - %(message)s',
+        '%Y-%m-%dT%H:%M:%S'))
     logging.getLogger().addHandler(filehandler)
 
 

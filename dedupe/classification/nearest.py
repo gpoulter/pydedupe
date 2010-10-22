@@ -13,6 +13,8 @@ example vector is a match or a non-match.
 import logging
 import math
 
+LOG = logging.getLogger(__name__)
+
 
 def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
     """Nearest-neighbour classification of comparisons vectors.
@@ -59,8 +61,8 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
     >>> sorted(nomatches.keys())
     [(1, 2), (4, 5)]
     """
-    logging.debug("Nearest neighbour example: {0} match, {1} non-match."\
-                  .format(len(ex_matches), len(ex_nonmatches)))
+    LOG.debug("Nearest neighbour example: {0} match, {1} non-match."\
+              .format(len(ex_matches), len(ex_nonmatches)))
     matches, nonmatches = {}, {}
     for pair, comparison in comparisons.iteritems():
         judge = rule(pair[0], pair[1], comparison) if rule else None
@@ -83,6 +85,6 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
         else:
             raise ValueError(
                 "rule returned {0!s}: should be True/False/None".format(judge))
-    logging.debug("Nearest neighbour: {0} matches and {1} non-matches".format(
-                 len(matches), len(nonmatches)))
+    LOG.debug("Nearest neighbour: {0} matches and {1} non-matches".format(
+        len(matches), len(nonmatches)))
     return matches, nonmatches
