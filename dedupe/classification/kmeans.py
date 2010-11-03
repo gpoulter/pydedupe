@@ -67,7 +67,7 @@ def classify(comparisons, distance, maxiter=10):
     vlen = len(v)
     vidx = range(vlen)
     comparisons[k] = v
-    LOG.debug("KMeans:[dimension=%r, maxiter=%r]", vlen, maxiter)
+    LOG.debug("KMeans:[dimension=%s, maxiter=%s]", vlen, maxiter)
     str_vector = lambda vector: "[" + ", ".join(
         "%.4f" % v if v is not None else "None" for v in vector) + "]"
     safe_div = lambda n, d: n / d if d > 0 else None
@@ -123,7 +123,7 @@ def classify(comparisons, distance, maxiter=10):
         high_centroid = [safe_div(high_total[i], high_count[i]) for i in vidx]
         low_centroid = [safe_div(low_total[i], low_count[i]) for i in vidx]
 
-        LOG.debug("Iteration:[iters=%r, changed=%r, match=%s, nonmatch=%s]",
+        LOG.debug("Iteration:[iters=%s, changed=%s, match=%s, nonmatch=%s]",
                   iters, n_changed, str_vector(high_centroid),
                   str_vector(low_centroid))
 
@@ -136,6 +136,6 @@ def classify(comparisons, distance, maxiter=10):
                    in assignments.iteritems() if match)
     nomatches = dict((k, score(v)) for k, (v, match)
                      in assignments.iteritems() if not match)
-    LOG.debug("KMeansFinished:[comparisons=%r, matches=%r, nonmatches=%r]",
+    LOG.debug("KMeansFinished:[comparisons=%s, matches=%s, nonmatches=%s]",
               len(comparisons), len(matches), len(nomatches))
     return matches, nomatches

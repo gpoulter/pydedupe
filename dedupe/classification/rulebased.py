@@ -37,7 +37,7 @@ def classify_bool(rule, comparisons):
         else:
             raise ValueError(
                 "rule classify: {0!r} is not True/False/None".format(ismatch))
-    LOG.debug("ClassifyRule:[comps=%r, matches=%r, nonmatch=%r, uncertain=%r]",
+    LOG.debug("ClassifyRule:[comps=%s, matches=%s, nonmatch=%s, uncertain=%s]",
               len(comparisons), len(matches), len(nonmatches), len(uncertain))
     return matches, nonmatches, uncertain
 

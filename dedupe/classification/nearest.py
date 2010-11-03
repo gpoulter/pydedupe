@@ -61,7 +61,7 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
     >>> sorted(nomatches.keys())
     [(1, 2), (4, 5)]
     """
-    LOG.debug("NeighbourExamples:[match=%r, nonmatch=%r]",
+    LOG.debug("NeighbourExamples:[match=%s, nonmatch=%s]",
               len(ex_matches), len(ex_nonmatches))
     matches, nonmatches = {}, {}
     for pair, comparison in comparisons.iteritems():
@@ -85,6 +85,6 @@ def classify(comparisons, ex_matches, ex_nonmatches, distance, rule=None):
         else:
             raise ValueError(
                 "rule returned {0!s}: should be True/False/None".format(judge))
-    LOG.debug("NearestNeighbour:[matches=%r, nonmatches=%r]",
+    LOG.debug("NearestNeighbour:[matches=%s, nonmatches=%s]",
               len(matches), len(nonmatches))
     return matches, nonmatches
