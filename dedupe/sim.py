@@ -389,12 +389,12 @@ class Indices(_OrderedDict):
         """Log the expected between-index comparisons."""
         if other is not None and other is not self:
             for (n1, i1), (n2, i2) in zip(self.items(), other.items()):
-                LOG.info("TwoIndices:[idx1=%s, idx2=%s, comparisons=%s]",
+                LOG.info("desc=TwoIndexCompare idx1=%s idx2=%s comparisons=%s",
                          n1, n2, i1.count(i2))
                 i1.log_size(n1)
                 i2.log_size(n2)
         else:
             for name, index in self.iteritems():
-                LOG.info("SelfIndices:[idx=%s, comparisons=%s]",
+                LOG.info("desc=OneIndexCompare idx=%s comparisons=%s",
                          name, index.count())
                 index.log_size(name)

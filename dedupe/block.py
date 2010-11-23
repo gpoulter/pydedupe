@@ -169,7 +169,7 @@ class Index(dict):
             records = sum(len(recs) for recs in self.itervalues())
             largest = max(len(recs) for recs in self.itervalues())
             blocks = len(self)
-            LOG.info("Size:[name=%s, recs=%s, blocks=%s, max=%s, avg=%.2f]",
+            LOG.info("desc=IdxSize name=%s recs=%s blocks=%s max=%s avg=%.2f",
                      name, records, blocks, largest, float(records) / blocks)
         else:
-            LOG.info("EmptyIndex:[name=%s]",  name)
+            LOG.info("desc=EmptyIndex name=%s",  name)
