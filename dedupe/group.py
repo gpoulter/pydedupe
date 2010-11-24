@@ -114,7 +114,7 @@ def write_csv(matches, records, ostream, projection):
     else:
         w.writerow(["GroupID"] + projection.fields)
     singles, groups = singles_and_groups(matches, records)
-    LOG.info("desc=Grouping groups=%s singles=%s", len(groups), len(singles))
+    LOG.info("name=Grouping groups=%s singles=%s", len(groups), len(singles))
     # Write groups of similar records
     for groupid, group in enumerate(groups):
         for row in group:
