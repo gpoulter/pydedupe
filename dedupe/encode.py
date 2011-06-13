@@ -98,8 +98,16 @@ def urldomain(text):
 
 
 def delnone(items):
-    """Remove None items from a list"""
+    """Filter None values out of items"""
     return [item for item in items if item is not None]
+
+
+def nullmax(items):
+    """Max of items, with None for empty list"""
+    try:
+        return max(items)
+    except ValueError:
+        return None
 
 
 def emaildomain(text):
