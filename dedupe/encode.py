@@ -18,7 +18,7 @@ def normspace(text):
     >>> normspace(' a  b  ')
     u'a b'
     """
-    return re.sub(ur"\s+", u" ", text.strip())
+    return re.sub(ur"\s+", u" ", text.strip()) if text else None
 
 
 def nospace(text):
@@ -27,7 +27,7 @@ def nospace(text):
     >>> nospace(" a  b  ")
     u'ab'
     """
-    return re.sub(ur"\s+", u"", text.strip())
+    return re.sub(ur"\s+", u"", text.strip()) if text else None
 
 
 def lowstrip(text):
@@ -36,7 +36,7 @@ def lowstrip(text):
     >>> lowstrip(" A  b  ")
     u'a b'
     """
-    return normspace(text.lower())
+    return normspace(text.lower()) if text else None
 
 
 def alnumsp(text):
@@ -45,7 +45,7 @@ def alnumsp(text):
     >>> alnumsp(" Joe (K) Ltd.  ")
     u'joe k ltd'
     """
-    return normspace(re.sub(ur"\W+", u" ", text.lower()))
+    return normspace(re.sub(ur"\W+", u" ", text.lower())) if text else None
 
 
 def digits(text):
@@ -54,7 +54,7 @@ def digits(text):
     >>> digits("+27 (21) 1234567")
     '27211234567'
     """
-    return re.sub(ur"\D+", "", text.strip())
+    return re.sub(ur"\D+", "", text.strip()) if text else None
 
 
 def sorted_words(text):
@@ -63,7 +63,7 @@ def sorted_words(text):
     >>> sorted_words('c a b')
     'a b c'
     """
-    return ' '.join(sorted(text.split(' ')))
+    return ' '.join(sorted(text.split(' '))) if text else None
 
 
 def reverse(text):
@@ -72,7 +72,7 @@ def reverse(text):
     >>> reverse('abc')
     'cba'
     """
-    return text[::-1]
+    return text[::-1] if text else None
 
 
 def urldomain(text):
@@ -89,6 +89,8 @@ def urldomain(text):
     >>> urldomain("http://www.google.com/a/b")
     'google.com'
     """
+    if not text:
+        return None
     match = re.match(ur'(?:http://)?(?:www\.)?([^/]+)(?:/.*)?', text)
     if match is None:
         return text
@@ -103,6 +105,8 @@ def emaildomain(text):
     >>> emaildomain("abc")
     'abc'
     """
+    if not text:
+        return None
     match = re.match(ur'([^@]+)@(.+)', text)
     if match is None:
         return text
@@ -159,6 +163,8 @@ class Normaliser:
 
     def normalise(self, text):
         """Convert aliases to primary form in the given text."""
+        if not text:
+            return None
         for primary, regex in self.regexes.iteritems():
             text = regex.sub(primary, text)
         return text.strip()

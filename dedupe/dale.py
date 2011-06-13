@@ -58,6 +58,8 @@ def distance(seq1, seq2):
     >>> dale.distance("dbca", "abcd")
     2
     """
+    if seq1 is None or seq2 is None:
+        return None
     # codesnippet:D0DE4716-B6E6-4161-9219-2903BF8F547F
     # Conceptually, this is based on a len(seq1) + 1 * len(seq2) + 1 matrix.
     # However, only the current and two previous rows are needed at once,
@@ -94,7 +96,7 @@ def similarity(a, b):
     >>> print dale.similarity("abcd", "")
     None
     """
-    if not a or not b:
+    if a is None or b is None:
         return None
     else:
         return 1.0 - float(distance(a, b)) / max(len(a), len(b))

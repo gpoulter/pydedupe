@@ -23,6 +23,8 @@ def distance(a, b):
     >>> levenshtein.distance("dbca","abcd")
     2
     """
+    if a is None or b is None:
+        return None
     n, m = len(a), len(b)
     if n > m:
         # Make sure n <= m, to use O(min(n, m)) space
@@ -52,7 +54,7 @@ def similarity(a, b):
     >>> print levenshtein.similarity("abcd", "")
     None
     """
-    if not a or not b:
+    if a is None or b is None:
         return None
     else:
         return 1.0 - float(distance(a, b)) / max(len(a), len(b))
