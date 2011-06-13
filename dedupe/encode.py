@@ -97,6 +97,11 @@ def urldomain(text):
     return match.group(1)
 
 
+def delnone(items):
+    """Remove None items from a list"""
+    return [item for item in items if item is not None]
+
+
 def emaildomain(text):
     """Obtain the domain from the text of an email address.
 
