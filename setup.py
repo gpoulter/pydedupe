@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """Library for record linkage: identifying pairs of similar records.
 
 From `Wikipedia <http://en.wikipedia.org/wiki/Record_linkage>`::
