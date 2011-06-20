@@ -324,7 +324,7 @@ class Indices(_OrderedDict):
     >>> records1 = [('A', 5.5), ('B', 4.5), ('C', 5.25)]
     >>> records2 = [('D', 5.5), ('E', 4.5), ('F', 5.25)]
     >>> sim.Indices(strategy, records1)
-    OrderedDict([('MyIndex', {4: [('B', 4.5)], 5: [('A', 5.5), ('C', 5.25)]})])
+    Indices([('MyIndex', {4: [('B', 4.5)], 5: [('A', 5.5), ('C', 5.25)]})])
     >>> sim.Indices.check_strategy((1, 2, 3))
     Traceback (most recent call last):
         ...

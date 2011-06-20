@@ -21,6 +21,15 @@ def normspace(text):
     return re.sub(ur"\s+", u" ", text.strip()) if text else None
 
 
+def alnumsp(text):
+    """Normalise space, strip non-alphanumeric characters.
+
+    >>> alnumsp(" Joe (K) Ltd.  ")
+    u'joe k ltd'
+    """
+    return re.sub(ur"\W+", u" ", text.lower()).strip() if text else None
+
+
 def nospace(text):
     """Strip all whitespace.
 
@@ -37,15 +46,6 @@ def lowstrip(text):
     u'a b'
     """
     return normspace(text.lower()) if text else None
-
-
-def alnumsp(text):
-    """Normalise space, strip punctuation.
-
-    >>> alnumsp(" Joe (K) Ltd.  ")
-    u'joe k ltd'
-    """
-    return normspace(re.sub(ur"\W+", u" ", text.lower())) if text else None
 
 
 def digits(text):

@@ -92,8 +92,10 @@ def similarity(a, b):
     >>> dale.similarity("abcd", "abdc")
     0.75
     >>> dale.similarity("abcdef", "abcd")
-    0.66666666666666674
+    0.6666666666666667
     >>> print dale.similarity("abcd", "")
+    0.0
+    >>> print dale.similarity("abcd", None)
     None
     """
     if a is None or b is None:

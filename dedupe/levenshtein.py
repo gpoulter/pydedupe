@@ -52,6 +52,8 @@ def similarity(a, b):
     >>> levenshtein.similarity("abcd", "abdc")
     0.5
     >>> print levenshtein.similarity("abcd", "")
+    0.0
+    >>> print levenshtein.similarity("abcd", None)
     None
     """
     if a is None or b is None:

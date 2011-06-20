@@ -38,12 +38,12 @@ class Index(dict):
     >>> a.count()
     1
     >>> a.compare(compare)
-    {(('A', 5.5), ('C', 5.0)): 0.70710678118654757}
+    {(('A', 5.5), ('C', 5.0)): 0.7071067811865476}
     >>> b = block.Index(makekey, [('D', 5.5), ('E', 4.5)])
     >>> a.count(b)
     3
-    >>> a.compare(compare, b)
-    {(('C', 5.0), ('D', 5.5)): 0.70710678118654757,\
+    >>> a.compare(compare, b)  #doctest: +NORMALIZE_WHITESPACE
+    {(('C', 5.0), ('D', 5.5)): 0.7071067811865476,\
     (('A', 5.5), ('D', 5.5)): 1.0, (('B', 4.5), ('E', 4.5)): 1.0}
     """
 
