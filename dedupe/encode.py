@@ -22,12 +22,21 @@ def normspace(text):
 
 
 def alnumsp(text):
-    """Normalise space, strip non-alphanumeric characters.
+    """Lowercase, normalise space and strip non-alphanumeric characters.
 
     >>> alnumsp(" Joe (K) Ltd.  ")
     u'joe k ltd'
     """
     return re.sub(ur"\W+", u" ", text.lower()).strip() if text else None
+
+
+def alnumcase(text):
+    """Normalise space and strip non-alphanumeric chars, maintaining case.
+
+    >>> alnumcase(" Joe (K) Ltd.  ")
+    u'Joe K Ltd'
+    """
+    return re.sub(ur"\W+", u" ", text).strip() if text else None
 
 
 def nospace(text):
