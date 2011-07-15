@@ -98,7 +98,7 @@ def similarity(a, b):
     >>> print dale.similarity("abcd", None)
     None
     """
-    if a is None or b is None:
+    if not a or not b:
         return None
     else:
         return 1.0 - float(distance(a, b)) / max(len(a), len(b))
