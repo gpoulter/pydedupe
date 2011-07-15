@@ -110,7 +110,8 @@ class Writer:
 
     def writerow(self, row):
         """Write tuple to file"""
-        self.writer.writerow([s.encode(self.encoding) for s in row])
+        self.writer.writerow([s.encode(self.encoding, errors='ignore')
+                              for s in row])
 
     def writerows(self, rows):
         """Write iteration of tuples to file"""
