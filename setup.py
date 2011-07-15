@@ -9,15 +9,7 @@ From `Wikipedia <http://en.wikipedia.org/wiki/Record_linkage>`::
   common. A data set that has undergone record linkage is said to be linked.
 """
 
-try:
-    from setuptools import setup
-except ImportError:
-    try:
-        from distribute_setup import use_setuptools
-        use_setuptools()
-        from setuptools import setup
-    except ImportError:
-        from distutils.core import setup
+from setuptools import setup
 
 extra = {}
 import sys
