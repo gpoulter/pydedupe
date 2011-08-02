@@ -4,6 +4,11 @@ Convert example pairs into training vectors
 
 .. moduleauthor:: Graham Poulter
 """
+from os.path import join
+from contextlib import nested
+import dedupe.block as block
+import dedupe.sim as sim
+from dedupe.linkcsv import write_comparisons
 
 
 def load(comparator, records, outdir=None):
@@ -58,8 +63,6 @@ def load(comparator, records, outdir=None):
  ',1,8', ',1,7', '1.0,True,0.5',\
  ',2,3', ',2,5', '1.0,True,0.25']
     """
-    import dedupe.block as block
-    import dedupe.sim as sim
     t_rows = [r for r in records if r[0] in
               ['TRUE', 'T', 'YES', 'Y', '1', 1, True]]
     f_rows = [r for r in records if r[0] in
@@ -71,9 +74,6 @@ def load(comparator, records, outdir=None):
     f_sims = f_indices["Key"].compare(comparator)
     # a debug dump of comparisons to CSV to output directory
     if outdir:
-        from os.path import join
-        from contextlib import nested
-        from ..linkcsv import write_comparisons
         with nested(open(join(outdir, "examples_true.csv"), 'wb'),
                     open(join(outdir, "examples_false.csv"), 'wb')) as\
              (o_true, o_false):

@@ -12,7 +12,8 @@ Double Metaphone phonetic encoding
    - Updated Feb 14, 2007 - Found a typo in the 'gh' section
    - Updated Dec 17, 2007 - Bugs fixed in 'S', 'Z', and 'J' sections.
 
-   .. _`blog post`: http://atomboy.isa-geek.com:8080/plone/Members/acoil/programing/double-metaphone
+.. _`blog post`: http://atomboy.isa-geek.com:8080/plone/\
+Members/acoil/programing/double-metaphone
 
 .. moduleauthor:: Andrew Collins
 """

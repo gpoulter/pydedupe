@@ -15,7 +15,7 @@ douple-metaphone.
 
 import logging
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('dedupe.block')
 
 
 class Index(dict):

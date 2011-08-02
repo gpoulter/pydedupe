@@ -11,12 +11,11 @@ is low when there are lots of dimensions or missing values.
 
 .. moduleauthor:: Graham Poulter
 """
-
 from __future__ import division
-
 import logging
+import math
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('dedupe.kmeans')
 
 
 def classify(comparisons, distance, maxiter=10):
@@ -60,6 +59,7 @@ def classify(comparisons, distance, maxiter=10):
     >>> sorted(nomatches.keys())
     [(4, 5)]
     """
+    # pylint:disable=C0103
     # Get length of the comparison vector
     if len(comparisons) == 0:
         return set(), set()
@@ -129,7 +129,6 @@ def classify(comparisons, distance, maxiter=10):
 
     # Calculate a smoothed score as the log of the ratio of distances
     # of the similarity vector to each of the centroids.
-    import math
     score = lambda v: math.log10((distance(v, low_centroid) + 0.1)
                                   / (distance(v, high_centroid) + 0.1))
     matches = dict((k, score(v))  for k, (v, match)

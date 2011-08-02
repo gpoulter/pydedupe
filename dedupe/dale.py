@@ -26,7 +26,8 @@ Damerau-Levenshtein distance algorithm by `mwh.geek.nz`_::
    Please leave that comment intact if you're posting a derivative somewhere,
    and add your own.
 
-.. _`mwh.geek.nz`: http://mwh.geek.nz/2009/04/26/python-damerau-levenshtein-distance/
+.. _`mwh.geek.nz`: http://mwh.geek.nz/2009/04/26/\
+python-damerau-levenshtein-distance/
 
 .. moduleauthor:: mwh.geek.nz
 """

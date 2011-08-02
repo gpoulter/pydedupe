@@ -4,16 +4,15 @@ Helpers for record linkage with CSV files for input and output
 
 .. moduleauthor:: Graham Poulter
 """
-
 import contextlib as ctx
 import logging
 import os
-
+from os.path import join
 import dedupe.csv as csv
 import dedupe.group as  group
 import dedupe.sim as sim
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('dedupe.linkcsv')
 
 
 def write_indices(indices, outdir, prefix):
@@ -46,7 +45,6 @@ def write_indices(indices, outdir, prefix):
             for row in rows:
                 writer.writerow([unicode(indexkey)]
                                 + [unicode(v) for v in row])
-    from os.path import join
     for indexname, index in indices.iteritems():
         with open(join(outdir, prefix + indexname + '.csv'), 'wb') as stream:
             write_index(index, stream)

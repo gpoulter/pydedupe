@@ -4,8 +4,8 @@ Geographic distance and similarity
 
 .. moduleauthor:: Graham Poulter
 """
-
 from __future__ import division
+import math
 
 
 def getter(latfield, lonfield):
@@ -86,7 +86,6 @@ def distance(loc1, loc2):
     >>> geo.distance((0.0, 0.0), (0.0, 1.0))
     111.21237993706758
     """
-    import math
     earth_radius = 6372.0
     deg2rad = math.pi / 180.0
     long1, lat1 = loc1[0] * deg2rad, loc1[1] * deg2rad
@@ -96,12 +95,12 @@ def distance(loc1, loc2):
                        + math.sin(lat1) * math.sin(lat2))
     #print loc1, loc2, cosine_distance
     if cosine_distance >= 1.0:
-        distance = 0
+        result = 0
     else:
-        distance = earth_radius * math.acos(cosine_distance)
-    if (distance <= 0.003):
-        distance = 0
-    return distance
+        result = earth_radius * math.acos(cosine_distance)
+    if (result <= 0.003):
+        result = 0
+    return result
 
 
 class Similarity:

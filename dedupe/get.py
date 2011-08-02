@@ -2,6 +2,8 @@
 Getters: functions to obtain a field values from a record
 =========================================================
 """
+import collections
+import operator
 
 
 def dictattr(fieldspec):
@@ -30,8 +32,6 @@ def getter(fieldspec):
     >>> get.getter(lambda r: r[0]+r[1])(('a','b','c'))
     'ab'
     """
-    import collections
-    import operator
     if isinstance(fieldspec, collections.Callable):
         return fieldspec
     elif isinstance(fieldspec, int):
@@ -56,7 +56,6 @@ def fallback(fields, test=bool, default=""):
     >>> getfield(rec3)
     ''
     """
-    import collections
     if not isinstance(test, collections.Callable):
         raise TypeError("test: {0!r} is not callable".format(test))
     getters = [getter(f) for f in fields]

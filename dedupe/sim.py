@@ -12,7 +12,7 @@ from dedupe.dale import similarity as dale
 from dedupe.levenshtein import similarity as levenshtein
 from dedupe.compat import OrderedDict as _OrderedDict
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('dedupe.sim')
 
 
 class Convert(object):

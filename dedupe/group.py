@@ -9,12 +9,11 @@ placed at the top of the files.
 .. moduleauthor::: Graham Poulter
 
 """
-
 from dedupe import csv
-
+from collections import defaultdict
 import logging
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('dedupe.group')
 
 
 def adjacency_list(nodepairs):
@@ -32,7 +31,6 @@ def adjacency_list(nodepairs):
     >>> dict(group.adjacency_list(edges))
     {1: [2, 5], 2: [1, 3], 3: [2], 4: [5], 5: [4, 1]}
     """
-    from collections import defaultdict
     neighbours = defaultdict(list)
     for node1, node2 in nodepairs:
         neighbours[node1].append(node2)
@@ -108,18 +106,18 @@ def write_csv(matches, records, ostream, projection):
     :rtype: [T, ...], [[T, ...], ...]
     :return: list of single rows (no matches) and groups (mutually matching)
     """
-    w = csv.Writer(ostream)
+    writer = csv.Writer(ostream)
     if projection is None:
         projection = lambda x: x
     else:
-        w.writerow(["GroupID"] + projection.fields)
+        writer.writerow(["GroupID"] + projection.fields)
     singles, groups = singles_and_groups(matches, records)
     LOG.info("name=Grouping groups=%s singles=%s", len(groups), len(singles))
     # Write groups of similar records
     for groupid, group in enumerate(groups):
         for row in group:
-            w.writerow((str(groupid),) + projection(row))
+            writer.writerow((str(groupid),) + projection(row))
     # Write single records
     for row in singles:
-        w.writerow(("",) + projection(row))
+        writer.writerow(("",) + projection(row))
     return singles, groups

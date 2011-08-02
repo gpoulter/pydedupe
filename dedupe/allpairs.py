@@ -5,7 +5,7 @@ Compare all pairs of records
 
 import logging
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('dedupe.allpairs')
 
 
 def within(comparator, records, comparisons=None):
@@ -87,8 +87,8 @@ class Index:
     def count(self, other=None):
         """Compute number of comparisons required."""
         if other is None or other is self:
-            N = len(self.records)
-            return N * (N + 1) / 2
+            nrecs = len(self.records)
+            return nrecs * (nrecs + 1) / 2
         else:
             return len(self.records) * len(other.records)
 
