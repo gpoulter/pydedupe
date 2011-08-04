@@ -12,6 +12,17 @@ import re
 from dedupe.dmetaphone import encode as dmetaphone
 
 
+def scale(value, low=0.0, high=1.0, missing=None):
+    """Scale values between low and high into the (0,1) range"""
+    if value is None:
+        return missing
+    if value <= self.low:
+        return 0.0
+    if  value >= self.high:
+        return 1.0
+    return (value - self.low) / (self.high - self.low)
+
+
 def normspace(text):
     """Strip multiple and trailing spaces.
 
