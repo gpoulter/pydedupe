@@ -1,9 +1,5 @@
-"""
-Convert example pairs into training vectors
-===========================================
+"""Convert example pairs into training vectors"""
 
-.. moduleauthor:: Graham Poulter
-"""
 from os.path import join
 from contextlib import nested
 import dedupe.block as block

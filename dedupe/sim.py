@@ -1,9 +1,4 @@
-"""
-Compare values, fields, and records for similarity
-==================================================
-
-.. moduleauthor:: Graham Poulter
-"""
+"""Compare values, fields, and records for similarity"""
 
 import collections
 import logging

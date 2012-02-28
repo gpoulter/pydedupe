@@ -1,6 +1,4 @@
-"""
-Damerau-Levenshtein string distance
-===================================
+"""Damerau-Levenshtein string distance
 
 Damerau-Levenshtein distance algorithm by `mwh.geek.nz`_::
 
@@ -28,8 +26,6 @@ Damerau-Levenshtein distance algorithm by `mwh.geek.nz`_::
 
 .. _`mwh.geek.nz`: http://mwh.geek.nz/2009/04/26/\
 python-damerau-levenshtein-distance/
-
-.. moduleauthor:: mwh.geek.nz
 """
 
 from __future__ import division

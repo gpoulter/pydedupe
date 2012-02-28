@@ -1,7 +1,4 @@
-"""
-Getters: functions to obtain a field values from a record
-=========================================================
-"""
+"""Getters: functions to obtain a field values from a record"""
 import collections
 import operator
 

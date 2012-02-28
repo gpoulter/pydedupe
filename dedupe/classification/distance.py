@@ -1,6 +1,4 @@
-"""
-Distances between similarity vectors
-====================================
+"""Distances between similarity vectors
 
 These distance functions drops any dimensions valued as `None` in either
 `vec1` or `vec2`.  The
@@ -11,8 +9,6 @@ pair of records cannot be compared on a field due to missing data.  Replacing
 a missing similarity with 0.2 puts the similarity vector closer to a
 non-match example in nearest-neighbour classification.  Dropping a missing
 similarity from the distance calculation excludes it from the decision.
-
-.. moduleauthor:: Graham Poulter
 """
 
 import math

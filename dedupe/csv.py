@@ -1,7 +1,5 @@
 # coding=utf8
-"""
-Read and write CSV files with heading rows
-==========================================
+"""Read and write CSV files with heading rows
 
 The default file encoding is Windows cp1252, but any non-null-using encoding
 (such as utf-8) may be specified. Text is converted to unicode strings on
@@ -10,8 +8,6 @@ reading, and from unicode to native file encoding on writing.
 The first row of the files must specify headings for each column, and headings
 must be valid Python identifiers for `namedtuple` attributes.  For files
 with no heading, a 'fields' parameter is used to construct the namedtuple.
-
-.. moduleauthor:: Graham Poulter
 """
 
 from __future__ import with_statement

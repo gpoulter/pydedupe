@@ -71,5 +71,4 @@ class TestLinkCSV(unittest.TestCase):
         linker.write_all()
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
     unittest.main()

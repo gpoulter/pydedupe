@@ -1,12 +1,8 @@
-"""
-Rule-based classification into match/non-match
-==============================================
+"""Rule-based classification into match/non-match
 
 Uses a function of the similarity vector to determine match or non-match.  Note
 that Nearest-Neighbour classifier allows an override rule to assist
 classification.
-
-.. moduleauthor:: Graham Poulter
 """
 import logging
 

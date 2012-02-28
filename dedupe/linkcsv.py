@@ -1,9 +1,5 @@
-"""
-Helpers for record linkage with CSV files for input and output
-==============================================================
+"""Helpers for record linkage with CSV files for input and output"""
 
-.. moduleauthor:: Graham Poulter
-"""
 import contextlib as ctx
 import logging
 import os

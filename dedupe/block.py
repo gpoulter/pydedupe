@@ -1,6 +1,4 @@
-"""
-Block index that groups records sharing a key
-=============================================
+"""Block index that groups records sharing a key
 
 The Index is a dictionary from key to a set of records.  When a record
 similarity function is applied, it only compares pairs of records that
@@ -9,8 +7,6 @@ have same index key, which saves a lot of comparisons.
 For example, indexing on the double-metaphone of a field will mean only
 computing similarity vectors for pairs records that have the same
 douple-metaphone.
-
-.. moduleauthor:: Graham Poulter
 """
 
 import logging

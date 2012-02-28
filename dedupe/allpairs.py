@@ -1,7 +1,4 @@
-"""
-Compare all pairs of records
-============================
-"""
+"""Compare all pairs of records"""
 
 import logging
 

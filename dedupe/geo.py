@@ -1,9 +1,5 @@
-"""
-Geographic distance and similarity
-==================================
+"""Geographic distance and similarity"""
 
-.. moduleauthor:: Graham Poulter
-"""
 from __future__ import division
 import math
 
@@ -95,11 +91,11 @@ def distance(loc1, loc2):
                        + math.sin(lat1) * math.sin(lat2))
     #print loc1, loc2, cosine_distance
     if cosine_distance >= 1.0:
-        result = 0
+        result = 0.0
     else:
         result = earth_radius * math.acos(cosine_distance)
     if (result <= 0.003):
-        result = 0
+        result = 0.0
     return result
 
 

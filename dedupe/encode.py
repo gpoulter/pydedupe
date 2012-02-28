@@ -1,10 +1,6 @@
-"""
-Transform and encode values
-===========================
+"""Transform and encode values
 
 Values can be encoded for indexing, or transformed prior to comparison.
-
-.. moduleauthor:: Graham Poulter
 """
 
 import re

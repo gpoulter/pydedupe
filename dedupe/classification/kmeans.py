@@ -1,6 +1,4 @@
-"""
-K-Means clustering of vectors into match/non-match
-==================================================
+"""K-Means clustering of vectors into match/non-match
 
 Please note that K-Means training results in two centroid vectors, one for
 matches and one for non-matches.  Each similarity vector (for a pair of input
@@ -8,8 +6,6 @@ records) is classified by whether the match or non-match centroid is closer.
 
 This results in a linear classification threshold, and the accuracy
 is low when there are lots of dimensions or missing values.
-
-.. moduleauthor:: Graham Poulter
 """
 from __future__ import division
 import logging

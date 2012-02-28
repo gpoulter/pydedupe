@@ -1,14 +1,10 @@
-"""
-Group matched pairs of records together
-=======================================
+"""Group matched pairs of records together
 
 If A matches B and B matches C, then group A, B and C together.  Use
 `func`:write_csv to output original records reorderd to have numbered groups
 placed at the top of the files.
-
-.. moduleauthor::: Graham Poulter
-
 """
+
 from dedupe import csv
 from collections import defaultdict
 import logging
