@@ -1,0 +1,9 @@
+protect *.egg-info/
+protect *.pyc
+protect /*
+protect /.*
+include /dedupe
+include /setup.py
+exclude *.pyc
+exclude /*
+exclude /.*
