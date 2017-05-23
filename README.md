@@ -1,10 +1,14 @@
-# Python deduplication library
+# PyDedupe
 
-PyDedupe is a Python library for performing record linkage, identifying similar groups of records. 
+![PyDedupe Logo](https://raw.githubusercontent.com/gpoulter/pydedupe/master/pydedupe.png)
 
-I wrote it while working at Naspers, and received permissino to publish it under the GNU General Public License.   
+PyDedupe is a Python library for performing record linkage, which identifies similar groups of records. 
 
-PyDedupe was written to remove the limitations of then-existing record linkage tools by supporting a general model of tabular data and decoupling the input formats from the algorithm. FEBRL, the only other Python record linkage library supported only scalar-valued fields. PyDedupe supports row transformations for generated fields, multi-valued fields derived from delimited values in a column or combined from several columns, and compound values (such as geographic coordinates).  The API is operates on iterations of tuples so that it is decoupled from input formats (such as a database or delimited text file).   A convenience module is provided for loading records from CSV files and re-writing them with similar records grouped together.
+I wrote and used PyDedupe at Naspers in 2007 and 2008, and received permission to publish it under the GNU General Public License.   
+
+PyDedupe supports a general model of tabular data and decouples the input formats from the algorithm. 
+
+The only other open-source Python record-linkage library at the time was FEBRL which supported only scalar-valued fields. PyDedupe supports row transformations for generated fields, multi-valued fields derived from delimited values in a column or combined from several columns, and compound values such as geographic coordinates.  The API operates on iterations of tuples so that it is decoupled from input which could come from databases or files. A convenience module loads records from CSV files and re-writes them with similar records grouped together.
 
 The general strategy for record linkage is:
 
